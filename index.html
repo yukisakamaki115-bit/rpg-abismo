@@ -6,16 +6,16 @@
   <title>Éclipse — O Salão do Elenco</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=150" />
-  <link rel="stylesheet" href="css/escolha.css?v=150" />
-  <script src="js/theme.js?v=150"></script>
+  <link rel="stylesheet" href="css/style.css?v=152" />
+  <link rel="stylesheet" href="css/escolha.css?v=152" />
+  <script src="js/theme.js?v=152"></script>
   <!-- Ordem que importa: a config entra antes do vestido (js/store.js), e o vestido antes de
        qualquer tela ler ou escrever localStorage. O store.js troca o setItem/removeItem do
        navegador pelo par "grava local + atravessa para o Firestore", então ele tem que ser o
        primeiro a chegar. O portão não carrega ficha nenhuma: só o elenco. -->
-  <script src="js/firebase-config.js?v=150"></script>
-  <script src="js/store.js?v=150"></script>
-  <script src="js/conta.js?v=150"></script>
+  <script src="js/firebase-config.js?v=152"></script>
+  <script src="js/store.js?v=152"></script>
+  <script src="js/conta.js?v=152"></script>
 </head>
 <body class="escolha-body">
 
@@ -29,7 +29,8 @@
     <p class="salao-sub">Crônicas de um palco esquecido</p>
     <p class="salao-peca">
       O elenco já está pronto e espera nos bastidores. <b>Escolha o personagem que você vai
-      jogar</b>: assim que você clicar, o card dele fica marcado como
+      jogar</b>: passe o mouse (ou aperte <b>detalhes</b>) para ler as habilidades e a história
+      de cada um. Assim que você clicar, o card dele fica marcado como
       <b>✔ JÁ SELECIONADO</b> — e a mesa inteira enxerga a marca, não só o seu aparelho.
     </p>
 
@@ -72,6 +73,6 @@
     <p class="salaoCredits">Éclipse · salão do elenco · <span id="salaoAno"></span></p>
   </footer>
 
-  <script src="js/escolha.js?v=150"></script>
+  <script src="js/escolha.js?v=152"></script>
 </body>
 </html>

@@ -1,8 +1,8 @@
 /* ===== Éclipse — js/escolha.js: o salão onde o jogador escolhe quem vai jogar =====
    Por que esta tela existe: os cinco personagens já estão prontos. Então em vez de pedir
    login e senha antes de mostrar qualquer coisa, a porta de entrada agora é o próprio elenco:
-   o jogador lê a vida, as habilidades e a história de cada um, clica, e o card vira
-   "✔ JÁ SELECIONADO".
+   o jogador vê NOME e IDADE de cada um, passa o mouse (ou toca no "detalhes") e lê vida,
+   habilidades e história. Ao clicar, o card vira "✔ JÁ SELECIONADO".
 
    A escolha é DA MESA, não do aparelho: ela mora na chave `eclipse_escolha_v1`, que não está
    na lista de chaves locais do js/store.js — ou seja, ela sincroniza sozinha. Quando um
@@ -14,7 +14,17 @@
    do teclado, não da mesa. O nome que ele digita aqui é o que aparece no selo.
 
    Nada aqui reescreve ficha nenhuma: só LEMOS as chaves que as fichas já salvam
-   (`hp`/`hpMax`/`san`/`sanMax` têm o mesmo nome nas cinco, então uma função serve todas). */
+   (`hp`/`hpMax`/`san`/`sanMax` têm o mesmo nome nas cinco, então uma função serve todas).
+
+   ─── A REGRA DE OURO DA VERSÃO NOVA (06/10): esta tela NUNCA redesenha o salão inteiro ───
+   Na primeira versão, cada evento `storage` chamava `render()`, e o vestido do js/store.js
+   dispara UM desses eventos por chave que desce do banco. Com cinco fichas, cinco retratos
+   em base64 e os logs da mesa na conta, abrir o portão virava dezenas de
+   `innerHTML = <5 cards>` em sequência: o navegador decodificava retrato grande de novo a
+   cada vez, e a página travava. Agora: `render()` roda UMA vez (no boot), e tudo o que
+   envelhece depois — selo, vida, "há 3 min", quem está no corpo — é corrigido NO LUGAR por
+   `atualizar()`, com os avisos da rede ajuntados num debounce de 400 ms.
+   tocando só o texto que mudou. Os retratos não são tocados de novo. */
 (function (global) {
   'use strict';
 
@@ -25,10 +35,13 @@
   /* Os números de vida/sanidade escritos aqui são o PADRÃO de cada ficha (o que a pessoa vê
      antes de alguém mexer). Se a chave da ficha já existir, a barra mostra o valor real que
      está salvo — e como as fichas salvam em `hp/hpMax/san/sanMax` todas, não precisa de
-     tradução por personagem. */
+     tradução por personagem.
+     `idade`: a Clara são os 17 da ficha dela (mestre escreveu). Os outros quatro não tinham
+     idade escrita em lugar nenhum, então estes aqui são escolha nossa — troque o número na
+     tabela e o card obedece. */
   var PERSONAGENS = [
     {
-      id: 'flora', emoji: '🌹', nome: 'Flora', classe: 'A Bailarina',
+      id: 'flora', emoji: '🌹', nome: 'Flora', classe: 'A Bailarina', idade: 24,
       chave: 'eclipse_flora_v1', destino: 'flor.html',
       hpNome: 'Vida', hpMax: 30, sanNome: 'Sanidade', sanMax: 100,
       habilidades: [
@@ -39,7 +52,7 @@
       historia: 'A bailarina do palco esquecido. É o amor da Vesper — e continua dançando mesmo com o mundo despencando em volta.'
     },
     {
-      id: 'nox', emoji: '🐰', nome: 'Nox', classe: 'O Coelho de Pano',
+      id: 'nox', emoji: '🐰', nome: 'Nox', classe: 'O Coelho de Pano', idade: 19,
       chave: 'eclipse_coelho_v1', destino: 'personagem2.html',
       hpNome: 'Enchimento', hpMax: 24, sanNome: 'Linha', sanMax: 100,
       habilidades: [
@@ -50,7 +63,7 @@
       historia: 'Parece pelúcia, pesa como pedra. Vive atravessando entre o mundo real e o Outro — e é ele quem costura o meio dos dois.'
     },
     {
-      id: 'dante', emoji: '🔮', nome: 'Dante', classe: 'O Cartomante',
+      id: 'dante', emoji: '🔮', nome: 'Dante', classe: 'O Cartomante', idade: 32,
       chave: 'eclipse_santiago_v1', destino: 'personagem3.html',
       hpNome: 'Fôlego', hpMax: 22, sanNome: 'Vontade', sanMax: 100,
       habilidades: [
@@ -61,7 +74,7 @@
       historia: 'Humano, cartomante e o único que empresta sorte cobrando juros. “As cartas não decidem — elas emprestam coragem.”'
     },
     {
-      id: 'vesper', emoji: '🕯️', nome: 'Vesper', classe: 'A vela acesa no Crepúsculo',
+      id: 'vesper', emoji: '🕯️', nome: 'Vesper', classe: 'A vela acesa no Crepúsculo', idade: 23,
       chave: 'eclipse_ficha4_v1', destino: 'ficha4.html',
       hpNome: 'Brasa', hpMax: 26, sanNome: 'Vínculo', sanMax: 100,
       tres: true, // são três dentro do mesmo corpo: a ficha mostra qual está no comando
@@ -73,7 +86,7 @@
       historia: 'O amor da Flora, do outro lado do véu. Um corpo, três quem: a aura que escuta, a razão que conta e a luz que não perdoa.'
     },
     {
-      id: 'clara', emoji: '🏮', nome: 'Clara Masorack', classe: 'A coletora de almas',
+      id: 'clara', emoji: '🏮', nome: 'Clara Masorack', classe: 'A coletora de almas', idade: 17,
       chave: 'eclipse_ficha5_v1', destino: 'ficha5.html',
       retrato: 'img/clara.png',
       hpNome: 'Vida', hpMax: 20, sanNome: 'Sanidade', sanMax: 100,
@@ -89,8 +102,9 @@
   /* ---------- leitura/escrita ---------- */
   function bruto(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   /* O retrato que a própria pessoa (ou o mestre) subiu na ficha. É JSON `{src, zoom, panX, panY}`
-     salvo em `<chave>_portrait` — o js/store.js manda ele pelo Storage quando é grande demais, e
-     o que desce de lá volta a ser o mesmo JSON aqui, então esta leitura serve nos dois mundos. */
+     salvo em `<chave>_portrait` — o js/store.js manda foto grande para o nó `retratos` e deixa só
+     um bilhete no `chaves`, mas o que desce de lá volta a ser o mesmo JSON aqui, então esta
+     leitura serve nos dois mundos. */
   function retratoDe(p) {
     var br = bruto(p.chave + '_portrait');
     if (!br) return '';
@@ -150,7 +164,12 @@
     });
   }
 
-  /* ---------- o desenho ---------- */
+  /* ---------- o desenho ----------
+     O card aberto é pequeno de propósito: rosto, nome, idade, ofício e a vida. O resto
+     (habilidades, história, recado de "já tem alguém nele") vive dentro de `.cartao-mais`,
+     que o CSS abre no hover/focus do mouse e que o toque abre pelo botão "detalhes".
+     Os dois buracos que envelhecem (selo e ações) têm classe própria para o `atualizar()`
+     trocar sem encostar no retrato. */
   var hall = null, rodape = null;
 
   function barra(label, val, max, cls) {
@@ -175,46 +194,121 @@
       '</div>';
   }
 
+  function acao(p, meu, ocupado) {
+    if (meu) return '<a class="btn-abrir" href="' + esc(p.destino) + '">Entrar na ficha ↗</a>';
+    if (ocupado) return '<button type="button" class="btn-tomar" data-tomar="' + p.id + '">Tomar para mim</button>';
+    return '<button type="button" class="btn-escolher" data-escolher="' + p.id + '">Escolher ' + esc(p.nome) + '</button>';
+  }
+
+  /* O que só aparece no hover/toque. */
+  function detalhes(p, ocupado, salvo) {
+    var hab = p.habilidades.map(function (h) { return '<li>' + esc(h) + '</li>'; }).join('');
+    return '<p class="cartao-titulo-hab">Habilidades</p>' +
+      '<ul class="cartao-hab">' + hab + '</ul>' +
+      '<p class="cartao-historia">' + esc(p.historia) + '</p>' +
+      (ocupado ? '<p class="cartao-aviso">Este personagem já tem alguém nele. Leia, e se for engano, aperte “Tomar para mim”.</p>' : '') +
+      (salvo ? '' : '<p class="cartao-nota">Ficha ainda não aberta nesta mesa — os números são os de estreia.</p>');
+  }
+
   function carta(p, i) {
     var v = vitais(p);
     var e = escolhas()[p.id];
     var eu = quemEuSou();
     var meu = !!(e && e.quem && eu && e.quem.toLowerCase() === eu.toLowerCase());
     var ocupado = !!(e && e.quem) && !meu;
-    var hab = p.habilidades.map(function (h) { return '<li>' + esc(h) + '</li>'; }).join('');
-    var acao = meu
-      ? '<a class="btn-abrir" href="' + esc(p.destino) + '">Entrar na ficha ↗</a>'
-      : ocupado
-        ? '<button type="button" class="btn-tomar" data-tomar="' + p.id + '">Tomar para mim</button>'
-        : '<button type="button" class="btn-escolher" data-escolher="' + p.id + '">Escolher ' + esc(p.nome) + '</button>';
     return '<article class="cartao' + (meu ? ' esta-meu' : (ocupado ? ' ocupado' : '')) + '" data-id="' + p.id + '"' +
+      ' data-sig="' + esc((meu ? 'm' : (ocupado ? 'o' : '-')) + '|' + (e && e.quem ? e.quem : '') +
+        '|' + (e && e.ts ? e.ts : 0) + '|' + (v.salvo ? 's' : '-')) + '"' +
       ' style="--demora:' + (i * 0.09).toFixed(2) + 's">' +
       '<div class="cartao-varnish"></div>' +
       '<header class="cartao-cab">' +
       '<span class="cartao-rosto">' +
-      '<img class="cartao-retrato" alt="" />' +
+      '<img class="cartao-retrato" alt="" decoding="async" loading="lazy" />' +
       '<span class="cartao-emoji">' + p.emoji + '</span>' +
       '</span>' +
-      '<div><h2 class="cartao-nome">' + esc(v.nome || p.nome) + '</h2>' +
+      '<div class="cartao-who">' +
+      '<h2 class="cartao-nome">' + esc(v.nome || p.nome) + '</h2>' +
+      '<p class="cartao-idade"><b>Idade</b> ' + esc(p.idade) + '</p>' +
       '<p class="cartao-classe">' + esc(p.classe) + '</p>' +
-      (v.pers ? '<p class="cartao-pers">no comando agora: ' + esc(PERS_NOME[v.pers] || v.pers) + '</p>' : '') +
-      '</div></header>' +
+      (v.pers ? '<p class="cartao-pers">no comando: ' + esc(PERS_NOME[v.pers] || v.pers) + '</p>' : '') +
+      '</div>' +
+      '<button type="button" class="cartao-mais-btn" aria-expanded="false" title="ver habilidades e história">detalhes</button>' +
+      '</header>' +
       '<div class="vitais">' +
       barra(p.hpNome, v.hp, v.hpMax, 'vida') +
       barra(p.sanNome, v.san, v.sanMax, 'san') +
       '</div>' +
-      '<p class="cartao-titulo-hab">Habilidades</p>' +
-      '<ul class="cartao-hab">' + hab + '</ul>' +
-      '<p class="cartao-historia">' + esc(p.historia) + '</p>' +
-      '<footer class="cartao-pe">' + selo(p, meu) + acao + '</footer>' +
-      (ocupado ? '<p class="cartao-aviso">Este personagem já tem alguém nele. Leia, e se for engano, aperte “Tomar para mim”.</p>' : '') +
-      (v.salvo ? '' : '<p class="cartao-nota">Ficha ainda não aberta nesta mesa — os números são os de estreia.</p>') +
+      '<div class="cartao-furo">' + selo(p, meu) + acao(p, meu, ocupado) + '</div>' +
+      '<div class="cartao-mais">' + detalhes(p, ocupado, v.salvo) + '</div>' +
       '</article>';
   }
 
+  /* Reconstrói SÓ o buraco do selo + botão de um card. É a única parte do card que pode
+     trocar de markup (escolher → abrir / tomar), e mesmo assim é um pedaço de ~10 linhas,
+     não cinco cards com retrato dentro.
+     A assinatura (`data-sig`) guarda quem está no card e desde quando: enquanto ela for a
+     mesma, nada é re-escrito. Sem isso, cada evento que desce do banco recriaria o selo e o
+     carimbo "✔ JÁ SELECIONADO" ficaria sendo batido de novo a cada 400 ms na cara do jogador. */
+  function repintaFuro(card, p, já) {
+    var e = escolhas()[p.id];
+    var eu = quemEuSou();
+    var meu = !!(e && e.quem && eu && e.quem.toLowerCase() === eu.toLowerCase());
+    var ocupado = !!(e && e.quem) && !meu;
+    var v = já || vitais(p);
+    var sig = (meu ? 'm' : (ocupado ? 'o' : '-')) + '|' + (e && e.quem ? e.quem : '') +
+      '|' + (e && e.ts ? e.ts : 0) + '|' + (v.salvo ? 's' : '-');
+    card.classList.toggle('esta-meu', meu);
+    card.classList.toggle('ocupado', ocupado);
+    if (card.getAttribute('data-sig') === sig) return;
+    card.setAttribute('data-sig', sig);
+    var furo = card.querySelector('.cartao-furo');
+    if (furo) furo.innerHTML = selo(p, meu) + acao(p, meu, ocupado);
+    var mais = card.querySelector('.cartao-mais');
+    if (mais) mais.innerHTML = detalhes(p, ocupado, v.salvo);
+  }
+
+  /* Correção no lugar: vida, nome no cabeçalho, quem está no corpo da Vesper, selo.
+     Nada de innerHTML no card inteiro — é aqui que o lag de abrir a tela morava. */
+  function atualizar() {
+    if (!hall) return;
+    PERSONAGENS.forEach(function (p) {
+      var card = hall.querySelector('.cartao[data-id="' + p.id + '"]');
+      if (!card) return;
+      var v = vitais(p);
+      põeBarra(card, 'vida', v.hp, v.hpMax);
+      põeBarra(card, 'san', v.san, v.sanMax);
+      var nome = card.querySelector('.cartao-nome');
+      if (nome && v.nome && nome.textContent !== v.nome) nome.textContent = v.nome;
+      var pers = card.querySelector('.cartao-pers');
+      var texto = v.pers ? ('no comando: ' + (PERS_NOME[v.pers] || v.pers)) : '';
+      if (texto && !pers) {
+        pers = document.createElement('p');
+        pers.className = 'cartao-pers';
+        var who = card.querySelector('.cartao-who');
+        if (who) who.appendChild(pers); else pers = null;
+      }
+      if (pers) { if (texto) pers.textContent = texto; else if (pers.parentNode) pers.parentNode.removeChild(pers); }
+      repintaFuro(card, p, v);
+    });
+    refrescarTempos();
+    if (rodape) rodape.textContent = resumo();
+  }
+
+  function põeBarra(card, cls, val, max) {
+    var el = card.querySelector('.vital.' + cls);
+    if (!el) return;
+    var fill = el.querySelector('.vital-barra i');
+    var alg = el.querySelector('.vital-num');
+    var pct = max > 0 ? clamp(Math.round((val / max) * 100), 0, 100) : 0;
+    if (fill && fill.style.width !== pct + '%') fill.style.width = pct + '%';
+    var t = val + ' / ' + max;
+    if (alg && alg.textContent !== t) alg.textContent = t;
+  }
+
+  /* Uma vez só: desenha o salão e pendura os retratos. É a única vez que a tela inteira é
+     escrita, e é também a única vez que um `src` de imagem é tocado. */
   function render() {
     if (!hall) return;
-    var rol = window.scrollY || 0;
     hall.innerHTML = PERSONAGENS.map(carta).join('');
     /* Retrato real por cima do emoji: primeiro o que a ficha subiu, depois a arte padrão da
        personagem (o caso da Clara, que já vem com o png que o mestre mandou). Só aceita
@@ -229,7 +323,6 @@
       else if (img && img.parentNode) { img.parentNode.removeChild(img); }
     });
     if (rodape) rodape.textContent = resumo();
-    window.scrollTo(0, rol); // redesenhar não pode jogar a página pro topo
   }
 
   /* O "há 3 min" envelhece sem reconstruir a tela: trocar a página inteira a cada 30
@@ -238,9 +331,9 @@
     if (!hall) return;
     Array.prototype.forEach.call(hall.querySelectorAll('.selo-quando'), function (el) {
       var t = el.getAttribute('data-ts');
-      el.textContent = desde(t ? Number(t) : 0);
+      var novo = desde(t ? Number(t) : 0);
+      if (el.textContent !== novo) el.textContent = novo;
     });
-    if (rodape) rodape.textContent = resumo();
   }
 
   function resumo() {
@@ -257,14 +350,23 @@
     var t = escolhas();
     t[id] = { quem: eu, ts: Date.now() };
     escrever(ESCOLHA_KEY, t);
-    render();
-    var card = hall.querySelector('.cartao[data-id="' + id + '"]');
-    if (card && card.scrollIntoView) { try { card.scrollIntoView({ block: 'nearest' }); } catch (e) {} }
+    var card = hall ? hall.querySelector('.cartao[data-id="' + id + '"]') : null;
+    if (card) {
+      repintaFuro(card, acha(id));
+      refrescarTempos();
+      if (rodape) rodape.textContent = resumo();
+      if (card.scrollIntoView) { try { card.scrollIntoView({ block: 'nearest' }); } catch (e) {} }
+    } else { render(); }
   }
 
   function soltar(id) {
     var t = escolhas();
-    if (t[id]) { delete t[id]; escrever(ESCOLHA_KEY, t); render(); }
+    if (!t[id]) return;
+    delete t[id];
+    escrever(ESCOLHA_KEY, t);
+    var card = hall ? hall.querySelector('.cartao[data-id="' + id + '"]') : null;
+    if (card) { repintaFuro(card, acha(id)); if (rodape) rodape.textContent = resumo(); }
+    else render();
   }
 
   function tomar(id) {
@@ -319,24 +421,26 @@
     }
   }
 
-  /* ---------- o chip do sync (nuvem / local / pendências) ---------- */
+  /* ---------- o chip do sync (na nuvem / local / erro) ----------
+     Ele existe para uma pergunta só: "o que eu clicar aqui vai aparecer na tela do outro?"
+     Desde a v1.37 a resposta não depende mais de entrar com e-mail — por isso o estado
+     "falta entrar" saiu daqui. O que ainda merece voz é o contrário: dizer em voz alta quando
+     a resposta for NÃO (modo local, sem internet, regra barrando). */
   function ligarStatus() {
     var chip = document.getElementById('syncChip');
     var store = global.ECLIPSE_STORE;
     if (!chip) return;
     if (!store) { chip.textContent = '⚙ sync não carregou'; chip.className = 'syncChip off'; return; }
     store.onStatus(function (s) {
+      if (s.erro) { chip.className = 'syncChip bad'; chip.textContent = '⚠ ' + s.erro; return; }
+      if (!s.online) { chip.className = 'syncChip mid'; chip.textContent = '⚠ sem internet — o jogo segue local e atravessa sozinho quando voltar'; return; }
       if (s.modo === 'nuvem') {
-        chip.textContent = '☁ nuvem · ' + s.mesa + (s.pendentes ? ' · ' + s.pendentes + ' subindo' : '') + (s.naVem ? ' · ' + s.naVem + ' chaves no banco' : '');
+        chip.textContent = '☁ sincronizando · ' + s.mesa + (s.pendentes ? ' · ' + s.pendentes + ' subindo' : '') + (s.naVem ? ' · ' + s.naVem + ' chaves no banco' : '');
         chip.className = 'syncChip on';
-      } else if (s.modo === 'sem-conta') {
-        chip.textContent = '☁ nuvem pronta, falta entrar com e-mail e senha';
-        chip.className = 'syncChip mid';
       } else {
-        chip.textContent = '⛺ modo local (sem nuvem)';
+        chip.textContent = '⛺ modo local — o que você clicar não sai deste navegador';
         chip.className = 'syncChip off';
       }
-      if (s.erro) { chip.className = 'syncChip bad'; chip.textContent = '⚠ ' + s.erro; }
     });
   }
 
@@ -353,11 +457,11 @@
       inp.addEventListener('input', function () {
         escrever(EU_KEY, { nome: inp.value.trim() });
         /* Ele apertou um card antes de se apresentar: o nome que acabou de sair paga a
-           escolha na hora. Nos outros casos a tela só é re-desenhada no `change` —
-           re-escrever os cinco cards a cada tecla faria o retrato piscar durante a digitação. */
+           escolha na hora. O resto dos cards só é corrigido no `change` — e mesmo assim
+           sem redesenhar, porque o selo depende do nome de quem está olhando. */
         if (pendente && inp.value.trim()) { var id = pendente; pendente = null; escolher(id); }
       });
-      inp.addEventListener('change', function () { render(); });
+      inp.addEventListener('change', function () { atualizar(); });
     }
 
     hall.addEventListener('click', function (ev) {
@@ -367,8 +471,17 @@
       if (bEscolher) { escolher(bEscolher.getAttribute('data-escolher')); return; }
       if (bTomar) { tomar(bTomar.getAttribute('data-tomar')); return; }
       if (bSoltar) { ev.preventDefault(); soltar(bSoltar.getAttribute('data-soltar')); return; }
-      var abrir = up('.btn-abrir');
-      if (abrir) return; // navega sozinho
+      if (up('.btn-abrir')) return; // navega sozinho
+      /* Toque no "detalhes": no celular não existe hover, então o card abre e fecha por aqui. */
+      var bMais = up('.cartao-mais-btn');
+      if (bMais) {
+        var c0 = bMais.closest('.cartao');
+        if (c0) {
+          var aberto = c0.classList.toggle('mostra-mais');
+          bMais.setAttribute('aria-expanded', aberto ? 'true' : 'false');
+        }
+        return;
+      }
       var card = up('.cartao');
       if (card) {
         var id = card.getAttribute('data-id');
@@ -393,9 +506,14 @@
     setInterval(refrescarTempos, 30000); // só as etiquetas de tempo envelhecem; a tela não é re-desenhada
 
     /* A escolha chegou de outra aba OU desceu do Firestore (o js/store.js re-dispara este
-       mesmo evento quando a nuvem escreve no cache). Nos dois casos: redesenhar. */
+       mesmo evento quando a nuvem escreve no cache). Antes isto chamava render() — e a
+       rajada de eventos da carga inicial era exatamente o lag que a pessoa sentiu. Agora:
+       junta todos os avisos de 400 ms numa passada só, e ela corrige os cards no lugar. */
+    var adiado = null;
     global.addEventListener('storage', function (e) {
-      if (!e || e.key === ESCOLHA_KEY || e.key === null) render();
+      if (e && e.key && e.key.indexOf('eclipse_') !== 0) return; // nada de fora da mesa nos interessa
+      if (adiado) return;
+      adiado = setTimeout(function () { adiado = null; atualizar(); }, 400);
     });
 
     /* Card de quem acabou de ser escolhido entra primeiro na vista em telas estreitas. */

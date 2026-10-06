@@ -6,12 +6,12 @@
   <title>Painel do Mestre | Éclipse</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=150" />
-  <link rel="stylesheet" href="css/mestre.css?v=150" />
-  <script src="js/theme.js?v=150"></script>
-  <script src="js/firebase-config.js?v=150"></script>
-  <script src="js/store.js?v=150"></script>
-  <script src="js/conta.js?v=150"></script>
+  <link rel="stylesheet" href="css/style.css?v=152" />
+  <link rel="stylesheet" href="css/mestre.css?v=152" />
+  <script src="js/theme.js?v=152"></script>
+  <script src="js/firebase-config.js?v=152"></script>
+  <script src="js/store.js?v=152"></script>
+  <script src="js/conta.js?v=152"></script>
 </head>
 <body class="mestre-body">
   <div class="mestre-wrap">
@@ -23,10 +23,9 @@
       <a href="index.html" class="logout-link">Sair ⏎</a>
     </div>
 
-    <div class="mestre-notice">
-      🖥️ <b>Modo local:</b> o painel lê e grava direto no navegador (mesmo PC) e tem os mesmos controles
-      nas cinco fichas. As alterações aparecem na ficha de quem você mexeu quando <b>abre/atualiza</b> a
-      página dela (<b>Ctrl+F5</b>). Tempo real entre dispositivos diferentes chega com o Firebase, mais adiante.
+    <div class="mestre-notice" id="mestreNuvem">
+      <span id="nuvemTxt">⏳ ligando no banco da mesa…</span>
+      <span class="mestre-elenco" id="elencoResumo"></span>
     </div>
 
     <!-- ===== Grade de fichas ===== -->
@@ -474,7 +473,7 @@
     <footer class="mestre-footer">Éclipse — modo local. O poder sobre o palco é seu, mestre. ✦</footer>
   </div>
 
-  <script src="js/inimigos.js?v=150"></script>
-  <script src="js/mestre.js?v=150"></script>
+  <script src="js/inimigos.js?v=152"></script>
+  <script src="js/mestre.js?v=152"></script>
 </body>
 </html>

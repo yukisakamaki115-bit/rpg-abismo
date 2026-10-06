@@ -934,8 +934,92 @@
     var out = $('mrResult'); if (out) { out.textContent = ''; out.className = 'mr-result'; }
   });
 
-  // sincroniza quando outra aba (a ficha da Flora ou do Coelho) salva
+  /* ===== o elenco ao vivo: quem pegou quem =====
+     O jogador clica no personagem dele no portão (index.html). Duas coisas precisam acontecer
+     para o SEU painel de mestre se mexer na mesma hora, e é por isso que esta linha existia
+     meio decorativa antes:
+       1) O DADO. `eclipse_escolha_v1` é chave DA MESA (não está na lista de chaves locais do
+          js/store.js), então ela sobe para o banco e desce nas outras máquinas sozinha.
+       2) O AVISO. Quando o vestido aplica o valor que veio do banco, ele re-dispara o mesmo
+          `StorageEvent` que o navegador mandaria se fosse outra aba deste PC — e é esse evento
+          que o ouvinte lá embaixo escuta para chamar pintaElenco().
+     Enquanto o vestido apontava para o Firestore (e o banco da mesa é o Realtime Database), o
+     passo 1 nunca acontecia: o painel parecia surdo ao clique de todo mundo. */
+  var SEL_KEY = 'eclipse_escolha_v1';
+  var ELENCO = [
+    { sel: 'flora', card: 'floraCard', nome: 'Flora' },
+    { sel: 'nox', card: 'coelhoCard', nome: 'Nox' },
+    { sel: 'dante', card: 'santiagoCard', nome: 'Dante' },
+    { sel: 'vesper', card: 'ficha4Card', nome: 'Vesper' },
+    { sel: 'clara', card: 'ficha5Card', nome: 'Clara' }
+  ];
+
+  function desde(t) {
+    if (!t) return '';
+    var s = Math.max(0, Math.floor((Date.now() - Number(t)) / 1000));
+    if (s < 45) return 'agora';
+    var m = Math.floor(s / 60);
+    if (m < 60) return 'há ' + m + ' min';
+    var h = Math.floor(m / 60);
+    if (h < 24) return 'há ' + h + ' h';
+    return 'há ' + Math.floor(h / 24) + ' dias';
+  }
+
+  function escolhasDaMesa() {
+    try { var o = JSON.parse(localStorage.getItem(SEL_KEY) || '{}'); return (o && typeof o === 'object' && o) ? o : {}; } catch (e) { return {}; }
+  }
+
+  /* A linha entra no único ponto que existe igual nos cinco cards: o `<div>` do nome, embaixo
+     do ofício. Nada é escrito no HTML — se um sexto personagem entrar na FICHAS, é uma linha no
+     ELENCO e a tela acompanha. O nome do jogador entra por `textContent`, nunca por innerHTML:
+     é o que uma pessoa digita no crachá do salão, e texto não pode virar marcação na sua tela. */
+  function pintaElenco() {
+    var e = escolhasDaMesa(), pegos = 0;
+    ELENCO.forEach(function (p) {
+      var card = $(p.card);
+      var alvo = card && card.querySelector('.card-head > div');
+      if (!alvo) return;
+      var linha = alvo.querySelector('.quem-pegou');
+      if (!linha) { linha = el('p', 'quem-pegou'); alvo.appendChild(linha); }
+      var c = e[p.sel];
+      clear(linha);
+      linha.appendChild(el('span', 'qp-ico', '🎭 '));
+      if (c && c.quem) {
+        pegos++;
+        linha.className = 'quem-pegou pego';
+        linha.appendChild(el('b', 'qp-quem', String(c.quem)));
+        linha.appendChild(el('span', null, ' pegou ' + p.nome + (c.ts ? '  ·  ' + desde(c.ts) : '')));
+      } else {
+        linha.className = 'quem-pegou livre';
+        linha.appendChild(el('span', null, p.nome + ' ainda sem jogador'));
+      }
+    });
+    var res = $('elencoResumo');
+    if (res) { clear(res); res.textContent = 'Elenco: ' + pegos + ' de ' + ELENCO.length + ' na mão'; }
+  }
+
+  /* A faixa do topo respondia "tempo real chega mais adiante" — e é exatamente esta frase que
+     fazia ele pensar que precisava dar F5. Agora ela diz o estado de verdade, lido do vestido. */
+  function ligaNuvem() {
+    var caixa = $('mestreNuvem'), txt = $('nuvemTxt');
+    if (!caixa || !txt) return;
+    var store = window.ECLIPSE_STORE;
+    if (!store) { txt.textContent = '⚠ o js/store.js não carregou — este painel está só neste navegador.'; return; }
+    store.onStatus(function (s) {
+      if (s.erro) { txt.textContent = '⚠ ' + s.erro; caixa.className = 'mestre-notice bad'; return; }
+      if (s.modo === 'nuvem') {
+        txt.textContent = '☁ Tempo real ligado: o que um jogador mexer na ficha dele, ou clicar no salão, aparece aqui sozinho. Não precisa atualizar nada.';
+        caixa.className = 'mestre-notice on';
+      } else {
+        txt.textContent = '⛺ Modo local neste navegador: nada do que acontecer aqui atravessa para os outros.';
+        caixa.className = 'mestre-notice off';
+      }
+    });
+  }
+
+  // sincroniza quando outra aba (a ficha da Flora ou do Coelho) salva — OU quando o banco manda
   window.addEventListener('storage', function (e) {
+    if (e.key === SEL_KEY) { pintaElenco(); return; }
     if (window.EclipseInimigos && e.key === EclipseInimigos.KEY) { renderBestiario(); return; }
     if (e.key === ROLL_KEY) { renderMLog(); return; }
     if (e.key === ACT_KEY) { renderFeeds(); return; }
@@ -956,4 +1040,8 @@
   FICHAS.forEach(function (f) { renderFicha(f); });
   renderBestiario();
   renderMLog();
+  pintaElenco();
+  ligaNuvem();
+  // o "há 3 min" envelhece sozinho: 30 s é o bastante para parecer vivo sem repintar nada pesado
+  setInterval(pintaElenco, 30000);
 })();

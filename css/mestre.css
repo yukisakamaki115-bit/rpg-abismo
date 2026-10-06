@@ -34,6 +34,29 @@ body.mestre-body {
   font-size: 15.5px; color: #55505f;
 }
 .mestre-notice b { color: var(--gold-deep); }
+/* O estado do banco, lido do js/store.js. Verde = tempo real de verdade; cinza = este painel
+   está falando sozinho; vermelho = tem um motivo escrito na tela (não é para adivinhar). */
+.mestre-notice.on { background: #eef7ef; border: 1px solid #bfe0cc; color: #2f5e3f; }
+.mestre-notice.off { background: #f4f2ee; border-style: solid; border-color: #ddd8cc; color: #6d675c; }
+.mestre-notice.bad { background: #fbeeee; border: 1px solid #e0b4b4; color: #8b2f2f; }
+.mestre-elenco {
+  display: inline-block; margin-left: 10px; padding: 3px 10px;
+  font-family: var(--serif-title); font-size: 10.5px; letter-spacing: 1.6px; text-transform: uppercase;
+  color: var(--gold-deep); background: rgba(201,162,75,.14); border: 1px solid var(--gold-soft);
+  border-radius: 999px;
+}
+.mestre-elenco:empty { display: none; }
+
+/* "Quem está com quem": a linha que o painel do mestre ganha do salão de elenco, ao vivo.
+   Fica embaixo do ofício, no mesmo bloco do nome — é o único lugar igual nos cinco cards. */
+.card-head .quem-pegou {
+  margin: 4px 0 0; font-size: 13.5px; font-style: normal; letter-spacing: .2px;
+  color: #8b8677;
+}
+.card-head .quem-pegou.pego { color: #2f7d4f; }
+.card-head .quem-pegou.pego .qp-quem { color: #1f5c39; }
+.card-head .quem-pegou.livre { color: #a49e8f; }
+.card-head .quem-pegou .qp-ico { opacity: .85; }
 
 /* ---------- Grade de fichas ---------- */
 /* minmax(0,1fr) é OBRIGATÓRIO aqui: com `1fr` puro o track aceita min-width:auto
@@ -237,6 +260,13 @@ html[data-theme="dark"] .mestre-top h1 { color: var(--gold-soft); }
 html[data-theme="dark"] .mestre-top .m-sub { color: #a49e8f; }
 html[data-theme="dark"] .mestre-notice { background: #2a2833; color: #cfc9bd; border-color: #57471f; }
 html[data-theme="dark"] .mestre-notice b { color: var(--gold-soft); }
+html[data-theme="dark"] .mestre-notice.on { background: #22302a; border-color: #47705a; color: #b7dcc2; }
+html[data-theme="dark"] .mestre-notice.off { background: #292830; border-color: #45424d; color: #a49e8f; }
+html[data-theme="dark"] .mestre-notice.bad { background: #332326; border-color: #7a4b4b; color: #e79b9b; }
+html[data-theme="dark"] .mestre-elenco { color: #241c0a; background: var(--gold-soft); border-color: var(--gold-deep); }
+html[data-theme="dark"] .card-head .quem-pegou.pego,
+html[data-theme="dark"] .card-head .quem-pegou.pego .qp-quem { color: #8fd0a3; }
+html[data-theme="dark"] .card-head .quem-pegou.livre { color: #867f72; }
 html[data-theme="dark"] .char-card,
 html[data-theme="dark"] .panel-section { background: #26242d; border-color: #4d4020; }
 html[data-theme="dark"] .card-head h2,

@@ -196,14 +196,22 @@
     saveCoelho();
   }
 
+  /* Retrato do card na moldura de quem o emoldurou. O `pintaRetrato` do meio existia em quatro
+     cópias quase iguais (uma por card) e todas faziam a mesma coisa errada: jogavam a foto crua
+     num `object-fit:cover`, que mostra o centro da imagem ORIGINAL e deita fora o zoom e o
+     arrasto que o editor guardou em `{src, zoom, panX, panY}`. Por isso os retratos apareciam
+     "fora do quadro" na tela do mestre enquanto na ficha estavam certos.
+     Sem o js/retrato.js na página, o card cai no emoji — nunca em tela quebrada. */
+  function pintaRetrato(id, chave, emoji, padrao) {
+    var caixa = $(id + 'Portrait');
+    if (!caixa) return;
+    if (!window.ECLIPSE_RETRATO) { clear(caixa); caixa.textContent = emoji; return; }
+    ECLIPSE_RETRATO.pintar(caixa, localStorage.getItem(chave + '_portrait'), padrao, emoji);
+  }
+
   function renderCoelho() {
     // retrato
-    var port = $('coelhoPortrait'); if (!port) return;
-    clear(port);
-    var psrc = null;
-    try { var p = JSON.parse(localStorage.getItem(COELHO_PORTRAIT_KEY)); if (p && p.src) psrc = p.src; } catch (e) {}
-    if (psrc) { var img = el('img'); img.src = psrc; img.alt = 'Nox'; port.appendChild(img); }
-    else { port.textContent = '🦌'; }
+    pintaRetrato('coelho', COELHO_KEY, '🦌', null);
 
     // badge: morto / caído / incapacitado / desfiando / outro mundo / vivo
     var badge = $('coelhoBadge');
@@ -326,12 +334,7 @@
 
   function renderSantiago() {
     // retrato
-    var port = $('santiagoPortrait'); if (!port) return;
-    clear(port);
-    var psrc = null;
-    try { var p = JSON.parse(localStorage.getItem(SANTIAGO_PORTRAIT_KEY)); if (p && p.src) psrc = p.src; } catch (e) {}
-    if (psrc) { var img = el('img'); img.src = psrc; img.alt = 'Dante'; port.appendChild(img); }
-    else { port.textContent = '🔮'; }
+    pintaRetrato('santiago', SANTIAGO_KEY, '🔮', null);
 
     // badge: morto / caído / incapacitado / vivo
     var badge = $('santiagoBadge');
@@ -398,15 +401,19 @@
   //   <id>Incap <id>Kill <id>Revive <id>Recv <id>Reload <id>Feed <id>Nome <id>Open
   //   + data-sheet="<id>" nos seis botões de vital do card.
   //   <id>World é OPCIONAL: é onde entra o resumo que a própria ficha escreve no state
-  //   (a Clara escreve state.lampiaoResumo, a Vesper escreve state.persResumo). Sem o id no
+  //   (a Clara escreve state.lampiaoResumo, a Tessalha escreve state.persResumo). Sem o id no
   //   HTML, o resumo simplesmente não aparece.
   //   f.retrato também é opcional: arte padrão da personagem no card, até ela subir outra.
   //   f.quem TEM que bater com o CONF.quem do js/ficha<n>.js: é por essa palavra que o feed
   //   separado de cada card filtra as rolagens/cliques. O nome bonito do personagem, esse,
   //   você pode trocar na própria ficha (campo do título) que o card acompanha.
+  //   ⚠ A Tessalha atendeu por "Vesper" até 06/10. As rolagens antigas do histórico dizem
+  //   "Vesper", e história de mesa não se reescreve — por isso o feed dela tem alias (ver
+  //   `feedFor`), e por isso `id`/`chave`/`identidade` ficaram com o nome velho: mexer neles
+  //   apagaria a ficha já salva de quem joga com ela.
   var FICHAS = [
     {
-      id: 'ficha4', chave: 'eclipse_ficha4_v1', quem: 'Vesper', nome: 'Vesper', emoji: '🕯️', href: 'ficha4.html',
+      id: 'ficha4', chave: 'eclipse_ficha4_v1', quem: 'Tessalha', nome: 'Tessalha', emoji: '🕯️', href: 'ficha4.html',
       hpNome: 'Brasa', sanNome: 'Vínculo', hpMax: 26, sanMax: 100,
       eff: { morto: '☠️ Apagada', incap: '🟡 Vacilando' },
       rot: { morto: '☠️ Apagada', incap: '🟡 Vacilando', cado: 'Caída · brasa a 0', vivo: '✨ Acesa' },
@@ -484,15 +491,9 @@
   }
 
   function renderFicha(f) {
-    var port = $(f.id + 'Portrait'); if (!port) return; // card ainda não no HTML: o resto do painel segue
-    clear(port);
-    var psrc = null;
-    try { var p = JSON.parse(localStorage.getItem(f.chave + '_portrait')); if (p && p.src) psrc = p.src; } catch (e) {}
-    if (psrc) { var img = el('img'); img.src = psrc; img.alt = fichaNome(f); port.appendChild(img); }
-    else if (f.retrato) { var im2 = el('img'); im2.src = f.retrato; im2.alt = fichaNome(f); port.appendChild(im2); }
-    else { port.textContent = f.emoji; }
+    pintaRetrato(f.id, f.chave, f.emoji, f.retrato); // sem o disco no HTML, só o retrato deixa de ser pintado
 
-    // o resumo que a própria ficha escreve: state.persResumo (as três da Vesper) ou
+    // o resumo que a própria ficha escreve: state.persResumo (as três da Tessalha) ou
     // state.lampiaoResumo (o lampião da Clara). Ficha sem poder próprio não escreve nada,
     // e o chip simplesmente não muda.
     var resumo = f.s.persResumo || f.s.lampiaoResumo;
@@ -656,15 +657,7 @@
 
   function render() {
     // retrato
-    var port = $('floraPortrait');
-    clear(port);
-    var psrc = null;
-    try { var p = JSON.parse(localStorage.getItem(PORTRAIT_KEY)); if (p && p.src) psrc = p.src; } catch (e) {}
-    if (psrc) {
-      var img = el('img'); img.src = psrc; img.alt = 'Flora'; port.appendChild(img);
-    } else {
-      port.textContent = '🩰';
-    }
+    pintaRetrato('flora', FLORA_KEY, '🩰', null);
 
     // badge
     var badge = $('floraBadge');
@@ -867,7 +860,8 @@
   function feedFor(who) {
     // entradas antigas da ficha 2 (pré-rename, who='Coelho') também pertencem ao Nox
     // idem ficha 3: ele se chamava Santiago antes da v1.31.3, e o histórico dele não apaga
-    var aliases = { Nox: { Coelho: 1, Nox: 1 }, Dante: { Santiago: 1, Dante: 1 } };
+    // idem ficha 4: ela era a "Vesper" até 06/10 — o que foi rolado antes continua rolado
+    var aliases = { Nox: { Coelho: 1, Nox: 1 }, Dante: { Santiago: 1, Dante: 1 }, Tessalha: { Vesper: 1, Tessalha: 1 } };
     var ok = function (w) { var a = aliases[who]; return a ? !!a[w] : w === who; };
     var rolls = readRolls().filter(function (l) { return ok(l.who || 'Flora'); });
     var acts = readActs().filter(function (l) { return ok(l.who || 'Flora'); });
@@ -947,11 +941,11 @@
      passo 1 nunca acontecia: o painel parecia surdo ao clique de todo mundo. */
   var SEL_KEY = 'eclipse_escolha_v1';
   var ELENCO = [
-    { sel: 'flora', card: 'floraCard', nome: 'Flora' },
-    { sel: 'nox', card: 'coelhoCard', nome: 'Nox' },
-    { sel: 'dante', card: 'santiagoCard', nome: 'Dante' },
-    { sel: 'vesper', card: 'ficha4Card', nome: 'Vesper' },
-    { sel: 'clara', card: 'ficha5Card', nome: 'Clara' }
+    { sel: 'flora', card: 'floraCard', nome: 'Flora', chave: 'eclipse_flora_v1' },
+    { sel: 'nox', card: 'coelhoCard', nome: 'Nox', chave: 'eclipse_coelho_v1' },
+    { sel: 'dante', card: 'santiagoCard', nome: 'Dante', chave: 'eclipse_santiago_v1' },
+    { sel: 'vesper', card: 'ficha4Card', nome: 'Tessalha', chave: 'eclipse_ficha4_v1' },
+    { sel: 'clara', card: 'ficha5Card', nome: 'Clara', chave: 'eclipse_ficha5_v1' }
   ];
 
   function desde(t) {
@@ -969,20 +963,22 @@
     try { var o = JSON.parse(localStorage.getItem(SEL_KEY) || '{}'); return (o && typeof o === 'object' && o) ? o : {}; } catch (e) { return {}; }
   }
 
-  /* A linha entra no único ponto que existe igual nos cinco cards: o `<div>` do nome, embaixo
-     do ofício. Nada é escrito no HTML — se um sexto personagem entrar na FICHAS, é uma linha no
-     ELENCO e a tela acompanha. O nome do jogador entra por `textContent`, nunca por innerHTML:
-     é o que uma pessoa digita no crachá do salão, e texto não pode virar marcação na sua tela. */
+  /* A linha entra na coluna do NOME — e nunca no `<div>` do meio do `card-head`, que é o
+     `.mini-portrait`: foi exatamente o que a v1.37 fez, e o resultado foi a frase "ainda sem
+     jogador" espremida dentro do círculo de 62px, comendo o retrato junto (o "fotos fora do
+     quadro" que ele viu no print). O `:not(.mini-portrait)` deixa isso amarrado no HTML. */
   function pintaElenco() {
-    var e = escolhasDaMesa(), pegos = 0;
+    var e = escolhasDaMesa(), pegos = 0, vivos = 0;
     ELENCO.forEach(function (p) {
       var card = $(p.card);
-      var alvo = card && card.querySelector('.card-head > div');
+      var alvo = card && card.querySelector('.card-head > div:not(.mini-portrait)');
       if (!alvo) return;
       var linha = alvo.querySelector('.quem-pegou');
       if (!linha) { linha = el('p', 'quem-pegou'); alvo.appendChild(linha); }
       var c = e[p.sel];
       clear(linha);
+      var vivo = naFicha(p.chave);
+      if (vivo) vivos++;
       linha.appendChild(el('span', 'qp-ico', '🎭 '));
       if (c && c.quem) {
         pegos++;
@@ -993,9 +989,30 @@
         linha.className = 'quem-pegou livre';
         linha.appendChild(el('span', null, p.nome + ' ainda sem jogador'));
       }
+      /* A bolinha: verde = a pessoa está com a ficha ABERTA agora (batimento do js/store.js);
+         cinza = ninguém com esta ficha aberta. É a resposta direta ao "quem está no site".
+         Sem crachá no salão (`eclipse_eu_v1` vazio), o nome que aparece é o da personagem: na
+         tela do mestre "Nox na ficha agora" é informação, "alguém na ficha agora" não é. */
+      linha.appendChild(el('span', 'qp-live' + (vivo ? ' on' : ' off'),
+        vivo ? '● ' + (vivo.quem || p.nome || 'alguém') + ' na ficha agora' : '○ ficha fechada'));
     });
     var res = $('elencoResumo');
-    if (res) { clear(res); res.textContent = 'Elenco: ' + pegos + ' de ' + ELENCO.length + ' na mão'; }
+    if (res) {
+      clear(res);
+      res.textContent = 'Elenco: ' + pegos + ' de ' + ELENCO.length + ' na mão';
+      var ao = el('span', 'mestre-vivos' + (vivos ? ' on' : ''), '● ' + vivos + ' na mesa agora');
+      ao.title = vivos ? 'Fichas abertas neste instante em qualquer aparelho ligado na mesa.' : 'Nenhuma ficha aberta agora.';
+      res.appendChild(ao);
+    }
+  }
+
+  /* Quem está com aquela ficha aberta (ou null). O batimento mora no js/store.js; aqui só lê. */
+  function naFicha(chave) {
+    var st = window.ECLIPSE_STORE;
+    if (!st || !st.colegas) return null;
+    var c = st.colegas();
+    for (var i = 0; i < c.length; i++) { if (c[i].chave === chave) return c[i]; }
+    return null;
   }
 
   /* A faixa do topo respondia "tempo real chega mais adiante" — e é exatamente esta frase que
@@ -1042,6 +1059,10 @@
   renderMLog();
   pintaElenco();
   ligaNuvem();
+  /* O batimento de presença chega por dois caminhos que NÃO são o evento `storage` do vestido
+     (o nó `presenca` é separado justamente para não reempurrar a mesa inteira): então o painel
+     escuta o próprio vestido. Sem esta linha a bolinha demoraria até o próximo relógio de 30 s. */
+  if (window.ECLIPSE_STORE && ECLIPSE_STORE.onPresenca) ECLIPSE_STORE.onPresenca(pintaElenco);
   // o "há 3 min" envelhece sozinho: 30 s é o bastante para parecer vivo sem repintar nada pesado
   setInterval(pintaElenco, 30000);
 })();

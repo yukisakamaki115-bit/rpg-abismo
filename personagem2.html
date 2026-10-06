@@ -6,12 +6,12 @@
   <title>Nox — Criatura de Muitas Peles | Éclipse</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=152" />
-  <link rel="stylesheet" href="css/personagem2.css?v=152" />
-  <script src="js/theme.js?v=152"></script>
-  <script src="js/firebase-config.js?v=152"></script>
-  <script src="js/store.js?v=152"></script>
-  <script src="js/conta.js?v=152"></script>
+  <link rel="stylesheet" href="css/style.css?v=153" />
+  <link rel="stylesheet" href="css/personagem2.css?v=153" />
+  <script src="js/theme.js?v=153"></script>
+  <script src="js/firebase-config.js?v=153"></script>
+  <script src="js/store.js?v=153"></script>
+  <script src="js/conta.js?v=153"></script>
 </head>
 <body class="coelho-body">
 
@@ -207,7 +207,7 @@
         <ul class="roll-log" id="rollLog">
           <li class="log-empty">Nenhuma rolagem ainda.</li>
         </ul>
-        <p class="hint-note">✦ Em breve (com Firebase): as rolagens aparecem para o grupo inteiro em tempo real, entre dispositivos diferentes.</p>
+        <p class="hint-note">✦ Isto já é verdade: com a mesa ligada, as rolagens aparecem para o grupo inteiro em tempo real, entre dispositivos diferentes. O chip do rodapé diz se a mesa está de nuvem ou só neste navegador.</p>
       </section>
 
       <!-- Inventário -->
@@ -239,7 +239,7 @@
        world-outro (quem liga/desliga é o renderWorld, no js). Não recebe clique: dá pra jogar por cima. -->
   <div class="tw-atmos" id="twAtmos" aria-hidden="true"></div>
 
-  <footer class="sheet-footer">Éclipse — modo local (salvamento no seu navegador). Firebase virá depois. ✦
+  <footer class="sheet-footer">Éclipse — salva no seu navegador e, com a mesa ligada, sincronizando sozinha: o estado está na mini-aba 👥 no canto. ✦
     <br /><small class="sheet-monitor">👁️ Aviso: suas rolagens e cliques ficam visíveis na tela do mestre.</small>
   </footer>
 
@@ -262,8 +262,10 @@
     </div>
   </div>
 
-  <script src="js/inimigos.js?v=152"></script>
-  <script src="js/personagem2.js?v=152"></script>
+  <script src="js/inimigos.js?v=153"></script>
+  <script src="js/personagem2.js?v=153"></script>
+  <!-- A mini-aba 👥: avisa a mesa que esta ficha está aberta e mostra quem mais está online. -->
+  <script src="js/aliados.js?v=153"></script>
   <script>/* Se o motor não chegou (js quebrado ou na cache velha), avisa em vez de sumir. */
     setTimeout(function () { if (!window.__FICHA_OK) { var d = document.getElementById('bootWarn'); if (d) d.hidden = false; } }, 800);</script>
 </body>

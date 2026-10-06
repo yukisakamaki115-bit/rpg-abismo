@@ -6,12 +6,12 @@
   <title>Painel do Mestre | Éclipse</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=152" />
-  <link rel="stylesheet" href="css/mestre.css?v=152" />
-  <script src="js/theme.js?v=152"></script>
-  <script src="js/firebase-config.js?v=152"></script>
-  <script src="js/store.js?v=152"></script>
-  <script src="js/conta.js?v=152"></script>
+  <link rel="stylesheet" href="css/style.css?v=153" />
+  <link rel="stylesheet" href="css/mestre.css?v=153" />
+  <script src="js/theme.js?v=153"></script>
+  <script src="js/firebase-config.js?v=153"></script>
+  <script src="js/store.js?v=153"></script>
+  <script src="js/conta.js?v=153"></script>
 </head>
 <body class="mestre-body">
   <div class="mestre-wrap">
@@ -246,7 +246,7 @@
         <div class="card-head">
           <div class="mini-portrait" id="ficha4Portrait">🕯️</div>
           <div>
-            <h2 id="ficha4Nome">Vesper</h2>
+            <h2 id="ficha4Nome">Tessalha</h2>
             <p class="char-class">Ficha 4 · o amor da Flora — alma dentro do Crepúsculo</p>
           </div>
         </div>
@@ -256,7 +256,7 @@
              Sem o bloco no HTML o resumo simplesmente não aparece (o motor não cria nada). -->
         <div>
           <p class="m-block-title">Personalidade no corpo</p>
-          <div class="chip-row" id="ficha4World"><span class="chip ro">🎭 ?</span></div>
+          <div class="chip-row" id="ficha4World"><span class="chip ro">🎭 sem leitura da ficha ainda</span></div>
         </div>
 
         <div>
@@ -314,7 +314,7 @@
           <p class="m-block-title">🖱️ Atividade do jogador <small>(cliques + rolagens)</small></p>
           <ul class="feed" id="ficha4Feed"><li class="feed-empty">sem atividade ainda</li></ul>
         </div>
-        <p class="ro-note">🕯️ A mecânica dela ainda não existe: por enquanto tudo que chega nela é vida, vínculo, atributo ou efeito enviado daqui. O nome do card acompanha o que ela escrever no topo da ficha.</p>
+        <p class="ro-note">🕯️ Quem troca de personalidade é ela, na ficha: daqui o painel só lê o resumo que a própria ficha escreve (quem está no corpo, cargas do Arco, eco ligado). O que você manda nela é vida, vínculo, atributo ou efeito — e o nome do card acompanha o que ela escrever no topo da ficha.</p>
       </article>
 
       <!-- FICHA 5 (Clara Masorack · a coletora de almas) -->
@@ -357,7 +357,7 @@
 
         <div>
           <p class="m-block-title">Lampião · onde ela está</p>
-          <div class="chip-row" id="ficha5World"><span class="chip ro">🌍 Mundo Real · 🕯️ 0/6</span></div>
+          <div class="chip-row" id="ficha5World"><span class="chip ro">🏮 sem leitura da ficha ainda</span></div>
         </div>
 
         <div>
@@ -470,10 +470,17 @@
       <div class="catalog-list" id="catalogList"></div>
     </section>
 
-    <footer class="mestre-footer">Éclipse — modo local. O poder sobre o palco é seu, mestre. ✦</footer>
+    <footer class="mestre-footer">Éclipse — o poder sobre o palco é seu, mestre. ✦
+      <br /><small>As fichas se salvam no navegador de cada pessoa; com a mesa ligada, sincronizam sozinhas. Quem está com a ficha aberta aparece no ponto verde do card, no <b>“● … na ficha agora”</b> e na lista 👥 do canto.</small></footer>
   </div>
 
-  <script src="js/inimigos.js?v=152"></script>
-  <script src="js/mestre.js?v=152"></script>
+  <script src="js/inimigos.js?v=153"></script>
+  <!-- O enquadramento do retrato é UMA conta (js/retrato.js) que a ficha ensinou: sem ele, este
+       painel mostra o MEIO da foto original em vez do recorte que a pessoa emoldurou. Vem antes
+       de js/mestre.js por causa disso, e na pior hipótese (arquivo não veio) o mestre volta ao
+       emoji velho em vez de quebrar. -->
+  <script src="js/retrato.js?v=153"></script>
+  <script src="js/aliados.js?v=153"></script>
+  <script src="js/mestre.js?v=153"></script>
 </body>
 </html>

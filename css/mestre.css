@@ -58,6 +58,20 @@ body.mestre-body {
 .card-head .quem-pegou.livre { color: #a49e8f; }
 .card-head .quem-pegou .qp-ico { opacity: .85; }
 
+/* A bolinha de presença. Verde = a pessoa está com esta ficha aberta AGORA (o batimento mora no
+   js/store.js, esta tela só pinta). Cinza = ficha fechada em qualquer aparelho. */
+.card-head .quem-pegou .qp-live { margin-left: 8px; font-size: 12.5px; white-space: nowrap; }
+.card-head .quem-pegou .qp-live.on { color: #1f7a3d; }
+.card-head .quem-pegou .qp-live.off { color: #b3ad9d; }
+
+/* Contador do salão: quantas pessoas estão de ficha aberta neste instante. */
+.mestre-vivos {
+  margin-left: 10px; padding: 2px 10px; border-radius: 999px;
+  font-size: 12.5px; font-style: normal; letter-spacing: .3px;
+  background: #e6e0d2; color: #8b8677; border: 1px solid #cfc7b4;
+}
+.mestre-vivos.on { background: #d9efdf; color: #1f5c39; border-color: #7bb891; }
+
 /* ---------- Grade de fichas ---------- */
 /* minmax(0,1fr) é OBRIGATÓRIO aqui: com `1fr` puro o track aceita min-width:auto
    e qualquer texto longo do feed (o significado da carta sorteada) empurra a coluna
@@ -91,11 +105,19 @@ body.mestre-body {
 
 .card-head { display: flex; align-items: center; gap: 14px; }
 .card-head .mini-portrait {
+  /* `position:relative` é o que faz o retrato emoldurado ficar DENTRO do círculo: o js/retrato.js
+     posiciona o <img> em absoluto a partir do zoom/arrasto que a pessoa escolheu na ficha. Sem
+     isto aqui, o absoluto escapa para o card inteiro e a foto sai "fora do quadro". */
+  position: relative;
   width: 62px; height: 62px; border-radius: 50%; flex-shrink: 0; overflow: hidden;
   border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center;
   font-size: 26px; background: radial-gradient(circle at 35% 30%, #fff, #efe9db 60%, #ddd3bd);
 }
 .card-head .mini-portrait img { width: 100%; height: 100%; object-fit: cover; }
+/* Com retrato pintado o <img> manda no próprio tamanho (moldura), então sai do flex: senão o
+   flex-shrink espremia a foto e era ela quem ficava fora do centro. */
+.card-head .mini-portrait.tem-retrato { display: block; }
+.card-head .mini-portrait.tem-retrato img { object-fit: initial; }
 .card-head h2 { font-family: var(--serif-title); font-size: 24px; color: var(--gold-deep); line-height: 1; }
 .card-head .char-class { font-style: italic; font-size: 14px; color: #8b8677; }
 
@@ -267,6 +289,9 @@ html[data-theme="dark"] .mestre-elenco { color: #241c0a; background: var(--gold-
 html[data-theme="dark"] .card-head .quem-pegou.pego,
 html[data-theme="dark"] .card-head .quem-pegou.pego .qp-quem { color: #8fd0a3; }
 html[data-theme="dark"] .card-head .quem-pegou.livre { color: #867f72; }
+html[data-theme="dark"] .card-head .quem-pegou .qp-live.off { color: #6d6a60; }
+html[data-theme="dark"] .mestre-vivos { background: #2a2833; color: #867f72; border-color: #45424d; }
+html[data-theme="dark"] .mestre-vivos.on { background: #22302a; color: #8fd0a3; border-color: #47705a; }
 html[data-theme="dark"] .char-card,
 html[data-theme="dark"] .panel-section { background: #26242d; border-color: #4d4020; }
 html[data-theme="dark"] .card-head h2,

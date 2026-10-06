@@ -18,12 +18,14 @@
   // Fichas aliadas que recebem efeitos de carta (mesmo navegador = localStorage junto)
   // `morto` é a EXATA etiqueta que cada ficha (e o painel do mestre) usa pra morte — tem que bater.
   // `caiu` é o gênero da frase ("está MORTO" / "está MORTA").
-  // Vesper e Clara entraram aqui na v1.31.3: elas também sentam na mesa do tarot.
+  // Tessalha (matrícula `vesper`) e Clara entraram aqui na v1.31.3: elas também sentam na mesa do tarot.
+  // 06/10: o nome exibido dela mudou de "Vesper" para "Tessalha" — a chave e o id ficam, é a etiqueta
+  // que a mesa lê que mudou. `morto` aqui tem que bater com o que a própria ficha4 escreve.
   const SHEETS = {
     santiago: { key: SAVE_KEY, nome: 'Dante', emoji: '🔮', morto: '☠️ Morto', incap: '🟡 Incapacitado', caiu: 'MORTO' },
     flora:    { key: 'eclipse_flora_v1', nome: 'Flora', emoji: '🌹', morto: '☠️ MORTA', incap: '🟡 Incapacitada', caiu: 'MORTA' },
     nox:      { key: 'eclipse_coelho_v1', nome: 'Nox', emoji: '🐰', morto: '☠️ Morto', incap: '🟡 Incapacitado', caiu: 'MORTO' },
-    vesper:   { key: 'eclipse_ficha4_v1', nome: 'Vesper', emoji: '🕯️', morto: '☠️ Apagada', incap: '🟡 Vacilando', caiu: 'APAGADA' },
+    vesper:   { key: 'eclipse_ficha4_v1', nome: 'Tessalha', emoji: '🕯️', morto: '☠️ Apagada', incap: '🟡 Vacilando', caiu: 'APAGADA' },
     clara:    { key: 'eclipse_ficha5_v1', nome: 'Clara', emoji: '🏮', morto: '☠️ Morta', incap: '🟡 Incapacitada', caiu: 'MORTA' }
   };
   // Marcas do mestre: o jogador NÃO descarta clicando na ficha dele

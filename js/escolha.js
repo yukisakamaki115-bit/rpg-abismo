@@ -36,12 +36,14 @@
      antes de alguém mexer). Se a chave da ficha já existir, a barra mostra o valor real que
      está salvo — e como as fichas salvam em `hp/hpMax/san/sanMax` todas, não precisa de
      tradução por personagem.
-     `idade`: a Clara são os 17 da ficha dela (mestre escreveu). Os outros quatro não tinham
-     idade escrita em lugar nenhum, então estes aqui são escolha nossa — troque o número na
-     tabela e o card obedece. */
+     `idade`: dois deles têm idade ESCRITA na própria ficha, e o card do salão não tem o direito
+     de contrariar a ficha — os 17 da Clara vieram da ficha dela, mas o 24 da Flora brigava com o
+     "Anos 22" da aba Perfil dela (número que o autor definiu na v1.6 e disse para não regraver
+     sem ele). Restam três sem idade em lugar nenhum (Nox · Dante · Tessalha): esses são escolha
+     nossa — troque o número na tabela e o card obedece. */
   var PERSONAGENS = [
     {
-      id: 'flora', emoji: '🌹', nome: 'Flora', classe: 'A Bailarina', idade: 24,
+      id: 'flora', emoji: '🌹', nome: 'Flora', classe: 'A Bailarina', idade: 22,
       chave: 'eclipse_flora_v1', destino: 'flor.html',
       hpNome: 'Vida', hpMax: 30, sanNome: 'Sanidade', sanMax: 100,
       habilidades: [
@@ -49,7 +51,7 @@
         '🗡 Espada Leve — Corte Decidido: quando a graça não basta',
         '👟 Jogo de Pernas do Palco: distância e esquiva'
       ],
-      historia: 'A bailarina do palco esquecido. É o amor da Vesper — e continua dançando mesmo com o mundo despencando em volta.'
+      historia: 'A bailarina do palco esquecido. É o amor da Tessalha — e continua dançando mesmo com o mundo despencando em volta.'
     },
     {
       id: 'nox', emoji: '🐰', nome: 'Nox', classe: 'O Coelho de Pano', idade: 19,
@@ -74,7 +76,7 @@
       historia: 'Humano, cartomante e o único que empresta sorte cobrando juros. “As cartas não decidem — elas emprestam coragem.”'
     },
     {
-      id: 'vesper', emoji: '🕯️', nome: 'Vesper', classe: 'A vela acesa no Crepúsculo', idade: 23,
+      id: 'vesper', emoji: '🕯️', nome: 'Tessalha', classe: 'A vela acesa no Crepúsculo', idade: 23,
       chave: 'eclipse_ficha4_v1', destino: 'ficha4.html',
       hpNome: 'Brasa', hpMax: 26, sanNome: 'Vínculo', sanMax: 100,
       tres: true, // são três dentro do mesmo corpo: a ficha mostra qual está no comando
@@ -104,13 +106,15 @@
   /* O retrato que a própria pessoa (ou o mestre) subiu na ficha. É JSON `{src, zoom, panX, panY}`
      salvo em `<chave>_portrait` — o js/store.js manda foto grande para o nó `retratos` e deixa só
      um bilhete no `chaves`, mas o que desce de lá volta a ser o mesmo JSON aqui, então esta
-     leitura serve nos dois mundos. */
+     leitura serve nos dois mundos.
+     06/10: quem faz a leitura é o js/retrato.js, o MESMO `ler()` que ensina o `<img>` a ficar no
+     recorte que a pessoa escolheu. Este arquivo não decide mais sozinho o que é `src` válido. */
   function retratoDe(p) {
     var br = bruto(p.chave + '_portrait');
-    if (!br) return '';
+    if (window.ECLIPSE_RETRATO) return ECLIPSE_RETRATO.ler(br);
     var d = null;
-    try { d = JSON.parse(br); } catch (e) { return /^(data:image\/|https?:\/\/)/.test(br) ? br : ''; }
-    return d && typeof d.src === 'string' && /^(data:image\/|https?:\/\/)/.test(d.src) ? d.src : '';
+    try { d = JSON.parse(br); } catch (e) { return /^(data:image\/|https?:\/\/)/.test(br) ? { src: br, zoom: 1 } : null; }
+    return d && typeof d.src === 'string' && /^(data:image\/|https?:\/\/)/.test(d.src) ? d : null;
   }
   function ler(k, padrao) {
     var s = bruto(k);
@@ -134,14 +138,19 @@
       hp: clamp(num(s.hp, hpMax), 0, hpMax), hpMax: hpMax,
       san: clamp(num(s.san, sanMax), 0, sanMax), sanMax: sanMax,
       pers: (p.tres && s.pers) ? String(s.pers) : '',
-      nome: (s.textos && s.textos.nome) ? String(s.textos.nome).trim() : '',
+      /* Os dois campos que já existiram para o título editado: `nome` (o que o motor grava junto
+         com o texto, e é o que o painel do mestre lê) e `textos.nome` (o HTML cru). Um deles basta. */
+      nome: (s.nome || (s.textos && s.textos.nome) ? limpa(s.nome || s.textos.nome) : ''),
       salvo: !!bruto(p.chave)
     };
   }
   function num(v, padrao) { var n = Number(v); return isFinite(n) ? n : padrao; }
+  /* O título editável é um contenteditable: dentro do save ele vem como HTML (`<b>Flora</b>`, um
+     `<br>` perdido). No card do salão o nome é texto puro, então a marcação sai fora daqui. */
+  function limpa(t) { return String(t == null ? '' : t).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim(); }
   function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
 
-  /* A Vesper tem três personalidades e só uma no comando: o nome delas mora em CONF.personalidades,
+  /* A Tessalha tem três personalidades e só uma no comando: o nome delas mora em CONF.personalidades,
      que é um arquivo que o portão não carrega. Então o id salvo (`thalles`) é traduzido aqui, e se
      um dia sair do lugar é só esta linha — o card nunca mostra um "thalles" cru na tela. */
   var PERS_NOME = { tessalha: '🌿 Tessalha', trinstan: '🌀 Trinstan', thalles: '🏹 Thalles' };
@@ -223,7 +232,7 @@
       '<div class="cartao-varnish"></div>' +
       '<header class="cartao-cab">' +
       '<span class="cartao-rosto">' +
-      '<img class="cartao-retrato" alt="" decoding="async" loading="lazy" />' +
+      '<img class="cartao-retrato" alt="" decoding="async" loading="eager" />' +
       '<span class="cartao-emoji">' + p.emoji + '</span>' +
       '</span>' +
       '<div class="cartao-who">' +
@@ -267,7 +276,7 @@
     if (mais) mais.innerHTML = detalhes(p, ocupado, v.salvo);
   }
 
-  /* Correção no lugar: vida, nome no cabeçalho, quem está no corpo da Vesper, selo.
+  /* Correção no lugar: vida, nome no cabeçalho, quem está no corpo da Tessalha, selo.
      Nada de innerHTML no card inteiro — é aqui que o lag de abrir a tela morava. */
   function atualizar() {
     if (!hall) return;
@@ -313,14 +322,28 @@
     /* Retrato real por cima do emoji: primeiro o que a ficha subiu, depois a arte padrão da
        personagem (o caso da Clara, que já vem com o png que o mestre mandou). Só aceita
        `data:image/…` ou `http(s)://…`: um `javascript:` vindo de outra máquina nunca vira
-       atributo de img — por isso o src é posto aqui, por DOM, e não dentro do innerHTML. */
+       atributo de img — por isso o src é posto aqui, por DOM, e não dentro do innerHTML.
+       06/10: com o js/retrato.js na página, o recorte deixa de ser o meio da foto e passa a ser
+       o enquadramento que a pessoa escolheu na ficha (zoom + arrasto), igual no painel do mestre. */
+    var R = window.ECLIPSE_RETRATO;
     Array.prototype.forEach.call(hall.querySelectorAll('.cartao'), function (card) {
       var p = acha(card.getAttribute('data-id'));
       if (!p) return;
       var img = card.querySelector('.cartao-retrato');
-      var src = retratoDe(p) || p.retrato || '';
-      if (img && src) { img.setAttribute('src', src); card.classList.add('tem-retrato'); }
-      else if (img && img.parentNode) { img.parentNode.removeChild(img); }
+      if (!img) return;
+      var dado = retratoDe(p);
+      var src = (dado && dado.src) || p.retrato || '';
+      if (!src) { if (img.parentNode) img.parentNode.removeChild(img); return; }
+      card.classList.add('tem-retrato');
+      var caixa = img.parentNode;
+      if (img.getAttribute('src') === src) { if (R && dado) R.moldar(img, caixa, dado); return; }
+      if (R && dado) {
+        img.onload = function () { R.moldar(img, caixa, dado); };
+        img.setAttribute('src', src);
+        R.moldar(img, caixa, dado); // tenta na hora; o `onload` completa quando a foto souber medir
+      } else {
+        img.setAttribute('src', src);
+      }
     });
     if (rodape) rodape.textContent = resumo();
   }
@@ -512,6 +535,9 @@
     var adiado = null;
     global.addEventListener('storage', function (e) {
       if (e && e.key && e.key.indexOf('eclipse_') !== 0) return; // nada de fora da mesa nos interessa
+      /* O batimento de presença (eclipse_presenca_*) muda de 15 em 15 segundos por pessoa e não
+         tem nada a ver com este salão: sem esta linha, a tela acordava só para se olhar. */
+      if (e && e.key && e.key.indexOf('eclipse_presenca_') === 0) return;
       if (adiado) return;
       adiado = setTimeout(function () { adiado = null; atualizar(); }, 400);
     });

@@ -8,12 +8,17 @@
    escuridão de estar lá dentro. A história continua amanhã, então os textos da página são
    editáveis e não fecharam nada que o mestre ainda não decidiu.
 
-   "Vesper" é NOME DE TRABALHO (véspera = o momento exato entre a luz e a escuridão).
+   06/10 — O mestre deu o nome definitivo: TESSALHA. Ela atendeu por "Vesper" (véspera = o
+   momento exato entre a luz e a escuridão) desde 28/09, e era nome de trabalho mesmo — agora não
+   é mais. O que ficou com o nome velho de propósito:
+   - `id`, `chave` (eclipse_ficha4_v1) e `identidade` (vesper-v1): são a matrícula do armazenamento.
+     Trocá-los faria o motor achar que chegou outra personagem e recomeçaria a ficha limpa, apagando
+     o que ela já tem de armas, marca e texto.
+   - as rolagens antigas do histórico: continuam assinadas "Vesper", porque o que já foi rolado na
+     mesa não se reescreve. É por isso que o painel do mestre tem alias no feed dela.
    - O nome que aparece no topo da ficha é editável (data-txt="nome") e não mexe no histórico.
-   - O que aparece em cada rolagem é CONF.quem, fixo de propósito: trocar o rótulo na tela
+   - O que aparece em cada rolagem nova é CONF.quem, fixo de propósito: trocar o rótulo na tela
      não renomeia as rolagens antigas do grupo (e o painel do mestre continua achando ela).
-   - A chave de gravação é neutra (eclipse_ficha4_v1) pela mesma razão: trocar o nome amanhã
-     não exige migrar armazenamento nenhum.
 
    01/10 — O mestre definiu: ela não é UMA personagem, são TRÊS na mesma pessoa. Uma troca de
    personalidade a qualquer momento, e cada personalidade é uma ficha própria — só Brasa e
@@ -44,8 +49,23 @@
    no histórico, e não toca no bestiário. A história dos três ele manda depois. */
 window.FICHA_CONF = {
   chave: 'eclipse_ficha4_v1',
-  quem: 'Vesper',
+  quem: 'Tessalha', // 06/10: era 'Vesper' — o nome novo assina as rolagens novas, as velhas ficam no alias do mestre
   identidade: 'vesper-v1', // matrícula da personagem: trocou quem é, o motor recomeça a ficha (e espelha o estado antigo)
+  /* O nome dela também mora em texto que FOI salvo no navegador de quem joga (o título editável e
+     a lista "Contas abertas", que pedia o nome definitivo). `CONF.migrar` é o gancho do motor para
+     esses casos: roda uma vez, logo depois do load, e só escreve de volta se mudou alguma coisa. */
+  migrar: function (s) {
+    var mudou = false;
+    var soLetra = function (t) { return String(t).replace(/<[^>]*>/g, ' ').trim().toLowerCase(); };
+    if (typeof s.nome === 'string' && soLetra(s.nome) === 'vesper') { s.nome = 'Tessalha'; mudou = true; }
+    if (s.textos && typeof s.textos.nome === 'string' && soLetra(s.textos.nome) === 'vesper') { s.textos.nome = 'Tessalha'; mudou = true; }
+    if (s.textos && typeof s.textos.abertas === 'string' && s.textos.abertas.indexOf('Nome definitivo') !== -1) {
+      s.textos.abertas = s.textos.abertas.replace(/☐\s*Nome definitivo[^<]*/,
+        '✔ 06/10 — Nome definitivo dela: <b>Tessalha</b> (até aqui era "Vesper", nome de trabalho).');
+      mudou = true;
+    }
+    return mudou;
+  },
   hp: { nome: 'Brasa', max: 26 },      // a luz que ela carrega (vida) — é DELA, não de cada personalidade
   san: { nome: 'Vínculo', max: 100 },  // o que ainda a amarra aqui fora (sanidade) — idem
   /* Os cinco CANÔNICOS (mesmas chaves nas 5 fichas — o motor e os cards do mestre dependem

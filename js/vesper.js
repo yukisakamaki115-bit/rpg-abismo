@@ -1,4 +1,7 @@
-/* ===== Vesper — as três personalidades: a aura da Tessalha, a Orbe do Trinstan e o Arco de Luz do Thalles =====
+/* ===== Tessalha — as três personalidades: a aura da Tessalha, a Orbe do Trinstan e o Arco de Luz do Thalles =====
+   Arquivo: js/vesper.js — o nome do arquivo é a matrícula dela (o storage usa isso e não se toca).
+   06/10: o mestre deu o nome definitivo, TESSALHA. Onde este arquivo ainda diz "Vesper" é no
+   apelido de trabalho antigo, que continua vivo no id da ficha e no alias do painel do mestre.
    Bloco próprio de UMA ficha, do mesmo jeito que js/lampiao.js é o da Clara: usa as portas
    que js/ficha-comum.js abre (window.FICHA_API) e não encosta no motor. O motor continua sem
    conhecer personalidade nenhuma — é isso que impede a ficha 4 de virar uma cópia de 1.100
@@ -396,7 +399,7 @@
     } else if (thallesLigada()) {
       const q = th(), m = mobPorId(q.alvo);
       r += m ? ' · ' + TH_MARCA + ' mira em ' + m.nome + ' · ' + q.cargas + '/' + TH_CARGAS + ' cargas'
-             : ' · ' + TH_MARCA + (q.cargas ? 'arco carregado (' + q.cargas + '/' + TH_CARGAS + '), sem alvo' : 'arco por conjurar');
+             : ' · ' + TH_MARCA + ' ' + (q.cargas ? 'arco carregado (' + q.cargas + '/' + TH_CARGAS + '), sem alvo' : 'arco por conjurar');
       r += ' · ' + q.tiros + ' flecha' + (q.tiros === 1 ? '' : 's');
     }
     s.persResumo = r;
@@ -868,9 +871,9 @@
     tut.appendChild(sum);
     tut.appendChild(el('p', 'story-text',
       'É um poder que não se aciona, se <b>deixa ligado</b>: escolhe a pessoa na caixinha acima e pronto — a partir daí ela só reage. ' +
-      '<br><br><b>Exemplo 1:</b> a Flora está 12/30 de vida e o mestre alimenta +6 na ficha da Flora. Na tela da Vesper aparece, sozinha, a linha "🌿 +6 de Brasa", a barra dela sobe os mesmos 6 (respeitando o teto de 26) e o histórico compartilhado registra que foi eco — não rolagem dela. ' +
-      '<br><br><b>Exemplo 2:</b> o Dante vira A Estrela pra Clara e manda "✨ Abençoada · +2". Vesper ganha "🌿 eco de Clara · +2", que vale nas rolagens dela igualzinho vale nas da Clara, até ela trocar de personalidade ou clicar no chip pra jogar fora. ' +
-      '<br><br><b>O que NÃO chega nela:</b> o "🟡 Vacilando" que o mestre põe na Vesper, o −3 que ele manda na Flora, um ☠️ em qualquer um. E se a pessoa escolhida curar 40 enquanto ela está em 24/26, ela sobe até 26 e a linha diz "+2" — o número que a barra dela realmente viu.'));
+      '<br><br><b>Exemplo 1:</b> a Flora está 12/30 de vida e o mestre alimenta +6 na ficha da Flora. Na tela da Tessalha aparece, sozinha, a linha "🌿 +6 de Brasa", a barra dela sobe os mesmos 6 (respeitando o teto de 26) e o histórico compartilhado registra que foi eco — não rolagem dela. ' +
+      '<br><br><b>Exemplo 2:</b> o Dante vira A Estrela pra Clara e manda "✨ Abençoada · +2". A Tessalha ganha "🌿 eco de Clara · +2", que vale nas rolagens dela igualzinho vale nas da Clara, até ela trocar de personalidade ou clicar no chip pra jogar fora. ' +
+      '<br><br><b>O que NÃO chega nela:</b> o "🟡 Vacilando" que o mestre põe na Tessalha, o −3 que ele manda na Flora, um ☠️ em qualquer um. E se a pessoa escolhida curar 40 enquanto ela está em 24/26, ela sobe até 26 e a linha diz "+2" — o número que a barra dela realmente viu.'));
     tut.open = !!t.tutAberto;
     tut.addEventListener('toggle', function () {
       const tt = ts();

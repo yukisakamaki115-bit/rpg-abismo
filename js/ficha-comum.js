@@ -85,8 +85,16 @@
     return s;
   }
   let state = load();
+  /* `CONF.migrar(state)`: existe para decisão de mesa que já está escrita no navegador de quem
+     joga — nome antigo no título editável, linha de "contas abertas" que foi respondida. Roda uma
+     vez, antes de qualquer desenho na tela, e só grava de volta se mexeu em algo: ficha que não
+     mudou não sobe para o banco à toa. Ficha sem `migrar` (a Clara, as que vierem) segue igual. */
+  let migrada = false;
+  if (typeof CONF.migrar === 'function') {
+    try { migrada = !!CONF.migrar(state); } catch (e) { migrada = false; }
+  }
   function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch (e) {} }
-  if (CONF.identidade) save(); // grava a matrícula na hora: senão ela resetaria de novo no próximo F5
+  if (CONF.identidade || migrada) save(); // grava a matrícula (e a migracao) na hora: senão resetaria no próximo F5
 
   const $ = function (id) { return document.getElementById(id); };
   function on(id, ev, fn) { const el = $(id); if (el) el.addEventListener(ev, fn); } // bind seguro: id faltando não derruba a ficha

@@ -1,7 +1,7 @@
 /* ===== O lampião da Clara — bloco próprio de uma ficha do motor compartilhado =====
    Este arquivo NÃO é do motor: é o poder de UMA personagem, desenhado sobre as portas
    que js/ficha-comum.js abriu na v1.31 (window.FICHA_API). Ficha sem CONF.lampiao
-   (a Vesper, por exemplo) não carrega nada daqui e não vê diferença nenhuma.
+   (a Tessalha, por exemplo) não carrega nada daqui e não vê diferença nenhuma.
 
    Por que em arquivo separado e não dentro do motor: o motor atende N fichas, então ele
    não pode conhecer alma nenhuma de personagem. O que é dela mora aqui + em js/ficha5.js
@@ -76,9 +76,12 @@
     wrap.appendChild(el('p', 'm-block-title', spec.nome + ' · custa ' + spec.custo + ' ' + MARK + ' · só dentro do crepúsculo'));
     /* Como ler: sem esta linha a tabela vira um menu de escolha, e ela não é escolha.
        É um cardápio de consequências: o d10 decide a linha, ninguém decide no lugar dele. */
+    /* 06/10: estas três palavras têm que ser as MESMAS das quatro colunas logo abaixo
+       (`no dado` · `o que vem` · `dano no alvo` · `o que cobra dela`). Enquanto falou
+       "o que ela vê", quem lia o aviso procurava uma coluna que não existia. */
     wrap.appendChild(el('p', 'lamp-comoler',
       'Leia só a linha do número que saiu no dado: ' +
-      'o que ela vê · quanto de dano isso faz no alvo · o que cobra dela. ' +
+      'o que vem · o dano no alvo · o que cobra dela. ' +
       'Onde aparece “—” não tem dano nenhum: a tabela entregou uma situação, não uma queimadura.'));
     const tb = el('table', 'lamp-tb');
     const head = el('tr');

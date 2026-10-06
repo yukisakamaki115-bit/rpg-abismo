@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nox — Criatura de Muitas Peles | Éclipse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css?v=150" />
+  <link rel="stylesheet" href="css/personagem2.css?v=150" />
+  <script src="js/theme.js?v=150"></script>
+  <script src="js/firebase-config.js?v=150"></script>
+  <script src="js/store.js?v=150"></script>
+  <script src="js/conta.js?v=150"></script>
+</head>
+<body class="coelho-body">
+
+  <!-- Botão que segue o cursor (só no PC) -->
+  <svg class="cursor-btn" id="cursorBtn" viewBox="0 0 24 24" aria-hidden="true">
+    <circle cx="12" cy="12" r="10"></circle>
+    <circle class="hole" cx="9" cy="9" r="1.3"></circle>
+    <circle class="hole" cx="15" cy="9" r="1.3"></circle>
+    <circle class="hole" cx="9" cy="15" r="1.3"></circle>
+    <circle class="hole" cx="15" cy="15" r="1.3"></circle>
+  </svg>
+
+  <!-- Aviso de motor ausente: HTML na tela + js quebrado/na cache = botões mudos.
+       O estilo é inline de propósito: não depende de css nenhum para conseguir avisar. -->
+  <div id="bootWarn" hidden style="max-width:1020px;margin:0 auto 18px;padding:14px 18px;border-radius:10px;background:#fbeeee;border:1px solid #e0b4b4;color:#8d2f2f;font-family:var(--serif-title);font-size:13px;letter-spacing:.5px;line-height:1.5">⚠ A ficha abriu sem o motor (js/personagem2.js). Recarregue com <b>Ctrl+Shift+R</b> — sem isso os botões aparecem na tela, mas não fazem nada.</div>
+
+  <main class="sheet">
+    <!-- Botões flutuando de fundo -->
+    <div class="drift" aria-hidden="true">
+      <i style="top:12%; left:6%;  animation-delay:0s"></i>
+      <i style="top:28%; right:8%; animation-delay:1.6s"></i>
+      <i style="top:54%; left:4%;  animation-delay:2.8s"></i>
+      <i style="top:70%; right:5%; animation-delay:.9s"></i>
+      <i style="bottom:14%; left:9%; animation-delay:3.6s"></i>
+      <i style="bottom:8%;  right:12%; animation-delay:2.1s"></i>
+    </div>
+
+    <div class="sheet-inner">
+      <a href="index.html" class="logout-link">Sair ⏎</a>
+
+      <!-- ===== Cabeçalho ===== -->
+      <header class="sheet-header">
+        <div class="portrait-wrap">
+          <div class="portrait" id="portrait" role="button" tabindex="0" title="Clique para carregar a imagem do Nox">
+            <span class="portrait-emoji">🦌</span>
+            <img class="portrait-img" id="portraitImg" alt="Retrato do Nox" hidden />
+            <span class="portrait-hint" id="portraitHint">✦ clicar para carregar imagem ✦</span>
+          </div>
+          <input type="file" id="portraitFile" accept="image/*" hidden />
+          <button type="button" id="portraitRemove" class="portrait-remove" title="Remover imagem" hidden>✕</button>
+        </div>
+        <div class="head-info">
+          <h1 class="char-name">Nox</h1>
+          <p class="char-class">✦ a criatura de muitas peles — costurada por fios do Outro Mundo ✦</p>
+          <div class="bio-grid">
+            <div class="bio-item"><b>Origem</b> Outro Mundo</div>
+            <div class="bio-item"><b>Natureza</b> Criatura que usa peles — nem coelho, nem lobo</div>
+            <div class="bio-item"><b>Olhos</b> Vermelhos · de predador que parece presa</div>
+            <div class="bio-item"><b>Sinal</b> Chifres onde não deveria haver chifres</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ===== Vitais + Mundo + Efeitos ===== -->
+      <section class="vitals">
+        <div class="vitals-left">
+          <div class="hp-block">
+            <div class="hp-label"><span>Enchimento</span><span id="hpText">24 / 24</span></div>
+            <div class="hp-bar"><div class="hp-fill" id="hpFill"></div></div>
+            <div class="hp-controls">
+              <input type="number" id="hpInput" value="0" min="0" title="quantidade" />
+              <button class="mini-btn" id="hpDmg" data-act="🧸 perdeu enchimento">− Rasgo</button>
+              <button class="mini-btn" id="hpHeal" data-act="🧸 reforçou o enchimento">+ Costura</button>
+              <button class="mini-btn" id="hpMax" data-act="🧸 restaurou o enchimento">Cheio</button>
+            </div>
+          </div>
+          <div class="hp-block san-block">
+            <div class="hp-label"><span>Linha</span><span id="sanText">100 / 100</span></div>
+            <div class="hp-bar san-bar"><div class="hp-fill san-fill" id="sanFill"></div></div>
+            <div class="hp-controls">
+              <input type="number" id="sanInput" value="0" min="0" title="quantidade" />
+              <button class="mini-btn" id="sanDmg" data-act="🧵 perdeu linha (desfiou)">− Desfia</button>
+              <button class="mini-btn" id="sanHeal" data-act="🪡 recuperou linha">+ Emenda</button>
+              <button class="mini-btn" id="sanMax" data-act="🪡 restaurou a linha">Inteira</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mundos -->
+        <div class="world-block" id="worldBlock">
+          <p class="m-block-title">Mundo atual</p>
+          <div class="world-name" id="worldName">Mundo Real</div>
+          <p class="world-desc" id="worldDesc">Cinza e quieto. Sem risco — mas a magia dele dorme aqui.</p>
+          <div class="world-toggle">
+            <button type="button" class="mini-btn" id="mundoReal">🌫️ Mundo Real</button>
+            <button type="button" class="mini-btn" id="mundoOutro">🌀 Outro Mundo</button>
+          </div>
+          <p class="m-block-title forma-title">Forma atual</p>
+          <div class="world-toggle form-toggle" id="formToggle">
+            <button type="button" class="mini-btn" id="formaCoelho" data-act="🐇 vestiu a pele de coelho">🐇 Coelho</button>
+            <button type="button" class="mini-btn" id="formaLobo" data-act="🐺 vestiu a pele de lobo">🐺 Lobo</button>
+            <span class="forma-true" id="formaTrue" hidden>🖤 Forma Verdadeira (humanoide — sem pele emprestada)</span>
+          </div>
+          <p class="hint-note form-note" id="formNote">No Mundo Real ele veste peles de animal: <b>🐇 coelho</b> dá <b>+2 em Destreza</b>, <b>🐺 lobo</b> dá <b>+2 em Força</b>.</p>
+          <p class="hint-note world-note">No <b>Outro Mundo</b> ele anda na <b>Forma Verdadeira</b>: <b>+3 em tudo</b> — mas um <b>1 natural</b> ali o deixa <b>“🧵 Desfiando” (−2)</b> até ele se costurar de volta.</p>
+          <button type="button" class="mini-btn mending-btn" id="mundoDescansar" data-act="🪡 refez o ponto">🪡 Refazer o ponto</button>
+        </div>
+
+        <!-- Efeitos -->
+        <div class="status-block">
+          <div class="hp-label"><span>Efeitos ativos <small>(máx. 6)</small></span><span id="statusCount">0/6</span></div>
+          <div class="status-chips" id="statusChips">
+            <span class="chip empty">sem efeitos — adicione com ＋ ou aguarde o mestre</span>
+          </div>
+          <div class="status-actions">
+            <input type="text" id="statusInput" maxlength="26" placeholder="novo efeito…" />
+            <button type="button" class="mini-btn" id="statusAddBtn" data-act="➕ adicionou um efeito">＋ Add</button>
+          </div>
+          <p class="hint-note status-msg" id="statusMsg"></p>
+        </div>
+      </section>
+
+      <!-- ===== Abas ===== -->
+      <nav class="tabs">
+        <button class="tab-btn active" data-tab="perfil">Perfil</button>
+        <button class="tab-btn" data-tab="atributos">Status</button>
+        <button class="tab-btn" data-tab="poderes">Poderes</button>
+        <button class="tab-btn" data-tab="magia">Magia</button>
+        <button class="tab-btn" data-tab="rolagem">Rolagem</button>
+        <button class="tab-btn" data-tab="inventario">Inventário</button>
+        <button class="tab-btn" data-tab="inimigos">Inimigos</button>
+      </nav>
+
+      <!-- Perfil -->
+      <section class="panel active" id="panel-perfil">
+        <h2>Quem é ele</h2>
+        <p class="panel-intro">Nox não é um coelho, nem um lobo, nem um cervo, nem um bode — é uma criatura própria, vinda de um lugar entre os pontos costurados do Outro Mundo. Ele veste formas de animal como quem veste uma pele costurada às pressas: de longe engana, de perto entrega. Chifres onde não deveria haver chifres. Um olhar vermelho que nunca parece realmente assustado — mesmo quando ele é a presa. Você pensa <i>“é um coelho”</i>… e depois pensa <i>“isso não é um animal.”</i></p>
+        <div class="obsessao-card">
+          <div class="obs-icon">🔘</div>
+          <div class="obs-info">
+            <div class="obs-name" contenteditable="true" spellcheck="false" id="obsNome">Colecionador de Botões</div>
+            <p class="obs-desc" contenteditable="true" spellcheck="false" id="obsDesc">Ele junta botões — de olhos, de punhos, de casas antigas — e guarda em algum bolso que não existe no mundo real. Conta que é coleção; na verdade cada botão é uma porta que ele já usou. E mente com a maior cara de pelúcia do mundo, porque mente desde antes de ter boca.</p>
+          </div>
+        </div>
+        <div class="story-block">
+          <p class="m-block-title">História <small>(clique para editar)</small></p>
+          <p class="story-text" contenteditable="true" spellcheck="false" id="storyText">Nox aprendeu a parecer um animal — mas nunca consegue, nem tenta, esconder completamente o que é. No Mundo Real ele caça de coelho e corre de lobo: peles negras, olhos vermelhos, chifres grandes demais para a cabeça que os carrega. Nenhuma transformação parece natural de propósito; os detalhes errados são a assinatura dele. Quando atravessa pro Outro Mundo, não precisa mais de peles: anda na Forma Verdadeira, corpo humanoide sem pele emprestada, costurado por fios que não existem aqui. Quem o encara por tempo suficiente sente duas coisas ao mesmo tempo — ele é a presa e ele é o caçador. E talvez esteja só avaliando se você vale o esforço.</p>
+        </div>
+      </section>
+
+      <!-- Status / Atributos -->
+      <section class="panel" id="panel-atributos">
+        <h2>Status</h2>
+        <p class="panel-intro">Clique num atributo para rolar <b>d10 + o valor dele</b>. No Outro Mundo, tudo ganha +3.</p>
+        <div class="attr-grid" id="attrsGrid"><!-- gerado via JS --></div>
+        <div class="roller">
+          <div class="roll-config">
+            <label>Dado
+              <select id="diceType">
+                <option value="4">d4</option>
+                <option value="6">d6</option>
+                <option value="8">d8</option>
+                <option value="10">d10</option>
+                <option value="12">d12</option>
+                <option value="20" selected>d20</option>
+                <option value="100">d100</option>
+              </select>
+            </label>
+            <label>Qtde <input type="number" id="diceQty" value="1" min="1" max="10" /></label>
+            <label>Bônus de
+              <select id="attrBonus">
+                <option value="none">nenhum atributo</option>
+              </select>
+            </label>
+            <button class="btn-major" id="rollBtn">🎲 Rolar</button>
+          </div>
+          <div class="roll-display"><span class="die" id="die">🎲</span><p class="roll-msg" id="rollMsg"></p></div>
+        </div>
+      </section>
+
+      <!-- Poderes -->
+      <section class="panel" id="panel-poderes">
+        <h2>Poderes</h2>
+        <p class="panel-intro">Magia de fio e agulha, vinda do Outro Mundo. Cada poder rola <b>d10 + o atributo</b> (+3 no Outro Mundo · pele de coelho/lobo ajuda lá fora) e <b>cobra 🧵 Linha</b> na hora de usar — a conta é a mesma das cartas do Dante 🕯. Textos são editáveis — troque os poderes à vontade. 🧵</p>
+        <div class="powers" id="powersGrid"><!-- gerado via JS --></div>
+        <p class="hint-note">✦ <b>Linha é preço:</b> usar o poder baixa a barra dele na hora, e só volta com <b>🪡 + Emenda</b>, no descanso ou pela mão do mestre. Sem Linha suficiente o poder <b>não sai</b> (a ficha avisa quanto falta). <b>10</b> e <b>1</b> não cobram nada a mais: quem tirou <b>1 natural</b> no Outro Mundo ainda fica <b>“🧵 Desfiando”</b> (−2 em tudo) até usar <b>“🪡 Refazer o ponto”</b>. No Mundo Real, a pele escolhida dá <b>+2</b> no atributo dela (🐇 Destreza · 🐺 Força). Acertos em <b>10</b> brilham no histórico.</p>
+      </section>
+
+      <!-- Magia de espaço: os círculos -->
+      <section class="panel" id="panel-magia">
+        <h2>Magia de Espaço — Círculos</h2>
+        <p class="panel-intro">A magia dele não é elemento nem feitiço: é <b>conta de espaço</b>. <b>Portais</b> são o controle do <b>espaço</b>; <b>círculos</b> são o controle da <b>magia</b>. No <b>Mundo Real</b> só o que acorda é a passagem — e quem está olhando vê ele sumir de um ponto e aparecer noutro, nunca a fresta pelo meio. No <b>Outro Mundo</b> os círculos se manifestam de verdade: podem ser <b>sobrepostos</b>, camada em cima de camada, concentrando mais magia no mesmo desenho, e trabalham junto com os portais pra ele mandar no espaço inteiro da sala. 🌀</p>
+        <div class="circ-strip" id="circAbertos"><!-- círculos abertos, gerado via JS --></div>
+        <div class="circ-grid" id="circGrid"><!-- os 7 círculos, gerado via JS --></div>
+        <p class="hint-note">✦ <b>Preço:</b> cada camada cobra 🧵 Linha — <b>3 / 5 / 7</b> (Vael’Nor cobra <b>2 / 4 / 6</b>). Sem Linha no corpo o traçado não sai. <b>Travas do palco:</b> no máximo <b>3 camadas abertas</b> ao mesmo tempo, <b>2 camadas por círculo</b>. <b>Degrau que rende menos:</b> 1 camada <b>+5</b>, 2 <b>+8</b>, 3 <b>+10</b> — e <b>+10 é teto</b>, nenhuma rolagem recebe mais que isso de magia junta (é o que impede um círculo de virar golpe que derruba tudo em um traço). <b>Desgaste:</b> círculo aberto aguenta <b>3 rolagens</b> e se desfaz sozinho; fechar antes é de graça. <b>Trocar de mundo fecha tudo</b> — o desenho não atravessa a fresta com ele.</p>
+        <p class="hint-note">🕯 <b>Traçar rola d10 + Inteligência</b> (o controle vale mais que a força): <b>1 natural</b> o traçado abre torto e a Linha paga vai embora com ele; <b>10</b> o desenho gruda (+1 uso). 🌫️ No <b>Mundo Real</b> os seis círculos ficam <b>travados</b> — ali sobra só <b>Vael’Nor</b>. 🛡 <b>Tharun</b> e 🫗 <b>Elyr</b> não somam dano nenhum: são números <b>declarados</b> pro mestre (resistência e absorção), e ele vê os dois no painel dele. 💨 <b>Syran sem Tharun aberto cobra o corpo:</b> −2 🧵 a cada uso.</p>
+      </section>
+
+      <!-- Rolagem -->
+      <section class="panel" id="panel-rolagem">
+        <h2>Histórico de Rolagem</h2>
+        <p class="panel-intro">Compartilhado com o mestre e o resto do grupo — todo mundo vê as rolagens de todo mundo.</p>
+        <ul class="roll-log" id="rollLog">
+          <li class="log-empty">Nenhuma rolagem ainda.</li>
+        </ul>
+        <p class="hint-note">✦ Em breve (com Firebase): as rolagens aparecem para o grupo inteiro em tempo real, entre dispositivos diferentes.</p>
+      </section>
+
+      <!-- Inventário -->
+      <section class="panel" id="panel-inventario">
+        <h2>Inventário — Armas do Mestre</h2>
+        <p class="panel-intro">O que o <b>mestre</b> te entregou. Role o dano direto daqui (+3 no Outro Mundo · −2 se Desfiando). 🗡️</p>
+        <div id="invArea">
+          <div class="inv-empty">
+            <span>⚔️</span>
+            Seus bolsos costurados estão vazios…<br />
+            Quando o <b>mestre</b> enviar uma arma pelo painel dele, ela aparece aqui automaticamente.
+          </div>
+        </div>
+      </section>
+
+      <!-- Inimigos em cena (bestiário do mestre — aqui você só olha) -->
+      <section class="panel" id="panel-inimigos">
+        <h2>Inimigos em Cena</h2>
+        <p class="panel-intro">O que o <b>mestre</b> colocou na cena, com a vida e a sanidade de cada bicho.</p>
+        <div class="mob-list" id="mobList"><!-- gerado via JS --></div>
+        <p class="hint-note">✦ Só o mestre mexe aqui: você vê a barra cair em tempo real (com a aba aberta). A 0 aparece <b>🟥 caído</b> / <b>😵 sem sanidade</b>.</p>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ===== Atmosfera do Outro Mundo (crepúsculo) =====
+       Véu âmbar + névoa preta + bolinhas caindo. O CSS só liga isso quando o corpo tem a classe
+       world-outro (quem liga/desliga é o renderWorld, no js). Não recebe clique: dá pra jogar por cima. -->
+  <div class="tw-atmos" id="twAtmos" aria-hidden="true"></div>
+
+  <footer class="sheet-footer">Éclipse — modo local (salvamento no seu navegador). Firebase virá depois. ✦
+    <br /><small class="sheet-monitor">👁️ Aviso: suas rolagens e cliques ficam visíveis na tela do mestre.</small>
+  </footer>
+
+  <!-- ===== Editor de enquadramento do retrato ===== -->
+  <div class="modal-overlay" id="cropModal" hidden>
+    <div class="modal">
+      <h3>Ajustar retrato</h3>
+      <p class="modal-sub">Arraste a foto dentro do círculo e use o zoom até emoldurar como quiser.</p>
+      <div class="crop-stage" id="cropStage"><img id="cropImg" alt="" draggable="false" /></div>
+      <div class="crop-controls">
+        <label>Zoom
+          <input type="range" id="cropZoom" min="1" max="3" step="0.01" value="1" />
+        </label>
+        <button type="button" class="mini-btn" id="cropSwap">🖼 Trocar imagem</button>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-major" id="cropOk">Confirmar</button>
+        <button type="button" class="mini-btn" id="cropCancel">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/inimigos.js?v=150"></script>
+  <script src="js/personagem2.js?v=150"></script>
+  <script>/* Se o motor não chegou (js quebrado ou na cache velha), avisa em vez de sumir. */
+    setTimeout(function () { if (!window.__FICHA_OK) { var d = document.getElementById('bootWarn'); if (d) d.hidden = false; } }, 800);</script>
+</body>
+</html>

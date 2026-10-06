@@ -1,0 +1,265 @@
+/* ===== Ficha 5 — Clara Masorack · a coletora de almas =====
+   Direção de arte vem da imagem que o mestre deu dela: capuz vermelho, lampião aceso no
+   meio da mata, lua, moldura dourada de tarô e papoulas vermelhas no pé. Então a ficha é
+   pintada como a carta dela: noite verde-escura (a floresta), ouro velho (a moldura do tarô)
+   e vermelho-brasa (o capuz e o brilho do lampião) — o vermelho nunca é decorativo, ele é
+   sempre a luz do lampião: borda dos botões de invocação, halo em volta do retrato, barra
+   de vida e o traço à esquerda da história.
+
+   Tema claro = papel velho de baralho (papel marfim, tinta sépia, o mesmo vermelho), porque
+   a mesa joga de dia também e a carta continua sendo a mesma carta.
+
+   Estrutura não existe aqui: vem de css/ficha-base.css, que só pinta com as --fs-*. */
+
+body.f5-body {
+  /* ---- claro: carta antiga sobre a mesa de madeira ---- */
+  --fs-page:
+    radial-gradient(ellipse at 50% -6%, rgba(198,74,48,.13), transparent 48%),
+    radial-gradient(ellipse at 90% 100%, rgba(178,138,56,.12), transparent 46%),
+    linear-gradient(168deg, #f6f0e2 0%, #ece2ce 52%, #f7f2e6 100%);
+  --fs-sheet: rgba(255,252,244,.97);
+  --fs-card: #f1e8d7;
+  --fs-ink: #2b2119;
+  --fs-muted: #8a7761;
+  --fs-line: #ded0b4;
+  --fs-accent: #b3402a;
+  --fs-accent-soft: #d47a52;
+  --fs-accent-deep: #8a6a2f;
+  --fs-hp1: #8f2c1c; --fs-hp2: #d98a3c;
+  --fs-san1: #4a6b52; --fs-san2: #9dbb8c;
+  --fs-danger: #a32d1d;
+  --fs-ok: #2f7d4f;
+  --fs-glow: rgba(120,90,40,.18);
+  --fs-chip: #6b532a; --fs-chip-ink: #fff8ea;
+  /* o halo do lampião na parede, e a cor das fagulhas */
+  --fs-halo: radial-gradient(circle, rgba(179,64,42,.16), transparent 68%);
+  --fs-spark: rgba(179,64,42,.55);
+  --fs-ouro: rgba(138,106,47,.55);
+}
+html[data-theme="dark"] body.f5-body {
+  /* ---- escuro: a noite dela, com o vidro vermelho do lampião na mão ---- */
+  --fs-page:
+    radial-gradient(ellipse at 50% -8%, rgba(255,110,70,.15), transparent 52%),
+    radial-gradient(ellipse at 10% 88%, rgba(255,64,48,.12), transparent 50%),
+    radial-gradient(ellipse at 92% 62%, rgba(58,148,120,.10), transparent 52%),
+    linear-gradient(170deg, #0d1512 0%, #131a18 44%, #070a09 100%);
+  --fs-sheet: rgba(16,23,21,.97);
+  --fs-card: #1c2622;
+  --fs-ink: #e9e3d6;
+  --fs-muted: #9a9887;
+  --fs-line: #35443d;
+  --fs-accent: #e0483a;
+  --fs-accent-soft: #ff8a6a;
+  --fs-accent-deep: #f0c060;
+  --fs-hp1: #b3271a; --fs-hp2: #ff8a4c;
+  --fs-san1: #2f8f74; --fs-san2: #a8d8a0;
+  --fs-danger: #ff6a52;
+  --fs-ok: #57d69a;
+  --fs-glow: rgba(0,0,0,.55);
+  --fs-chip: #7a2015; --fs-chip-ink: #ffe4d2;
+  --fs-halo: radial-gradient(circle, rgba(224,72,58,.30), rgba(240,192,96,.10) 45%, transparent 70%);
+  --fs-spark: rgba(255,120,70,.85);
+  --fs-ouro: rgba(240,192,96,.55);
+}
+
+/* ---------- Moldura de carta: ouro em vez do traço pontilhado da casca vazia ----------
+   A ficha era um envelope em branco até ontem; hoje tem personagem, então a borda
+   tracejada sai e entra o filete dourado de baralho, por dentro e por fora. */
+.sheet::before { /* a luz do lampião correndo no topo da moldura */
+  content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px; z-index: 2; pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--fs-accent) 26%, var(--fs-accent-deep) 50%, var(--fs-accent) 74%, transparent);
+}
+.sheet::after { /* o fio dourado interno, como a borda impressa da carta */
+  content: ''; position: absolute; inset: 9px; z-index: 1; pointer-events: none;
+  border: 1px solid var(--fs-ouro); border-radius: 9px;
+}
+.sheet { box-shadow: 0 0 0 5px var(--fs-card), 0 0 0 6px var(--fs-ouro), 0 26px 64px var(--fs-glow); }
+.sheet-inner { padding: 32px 46px 40px; }
+@media (max-width: 720px) { .sheet-inner { padding: 26px 22px 32px; } }
+
+/* ---------- Enfeites: halo + fagulhas, tudo ATRÁS da folha (lição da v1.28.1) ----------
+   .sheet tem z-index:1 e fundo quase opaco, então nada daqui mancha a leitura. Os dois são
+   pointer-events:none de propósito: ornamento que come clique é bug, não estética. */
+.f5-glow {
+  position: fixed; z-index: 0; pointer-events: none;
+  width: 62vmin; height: 62vmin; left: 50%; top: -8vmin; transform: translateX(-50%);
+  background: var(--fs-halo);
+  animation: f5-resp 9s ease-in-out infinite;
+}
+.f5-embers { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.f5-embers i {
+  position: absolute; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--fs-spark); filter: blur(.4px);
+  box-shadow: 0 0 10px var(--fs-spark);
+  animation: f5-sobe 11s linear infinite;
+}
+@keyframes f5-resp { 0%, 100% { opacity: .75; } 50% { opacity: 1; } }
+@keyframes f5-sobe {
+  0%   { transform: translate3d(0, 20px, 0) scale(.6); opacity: 0; }
+  18%  { opacity: .9; }
+  100% { transform: translate3d(-14px, -140px, 0) scale(1); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .f5-glow, .f5-embers i { animation: none; }
+}
+
+/* ---------- Cabeçalho ---------- */
+.portrait { border-color: var(--fs-accent-deep); }
+html[data-theme="dark"] .portrait {
+  box-shadow: 0 0 0 5px rgba(224,72,58,.16), 0 0 42px rgba(255,110,60,.34), 0 12px 26px var(--fs-glow);
+}
+.char-name { color: var(--fs-accent); text-shadow: 0 0 28px var(--fs-glow); }
+/* "CLARA MASORACK" em Cinzel 44px/5px é comprido demais e passava por baixo do botão Sair:
+   nome um pouco menor e respiro à direita — em telas estreitas ele quebra, não se esconde. */
+.sheet-header .char-name { font-size: 38px; letter-spacing: 3px; padding-right: 96px; }
+.f5-tag {
+  display: inline-block; margin: 4px 0 12px; padding: 4px 13px; border-radius: 999px;
+  border: 1px solid var(--fs-accent); color: var(--fs-accent);
+  background: var(--fs-card);
+  font-family: var(--serif-title); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+}
+
+/* vida = o vermelho do vidro; sanidade = o verde da mata onde ela achou o capuz */
+.hp-fill { box-shadow: 0 0 14px rgba(255,110,60,.5) inset, 0 0 10px rgba(255,90,50,.32); }
+.san-fill { box-shadow: 0 0 12px rgba(80,180,140,.28) inset; }
+
+/* ---------- O que ela faz na mesa ----------
+   A lista do perfil (.faz-list) é estrutura compartilhada e mora no css/ficha-base.css,
+   pintada com as --fs-* daqui. Em Clara ela sai em papel de carta com o ✦ vermelho. */
+.faz-list li::before { text-shadow: 0 0 10px var(--fs-accent); }
+
+/* a história dela: o vermelho do capuz como filete à esquerda */
+.story-block { border-left: 4px solid var(--fs-accent); }
+.story-block .story-text b { color: var(--fs-accent); }
+
+/* os três cartões deixaram de ser "a definir" (só o terceiro ainda é) */
+.slot-card { border-style: solid; border-left: 3px solid var(--fs-accent); }
+.slot-card:hover { border-color: var(--fs-line); border-left-color: var(--fs-accent-deep); }
+
+/* ---------- Painel do lampião (js/lampiao.js desenha isto) ---------- */
+
+/* O tutorial do lampião, em ficha5.html ANTES dos números. É um <details>: fechado
+   ele é uma linha só, e o estado aberto é lembrado no save da ficha (js/lampiao.js). */
+.lamp-tutorial {
+  min-width: 0; margin: 0 0 18px;
+  background: var(--fs-card); border: 1px solid var(--fs-line);
+  border-left: 4px solid var(--fs-accent); border-radius: 12px;
+}
+.lamp-tutorial > summary {
+  cursor: pointer; list-style: none;
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  padding: 13px 16px; font-family: var(--serif-title);
+  font-size: 13.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--fs-accent-deep);
+}
+.lamp-tutorial > summary::-webkit-details-marker { display: none; }
+.lamp-tutorial > summary::before {
+  content: '▸'; color: var(--fs-accent); font-size: 14px;
+  transition: transform .18s ease;
+}
+.lamp-tutorial[open] > summary::before { transform: rotate(90deg); }
+.lamp-tutorial > summary:hover { color: var(--fs-accent); }
+.lamp-tutorial > summary small {
+  font-family: var(--serif-body); font-size: 12px; letter-spacing: .3px;
+  text-transform: none; color: var(--fs-muted);
+}
+.lamp-tut-corpo {
+  padding: 4px 16px 16px; border-top: 1px dashed var(--fs-line);
+  min-width: 0;
+}
+.lamp-tut-corpo .m-block-title { margin: 16px 0 8px; }
+
+.lamp-passos { margin: 12px 0 14px; padding-left: 22px; display: grid; gap: 8px; }
+.lamp-passos li { font-size: 14px; line-height: 1.55; color: var(--fs-muted); padding-left: 4px; }
+.lamp-passos li::marker { color: var(--fs-accent); font-weight: 700; }
+.lamp-passos li b { color: var(--fs-ink); font-weight: 600; }
+.lamp-passos li i { color: var(--fs-accent); font-style: italic; }
+/* fundo tinta (fs-glow) em vez de fs-page: fs-page é gradiente, e pintaria um
+   recorte da parede dentro da caixa. */
+.lamp-exemplo {
+  min-width: 0; margin: 0 0 14px; padding: 12px 14px;
+  background: var(--fs-glow); border: 1px dashed var(--fs-accent-deep); border-radius: 10px;
+  font-size: 14px; line-height: 1.6; color: var(--fs-ink);
+}
+.lamp-exemplo b { color: var(--fs-accent); }
+.lamp-exemplo i { color: var(--fs-accent-deep); font-style: italic; }
+.lamp-nao { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.lamp-nao li { font-size: 13.5px; line-height: 1.5; color: var(--fs-muted); }
+.lamp-nao li b { color: var(--fs-danger); font-weight: 600; }
+
+.lamp-strip {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  background: var(--fs-card); border: 1px solid var(--fs-line); border-radius: 12px; padding: 12px 14px;
+  margin-bottom: 16px;
+}
+.lamp-mundo { border-color: var(--fs-accent-deep); }
+.lamp-almas {
+  font-family: var(--serif-title); font-size: 17px; letter-spacing: 1px; color: var(--fs-accent-deep);
+  padding: 6px 14px; border-radius: 999px; border: 1px dashed var(--fs-accent);
+  background: var(--fs-sheet); white-space: nowrap;
+}
+.lamp-longe { border-style: dashed; }
+.lamp-longe:hover { background: var(--fs-danger); border-color: var(--fs-danger); }
+
+.lamp-acoes { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.lamp-acoes .mini-btn { font-size: 15px; padding: 9px 15px; }
+.lamp-acoes .mini-btn.ok { border-color: var(--fs-ok); color: var(--fs-ok); }
+.lamp-acoes .mini-btn.ok:hover { background: var(--fs-ok); color: #fff; border-color: var(--fs-ok); }
+/* os dois botões de invocação são a própria luz vermelha: borda, brilho e hover em brasa */
+.lamp-acoes .mini-btn.danger {
+  border-color: var(--fs-accent); color: var(--fs-accent);
+  box-shadow: 0 0 14px rgba(224,72,58,.22);
+}
+.lamp-acoes .mini-btn.danger:hover { background: var(--fs-accent); color: #fff; }
+.lamp-acoes .mini-btn small { font-style: italic; opacity: .85; margin-left: 4px; }
+
+.lamp-result {
+  min-height: 0; margin: 0 0 12px; font-size: 15.5px; line-height: 1.55; color: var(--fs-muted);
+}
+.lamp-result.show {
+  padding: 13px 16px; border-radius: 10px; background: var(--fs-sheet);
+  border: 1px solid var(--fs-line); border-left: 4px solid var(--fs-muted); color: var(--fs-ink);
+}
+.lamp-result.show.bom { border-left-color: var(--fs-ok); }
+.lamp-result.show.ruim { border-left-color: var(--fs-danger); color: var(--fs-danger); }
+
+/* ---------- As duas tabelas do d10: a aleatoriedade escrita, não narrada ---------- */
+.lamp-tabellas { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin: 20px 0 18px; }
+.lamp-tab { background: var(--fs-card); border: 1px solid var(--fs-line); border-radius: 12px; padding: 14px 16px; min-width: 0; }
+/* a linha "como ler" — sem ela a tabela parece um menu onde ela escolhe a linha */
+.lamp-comoler {
+  margin: 0 0 10px; padding-left: 10px; font-size: 12.5px; line-height: 1.5;
+  color: var(--fs-muted); border-left: 2px solid var(--fs-accent-soft);
+}
+/* linha que devolve uma cena pra mesa em vez de dano */
+.lamp-cena {
+  display: block; margin-top: 4px; font-size: 12px; line-height: 1.45;
+  font-style: italic; color: var(--fs-accent-deep);
+}
+.lamp-tb { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.lamp-tb th {
+  text-align: left; font-family: var(--serif-title); font-size: 10.5px; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--fs-muted); font-weight: 600;
+  border-bottom: 1px solid var(--fs-line); padding: 6px 8px;
+}
+.lamp-tb td { padding: 6px 8px; border-bottom: 1px dashed var(--fs-line); vertical-align: top; color: var(--fs-ink); }
+.lamp-tb tr:last-child td { border-bottom: none; }
+.lamp-tb tr:nth-child(even) td { background: rgba(80,60,20,.045); }
+html[data-theme="dark"] .lamp-tb tr:nth-child(even) td { background: rgba(255,255,255,.03); }
+.lamp-face {
+  font-family: var(--serif-title); font-weight: 700; color: var(--fs-accent-deep);
+  width: 2.2em; text-align: center;
+}
+.lamp-tb tr:first-of-type .lamp-face, .lamp-tb tr:last-child .lamp-face { color: var(--fs-accent); }
+.lamp-r { line-height: 1.4; }
+.lamp-d { font-family: var(--serif-title); color: var(--fs-danger); white-space: nowrap; }
+.lamp-c { font-size: 12.5px; color: var(--fs-muted); line-height: 1.4; }
+
+/* o bloco que ainda não tem regra: pontilhado de propósito, pra ninguém ler como pronto */
+.lamp-aberto { border-style: dashed; border-left: 4px dashed var(--fs-accent-deep); }
+.lamp-aberto .story-text { color: var(--fs-muted); font-style: italic; }
+
+/* ---------- O resto herda o vermelho só onde é a luz dela ---------- */
+.chip { box-shadow: 0 0 12px var(--fs-glow); }
+html[data-theme="dark"] .chip.gm { background: #1d100e; color: #f4d6cc; }
+.attr-card:hover { box-shadow: 0 10px 24px rgba(224,72,58,.18); }
+.roll-log .log-crit { color: var(--fs-ok); }

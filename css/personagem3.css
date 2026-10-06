@@ -1,0 +1,415 @@
+/* ===== Ficha do Dante — humano cartomante (verde · branco · tom mármore quente) =====
+   Direção de arte: papel de baralho claro, linhas finas, muito espaço.
+   Verde-floresta para autoridade, marrom-caramelo para calor, nada de enfeites flutuantes. */
+body.santiago-body {
+  --st-green: #2f6b4f;        /* verde-floresta (acentos) */
+  --st-green-deep: #1f4a37;
+  --st-green-soft: #8fb8a3;
+  --st-brown: #8a6a4a;        /* mármore quente / caramelo */
+  --st-brown-soft: #c9ab8a;
+  --st-gold: #c2a24e;
+  --st-danger: #b34a3f;
+  --st-teal: #3d8f7a;
+  --st-ink: #2c2a24;
+  --st-muted: #8a8378;
+  --st-line: #e3ddcf;
+  --st-panel: #f3f6f1;
+  --st-cream: #faf8f2;
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(47,107,79,.10), transparent 42%),
+    radial-gradient(ellipse at 92% 100%, rgba(138,106,74,.10), transparent 42%),
+    linear-gradient(168deg, #f4f2ea 0%, #eef0e8 48%, #f6f4ee 100%);
+  color: var(--st-ink);
+  min-height: 100vh;
+  padding: 30px 16px 80px;
+}
+
+/* ---------- Moldura ---------- */
+.sheet {
+  position: relative; max-width: 1020px; margin: 0 auto;
+  background: rgba(255,255,254,.97);
+  border: 1px solid var(--st-brown-soft);
+  border-radius: 14px;
+  box-shadow: 0 0 0 5px rgba(255,255,255,.75), 0 0 0 6px rgba(138,106,74,.28), 0 24px 60px rgba(50,45,30,.18);
+  overflow: hidden;
+}
+.sheet-inner { position: relative; z-index: 1; padding: 32px 42px 40px; }
+
+.logout-link {
+  position: absolute; top: 16px; right: 22px; z-index: 5;
+  font-size: 14px; letter-spacing: .5px; text-decoration: none;
+  color: var(--st-muted); border: 1px solid var(--st-line); border-radius: 20px; padding: 5px 14px;
+  transition: .2s;
+}
+.logout-link:hover { color: #fff; background: var(--st-green); border-color: var(--st-green); }
+
+/* ---------- Cabeçalho ---------- */
+.sheet-header { display: flex; align-items: center; gap: 30px; flex-wrap: wrap; margin-bottom: 26px; }
+.portrait-wrap { position: relative; flex: 0 0 auto; }
+.portrait {
+  position: relative;
+  width: 158px; height: 158px; border-radius: 50%; overflow: hidden; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 34% 30%, #eef5ee, #bfd8c6 60%, #6f9c81);
+  border: 4px solid var(--st-green); box-shadow: 0 0 0 5px rgba(47,107,79,.14), 0 12px 26px rgba(45,60,45,.25);
+}
+.portrait-emoji { font-size: 66px; }
+.portrait.has-img .portrait-emoji { display: none; }
+.portrait-img {
+  /* o tamanho/posição são definidos pelo JS (applyFraming) */
+  position: absolute;
+  max-width: none;
+  z-index: 1;
+}
+.portrait-hint {
+  position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+  font-size: 9.5px; letter-spacing: .5px; white-space: nowrap; color: #fff;
+  background: rgba(31,74,55,.75); padding: 3px 9px; border-radius: 20px; opacity: 0; transition: .2s;
+}
+.portrait:hover .portrait-hint { opacity: 1; }
+.portrait-remove {
+  position: absolute; top: -4px; right: -4px; width: 28px; height: 28px; border-radius: 50%;
+  border: none; background: var(--st-danger); color: #fff; font-size: 14px; cursor: pointer; z-index: 3;
+}
+.head-info { flex: 1; min-width: 240px; }
+.char-name {
+  font-family: var(--serif-title); font-size: 44px; letter-spacing: 5px; text-transform: uppercase;
+  color: var(--st-green-deep); line-height: 1;
+}
+.char-class { font-style: italic; font-size: 18px; color: var(--st-brown); margin: 6px 0 16px; }
+.bio-grid { display: flex; flex-wrap: wrap; gap: 10px 22px; }
+.bio-item { font-size: 15px; color: var(--st-ink); }
+.bio-item b { color: var(--st-green); font-weight: 600; margin-right: 5px; }
+
+/* ---------- Vitais ---------- */
+.vitals { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; align-items: start; margin-bottom: 26px; }
+.vitals-left { display: grid; gap: 16px; }
+.hp-block, .status-block {
+  background: var(--st-panel); border: 1px solid var(--st-line); border-radius: 10px; padding: 14px 16px;
+}
+.hp-label { display: flex; justify-content: space-between; font-size: 15px; margin-bottom: 8px; color: var(--st-green-deep); font-weight: 600; }
+.hp-bar { height: 20px; border-radius: 20px; background: #e6e4d8; overflow: hidden; border: 1px solid var(--st-line); }
+.hp-fill { height: 100%; width: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--st-teal), #6cbfa4); transition: width .35s ease; }
+.san-fill { background: linear-gradient(90deg, var(--st-brown), var(--st-brown-soft)); }
+.hp-controls { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.hp-controls input { width: 56px; padding: 6px 8px; border: 1px solid var(--st-line); border-radius: 6px; font-size: 14px; }
+
+.mini-btn {
+  font-family: var(--serif-body); font-size: 14px; padding: 6px 12px; border-radius: 7px; cursor: pointer;
+  border: 1px solid var(--st-green-soft); background: #fff; color: var(--st-green-deep); transition: .18s;
+}
+.mini-btn:hover { background: var(--st-green); color: #fff; border-color: var(--st-green); }
+.mini-btn:disabled { opacity: .4; cursor: not-allowed; }
+.mini-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+/* ---------- Efeitos ---------- */
+.status-chips { display: flex; flex-wrap: wrap; gap: 8px; min-height: 30px; }
+.chip { font-size: 13px; padding: 5px 11px; border-radius: 20px; background: var(--st-green); color: #fff; cursor: pointer; }
+.chip.empty { background: transparent; color: var(--st-muted); border: 1px dashed var(--st-line); cursor: default; }
+.chip.carta { background: linear-gradient(135deg, var(--st-brown), #6d5238); }
+.chip.carta-neg { background: linear-gradient(135deg, var(--st-danger), #8d362e); }
+/* marca do mestre (morte/incapacitado): não se descarta clicando */
+.chip.gm { background: #2c2a24; color: #f3f0e6; cursor: not-allowed; border: 1px solid var(--st-danger); }
+.chip.gm.morte { background: linear-gradient(135deg, #6d2a24, #2c2a24); }
+.status-actions { display: flex; gap: 8px; margin-top: 12px; }
+.status-actions input { flex: 1; padding: 7px 10px; border: 1px solid var(--st-line); border-radius: 6px; font-size: 14px; }
+.status-msg, .hint-note { font-size: 12.5px; font-style: italic; color: var(--st-muted); margin-top: 8px; }
+
+/* ---------- Abas ---------- */
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; border-bottom: 2px solid var(--st-line); margin-bottom: 22px; }
+.tab-btn {
+  font-family: var(--serif-title); font-size: 15px; letter-spacing: 1px; text-transform: uppercase;
+  padding: 10px 20px; border: none; background: transparent; color: var(--st-muted); cursor: pointer;
+  border-bottom: 3px solid transparent; margin-bottom: -2px; transition: .18s;
+}
+.tab-btn:hover { color: var(--st-green); }
+.tab-btn.active { color: var(--st-green-deep); border-bottom-color: var(--st-green); }
+.panel { display: none; animation: fade .3s ease; }
+.panel.active { display: block; }
+@keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.panel h2 { font-family: var(--serif-title); font-size: 22px; letter-spacing: 2px; text-transform: uppercase; color: var(--st-green-deep); margin-bottom: 6px; }
+.panel-intro { font-size: 15px; color: var(--st-muted); margin-bottom: 18px; }
+
+/* ---------- Perfil ---------- */
+.obsessao-card { display: flex; gap: 16px; background: var(--st-cream); border: 1px solid var(--st-line); border-left: 4px solid var(--st-gold); border-radius: 10px; padding: 18px; margin-bottom: 22px; }
+.obs-icon { font-size: 40px; line-height: 1; }
+.obs-name { font-family: var(--serif-title); font-size: 19px; color: var(--st-green-deep); margin-bottom: 6px; outline: none; }
+.obs-desc { font-size: 15.5px; line-height: 1.5; color: var(--st-ink); outline: none; }
+.story-block { background: #fff; border: 1px solid var(--st-line); border-radius: 10px; padding: 18px; }
+.story-text { font-size: 16px; line-height: 1.6; outline: none; }
+[contenteditable="true"]:focus { background: rgba(143,184,163,.16); border-radius: 4px; }
+
+/* ---------- Atributos ---------- */
+.attr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.attr-card {
+  position: relative; background: #fff; border: 1px solid var(--st-line); border-top: 3px solid var(--st-green-soft);
+  border-radius: 10px; padding: 16px; text-align: center; cursor: pointer; transition: .18s;
+}
+.attr-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(45,60,45,.14); border-top-color: var(--st-green); }
+.attr-card.rolled { animation: attrPop .5s ease; }
+@keyframes attrPop { 30% { box-shadow: 0 0 0 4px rgba(47,107,79,.3); } }
+.attr-name { font-family: var(--serif-title); font-size: 15px; letter-spacing: 1px; color: var(--st-green-deep); text-transform: uppercase; }
+.attr-value { width: 74px; margin: 8px auto 4px; display: block; text-align: center; font-size: 22px; font-family: var(--serif-title); border: 1px solid var(--st-line); border-radius: 8px; padding: 4px; }
+.attr-mod { font-size: 13px; color: var(--st-muted); }
+.attr-result { min-height: 20px; margin-top: 8px; font-family: var(--serif-title); font-size: 14px; color: var(--st-teal); }
+.attr-hint { font-size: 11px; color: #a9a294; margin-top: 4px; }
+
+/* ---------- Rolador ---------- */
+.roller { background: var(--st-panel); border: 1px solid var(--st-line); border-radius: 12px; padding: 18px 20px; }
+.roll-config { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin-bottom: 14px; }
+.roll-config label { display: flex; flex-direction: column; font-size: 12px; color: var(--st-muted); font-weight: 600; gap: 4px; }
+.roll-config select, .roll-config input { padding: 8px 10px; border: 1px solid var(--st-line); border-radius: 6px; font-size: 15px; background: #fff; }
+.roll-config input { width: 62px; }
+.btn-major {
+  font-family: var(--serif-title); font-size: 16px; letter-spacing: 1px; padding: 10px 26px; border-radius: 8px; cursor: pointer;
+  border: none; background: linear-gradient(135deg, var(--st-green-deep), var(--st-green)); color: #fff; box-shadow: 0 6px 16px rgba(31,74,55,.35); transition: .18s;
+}
+.btn-major:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(31,74,55,.45); }
+.btn-major:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.roll-display { display: flex; align-items: center; gap: 16px; }
+.die { font-size: 42px; display: inline-block; }
+.die.spinning { animation: spin .55s ease; }
+@keyframes spin { from { transform: rotate(0) scale(1); } to { transform: rotate(360deg) scale(1.2); } }
+.die.crit { color: #1d8a4f; } .die.fumble { color: var(--st-danger); }
+.roll-msg { font-size: 16px; font-family: var(--serif-title); color: var(--st-green-deep); }
+
+/* ---------- Tarot ---------- */
+.tarot-main { display: grid; gap: 18px; }
+.draw-box { display: flex; gap: 26px; align-items: center; flex-wrap: wrap; background: var(--st-cream); border: 1px solid var(--st-line); border-radius: 14px; padding: 22px; }
+
+/* carta com flip */
+.drawn-card { width: 150px; height: 240px; perspective: 900px; flex: 0 0 auto; }
+.card-inner {
+  position: relative; width: 100%; height: 100%;
+  transform-style: preserve-3d; transition: transform .7s cubic-bezier(.4,.1,.2,1);
+}
+.drawn-card.flipped .card-inner { transform: rotateY(180deg); }
+.card-face {
+  position: absolute; inset: 0; backface-visibility: hidden;
+  border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  border: 2px solid var(--st-brown-soft); box-shadow: 0 10px 26px rgba(50,45,30,.25);
+}
+.card-back {
+  font-size: 64px; color: #e9e4d4;
+  background:
+    repeating-linear-gradient(45deg, rgba(255,255,255,.05) 0 6px, transparent 6px 12px),
+    linear-gradient(160deg, var(--st-green), var(--st-green-deep));
+  border-color: var(--st-gold);
+}
+.card-front { transform: rotateY(180deg); background: linear-gradient(170deg, #fffdf6, var(--st-cream)); border-color: var(--st-gold); padding: 10px; text-align: center; }
+.cf-emoji { font-size: 54px; }
+.cf-nome { font-family: var(--serif-title); font-size: 15px; letter-spacing: 1px; text-transform: uppercase; color: var(--st-green-deep); }
+.cf-sig { font-size: 11.5px; font-style: italic; color: var(--st-muted); line-height: 1.35; padding: 0 6px; }
+.drawn-card.pulse .card-inner { animation: cardGlow 1s ease; }
+@keyframes cardGlow { 30% { box-shadow: 0 0 0 6px rgba(194,162,78,.5), 0 14px 30px rgba(50,45,30,.4); } }
+
+.draw-side { flex: 1; min-width: 260px; display: grid; gap: 10px; }
+.card-effect { font-size: 15.5px; line-height: 1.55; color: var(--st-ink); min-height: 48px; }
+.card-effect b { color: var(--st-green-deep); }
+.target-label { display: flex; flex-direction: column; font-size: 12px; color: var(--st-muted); font-weight: 600; gap: 4px; }
+.target-label select { padding: 8px 10px; border: 1px solid var(--st-line); border-radius: 8px; font-size: 15px; background: #fff; max-width: 320px; }
+
+/* escolha dos Enamorados */
+.lovers-pick { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; background: #fdf6ea; border: 1px dashed var(--st-gold); border-radius: 12px; padding: 14px 16px; }
+.lovers-pick .lp-card {
+  cursor: pointer; background: #fff; border: 2px solid var(--st-brown-soft); border-radius: 10px;
+  padding: 10px 16px; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: .15s;
+}
+.lovers-pick .lp-card:hover { transform: translateY(-3px); border-color: var(--st-gold); box-shadow: 0 8px 18px rgba(50,45,30,.2); }
+.lovers-pick .lp-card span { font-size: 30px; }
+.lovers-pick .lp-note { font-size: 14px; font-style: italic; color: var(--st-brown); max-width: 260px; }
+
+/* baralho */
+.m-block-title { font-size: 13px; letter-spacing: 1px; text-transform: uppercase; color: var(--st-muted); margin-bottom: 6px; }
+.deck-title { margin-top: 6px; }
+.deck-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 10px; }
+.deck-card {
+  background: #fff; border: 1px solid var(--st-line); border-top: 3px solid var(--st-green-soft);
+  border-radius: 9px; padding: 9px 6px 7px; text-align: center; cursor: pointer; transition: .15s; user-select: none;
+}
+.deck-card:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(45,60,45,.16); border-top-color: var(--st-gold); }
+.deck-card.just-drawn { border-color: var(--st-gold); box-shadow: 0 0 0 2px rgba(194,162,78,.45); }
+.dc-emoji { font-size: 26px; display: block; }
+.dc-nome { display: block; font-family: var(--serif-title); font-size: 10.5px; letter-spacing: .3px; color: var(--st-green-deep); line-height: 1.15; min-height: 24px; }
+.dc-pct { display: inline-block; margin-top: 4px; font-size: 10px; font-weight: 700; color: var(--st-brown); background: #f5ede0; border-radius: 10px; padding: 1px 7px; }
+.card-info { font-size: 14px; line-height: 1.5; color: var(--st-ink); background: var(--st-panel); border: 1px solid var(--st-line); border-radius: 10px; padding: 12px 14px; min-height: 44px; }
+.card-info b { color: var(--st-green-deep); }
+
+/* inimigos */
+.enemy-list { display: grid; gap: 10px; }
+.enemy-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; background: #fff; border: 1px solid var(--st-line); border-left: 3px solid var(--st-danger); border-radius: 10px; padding: 10px 14px; }
+.enemy-row input { width: 190px; padding: 7px 10px; border: 1px solid var(--st-line); border-radius: 6px; font-size: 14.5px; font-family: var(--serif-body); }
+.enemy-row.dead { opacity: .72; border-left-color: #2c2a24; background: #efece2; }
+.enemy-row.dead input { text-decoration: line-through; color: var(--st-muted); }
+.enemy-row.caido { border-left-color: #c0483d; background: #fdf4f2; }
+.enemy-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.enemy-chips .chip { font-size: 12px; padding: 3px 9px; }
+/* vida do inimigo — é onde o dano das cartas aparece */
+.enemy-hp { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; flex: 1 1 210px; min-width: 210px; }
+.enemy-hp input { width: 54px; padding: 3px 6px; font-size: 12.5px; font-family: var(--serif-body); }
+.enemy-bar { position: relative; flex: 1 1 100%; height: 17px; border-radius: 20px; background: #ece5da; border: 1px solid var(--st-line); overflow: hidden; }
+.enemy-fill { background: linear-gradient(90deg, #a8382f, #d8705f); transition: width .35s ease; }
+.ehp-txt { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; letter-spacing: .3px; color: #3b3a30; }
+.ehp-lb { font-size: 10.5px; text-transform: uppercase; letter-spacing: .6px; color: var(--st-muted); }
+.chip.caido { background: #f7dedb; color: #9c2f27; border-color: #e0b3ad; }
+
+/* ---------- Histórico de rolagem ---------- */
+.roll-log { list-style: none; max-height: 460px; overflow-y: auto; border: 1px solid var(--st-line); border-radius: 10px; background: #fff; }
+.roll-log li { padding: 12px 16px; border-bottom: 1px dashed var(--st-line); display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.roll-log li:last-child { border-bottom: none; }
+.roll-log .log-total { font-family: var(--serif-title); font-weight: 700; color: var(--st-green-deep); white-space: nowrap; }
+.roll-log .log-crit { color: #1d7a3f; } .roll-log .log-fumble { color: var(--st-danger); }
+.roll-log .log-detail { font-style: italic; color: var(--st-muted); font-size: 14px; }
+.roll-log .log-who { display: inline-block; margin-right: 8px; padding: 1px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; background: rgba(47,107,79,.12); color: var(--st-green-deep); border: 1px solid rgba(47,107,79,.4); }
+.roll-log .log-who.mestre { background: rgba(138,106,74,.14); color: var(--st-brown); border-color: rgba(138,106,74,.5); }
+.roll-log .log-empty { justify-content: center; font-style: italic; color: var(--st-muted); }
+
+/* ---------- Rodapé ---------- */
+footer.sheet-footer { max-width: 1020px; margin: 22px auto 0; text-align: center; font-size: 13px; font-style: italic; color: var(--st-muted); }
+.sheet-monitor { display: inline-block; margin-top: 6px; font-size: 12px; opacity: .85; }
+
+/* ---------- Editor de retrato ---------- */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 80;
+  background: rgba(22, 28, 22, .74);
+  display: flex; align-items: center; justify-content: center;
+  animation: fade .25s ease;
+}
+.modal-overlay[hidden] { display: none; }
+.modal {
+  width: min(380px, 92vw);
+  padding: 26px 28px;
+  background: linear-gradient(180deg, #fff, var(--st-panel));
+  border: 1px solid var(--st-green-soft); border-radius: 18px;
+  color: var(--st-ink);
+  box-shadow: 0 0 0 5px rgba(47,107,79,.12), 0 30px 80px rgba(0,0,0,.5);
+}
+.modal h3 {
+  font-family: var(--serif-title); font-size: 16px;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--st-green-deep); margin-bottom: 4px;
+}
+.modal-sub { font-style: italic; font-size: 14.5px; color: var(--st-muted); margin-bottom: 16px; }
+.crop-stage {
+  position: relative;
+  width: 280px; height: 280px;
+  max-width: 100%;
+  margin: 0 auto 14px;
+  border-radius: 50%; overflow: hidden;
+  border: 3px solid var(--st-green);
+  background: #e8efe8;
+  cursor: grab;
+  touch-action: none;
+}
+.crop-stage:active { cursor: grabbing; }
+.crop-stage img {
+  /* o tamanho/posição são definidos pelo JS (applyFraming) */
+  position: absolute;
+  max-width: none;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.crop-controls {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 18px; font-size: 15px; flex-wrap: wrap;
+}
+.crop-controls input[type="range"] { width: 150px; accent-color: var(--st-green); vertical-align: middle; }
+.modal-actions { display: flex; gap: 10px; }
+.modal-actions .btn-major { flex: 1; padding: 11px; font-size: 12px; }
+
+/* ---------- Carta que segue o cursor (só PC) ---------- */
+.cursor-card {
+  position: fixed; top: 0; left: 0; z-index: 9999;
+  width: 30px; height: 44px;
+  display: grid; place-items: center;
+  border-radius: 5px;
+  background: linear-gradient(158deg, #fdfaf2, #efe6d2);
+  border: 1px solid var(--st-gold);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.7), 0 4px 12px rgba(31,58,45,.28);
+  color: var(--st-green-deep);
+  font-size: 17px; line-height: 1;
+  pointer-events: none; user-select: none;
+  opacity: 0; transition: opacity .25s;
+  will-change: transform;
+}
+.cursor-card.seen { opacity: .96; }
+.cursor-card.flip .cc-face { animation: cc-flip .45s ease; }
+@keyframes cc-flip {
+  0% { transform: rotateY(90deg) scale(.85); opacity: .25; }
+  100% { transform: rotateY(0deg) scale(1); opacity: 1; }
+}
+@media (hover: none) { .cursor-card { display: none; } }
+
+/* =========================================================
+   TEMA ESCURO — velada à luz de vela
+   ========================================================= */
+html[data-theme="dark"] body.santiago-body {
+  --st-green: #5f9c7c;
+  --st-green-deep: #8fc0a4;
+  --st-green-soft: #3c6350;
+  --st-brown: #b3906a;
+  --st-brown-soft: #7a5f43;
+  --st-ink: #e9e6da;
+  --st-muted: #9a947f;
+  --st-line: #36403a;
+  --st-panel: #1e2622;
+  --st-cream: #232c27;
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(95,156,124,.10), transparent 42%),
+    radial-gradient(ellipse at 92% 100%, rgba(179,144,106,.08), transparent 42%),
+    linear-gradient(168deg, #141a16 0%, #101511 48%, #171a14 100%);
+}
+html[data-theme="dark"] .sheet { background: rgba(24,30,26,.97); border-color: #3c4a40; box-shadow: 0 0 0 5px rgba(20,26,22,.7), 0 0 0 6px rgba(143,192,164,.25), 0 24px 60px rgba(0,0,0,.5); }
+html[data-theme="dark"] .mini-btn { background: #232c27; color: var(--st-green-deep); border-color: #3c6350; }
+html[data-theme="dark"] .mini-btn:hover { background: var(--st-green-soft); color: #fff; }
+html[data-theme="dark"] .cursor-card { background: linear-gradient(158deg, #2b352e, #1c241f); border-color: #7a6a3a; color: #e9e6da; box-shadow: inset 0 0 0 1px rgba(143,192,164,.18), 0 4px 14px rgba(0,0,0,.5); }
+html[data-theme="dark"] .hp-bar, html[data-theme="dark"] .attr-value, html[data-theme="dark"] .hp-controls input,
+html[data-theme="dark"] .status-actions input, html[data-theme="dark"] .roll-config select, html[data-theme="dark"] .roll-config input,
+html[data-theme="dark"] .target-label select, html[data-theme="dark"] .enemy-row input { background: #1a211d; border-color: var(--st-line); color: var(--st-ink); }
+html[data-theme="dark"] .enemy-bar { background: #141a17; border-color: #3c4a40; }
+html[data-theme="dark"] .ehp-txt { color: #ddd7c6; }
+html[data-theme="dark"] .enemy-fill { background: linear-gradient(90deg, #7d2a24, #b8544a); }
+html[data-theme="dark"] .chip.caido { background: #3a231f; color: #e8a79c; border-color: #6b3a33; }
+html[data-theme="dark"] .enemy-row.caido { background: #2a211d; }
+html[data-theme="dark"] .attr-card, html[data-theme="dark"] .story-block, html[data-theme="dark"] .deck-card, html[data-theme="dark"] .enemy-row,
+html[data-theme="dark"] .lovers-pick .lp-card, html[data-theme="dark"] .roll-log { background: #1e2622; }
+html[data-theme="dark"] .card-front { background: linear-gradient(170deg, #2a332c, #222a24); }
+html[data-theme="dark"] .cf-nome { color: var(--st-green-deep); }
+html[data-theme="dark"] .dc-pct { background: #2c2a1e; color: var(--st-brown); }
+html[data-theme="dark"] .modal { background: linear-gradient(180deg, #232c27, #1a211d); color: var(--st-ink); }
+html[data-theme="dark"] .crop-stage { background: #1a211d; }
+html[data-theme="dark"] .btn-major { background: linear-gradient(135deg, #2c5744, #3c6350); }
+
+/* ---------- Inventário (armas do mestre) ---------- */
+.inv-empty {
+  text-align: center; padding: 44px 20px;
+  border: 2px dashed var(--st-green-soft); border-radius: 12px;
+  color: var(--st-muted); font-style: italic; font-size: 16.5px;
+}
+.inv-empty span { font-size: 34px; display: block; margin-bottom: 10px; }
+.weapon-list { list-style: none; display: grid; gap: 12px; }
+.weapon-item {
+  display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 14px 18px;
+  background: var(--st-panel); border: 1px solid var(--st-line); border-left: 3px solid var(--st-green);
+  border-radius: 12px;
+}
+.weapon-item .w-name { font-weight: 600; font-family: var(--serif-title); letter-spacing: .5px; color: var(--st-green-deep); }
+.weapon-item .w-dice { font-family: var(--serif-title); color: var(--st-muted); font-size: 14px; }
+.w-actions { display: flex; align-items: center; gap: 12px; }
+.w-roll { padding: 6px 12px; }
+.weapon-result {
+  flex-basis: 100%; margin: 2px 0 0; font-family: var(--serif-title);
+  font-size: 13.5px; letter-spacing: .5px; color: var(--st-teal); opacity: 0;
+}
+.weapon-result.show { opacity: 1; animation: attrPop .45s ease; }
+html[data-theme="dark"] .weapon-item { background: #1e2622; }
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 820px) {
+  .vitals { grid-template-columns: 1fr; }
+  .char-name { font-size: 34px; }
+  .sheet-inner { padding: 26px 20px 32px; }
+  .draw-box { justify-content: center; }
+}

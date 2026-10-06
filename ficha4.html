@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vesper — luz dentro do Crepúsculo | Éclipse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css?v=150" />
+  <link rel="stylesheet" href="css/ficha-base.css?v=150" />
+  <link rel="stylesheet" href="css/ficha4.css?v=150" />
+  <script src="js/theme.js?v=150"></script>
+  <script src="js/firebase-config.js?v=150"></script>
+  <script src="js/store.js?v=150"></script>
+  <script src="js/conta.js?v=150"></script>
+</head>
+<body class="ficha-body f4-body">
+
+  <!-- A escuridão em volta da moldura + três brasas subindo. Fica em z-index 0, atrás do
+       .sheet (que é opaco): enfeite nenhum se interpõe entre você e o texto. -->
+  <div class="vp-night" aria-hidden="true">
+    <span class="vp-orb"></span><span class="vp-orb"></span><span class="vp-orb"></span>
+  </div>
+
+  <div class="boot-warn" id="bootWarn" hidden>
+    ⚠ A ficha abriu sem o motor (js/ficha-comum.js ou js/ficha4.js). Recarregue com
+    <b>Ctrl+Shift+R</b> — sem isso os botões aparecem na tela, mas não fazem nada.
+  </div>
+
+  <main class="sheet">
+    <div class="sheet-inner">
+      <a href="index.html" class="logout-link">Sair ⏎</a>
+
+      <!-- ===== Cabeçalho ===== -->
+      <header class="sheet-header">
+        <div class="portrait-wrap">
+          <div class="portrait" id="portrait" role="button" tabindex="0" title="Clique para carregar a imagem dela">
+            <span class="portrait-emoji">🕯️</span>
+            <img class="portrait-img" id="portraitImg" alt="Retrato dela" hidden />
+            <span class="portrait-hint" id="portraitHint">✦ clicar para carregar imagem ✦</span>
+          </div>
+          <input type="file" id="portraitFile" accept="image/*" hidden />
+          <button type="button" id="portraitRemove" class="portrait-remove" title="Tirar a imagem" hidden>✕</button>
+        </div>
+        <div class="head-info">
+          <h1 class="char-name" contenteditable="true" spellcheck="false" data-txt="nome">Vesper</h1>
+          <p class="char-class" contenteditable="true" spellcheck="false" data-txt="classe">✦ o amor da Flora — a alma que o Crepúsculo levou ✦</p>
+          <div class="bio-grid">
+            <div class="bio-item"><b>De onde</b> <span contenteditable="true" spellcheck="false" data-txt="bio1">Mundo Real (a mesma vida que a Flora conheceu)</span></div>
+            <div class="bio-item"><b>Onde está</b> <span contenteditable="true" spellcheck="false" data-txt="bio2">Dentro do Crepúsculo</span></div>
+            <div class="bio-item"><b>O que é</b> <span contenteditable="true" spellcheck="false" data-txt="bio3">Uma luz acesa no escuro — e ainda assim escuridão, por estar lá dentro</span></div>
+            <div class="bio-item"><b>O que segura</b> <span contenteditable="true" spellcheck="false" data-txt="bio4">Um vínculo com quem ficou aqui fora</span></div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ===== Personalidades =====
+           Ela são TRÊS na mesma pessoa (definição do mestre em 01/10). O botão fica fora das
+           abas, sempre visível, porque trocar de personalidade é coisa de meio de cena — não
+           se procura aba no meio de uma conversa. O bloco é montado por js/vesper.js; sem ele,
+           esta linha fica vazia e o resto da ficha continua funcionando. -->
+      <section class="pers-strip" id="persStrip" aria-label="Personalidade atual"></section>
+
+      <!-- ===== Vitais + Efeitos ===== -->
+      <section class="vitals">
+        <div class="vitals-left">
+          <div class="hp-block">
+            <div class="hp-label"><span id="hpNome">Brasa</span><span id="hpText">26 / 26</span></div>
+            <div class="hp-bar"><div class="hp-fill" id="hpFill"></div></div>
+            <div class="hp-controls">
+              <input type="number" id="hpInput" value="0" min="0" title="quantidade" />
+              <button class="mini-btn" id="hpDmg" data-act="🕯️ a brasa baixou">− Apagar</button>
+              <button class="mini-btn" id="hpHeal" data-act="🔥 a brasa subiu">+ Alimentar</button>
+              <button class="mini-btn" id="hpFull" data-act="🔥 brasa no máximo">Acesa</button>
+            </div>
+          </div>
+          <div class="hp-block">
+            <div class="hp-label"><span id="sanNome">Vínculo</span><span id="sanText">100 / 100</span></div>
+            <div class="hp-bar"><div class="hp-fill san-fill" id="sanFill"></div></div>
+            <div class="hp-controls">
+              <input type="number" id="sanInput" value="0" min="0" title="quantidade" />
+              <button class="mini-btn" id="sanDmg" data-act="🌫️ o vínculo afrouxou">− Afrouxa</button>
+              <button class="mini-btn" id="sanHeal" data-act="🧵 o vínculo apertou">+ Reata</button>
+              <button class="mini-btn" id="sanFull" data-act="🧵 vínculo inteiro">Firme</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="status-block">
+          <div class="hp-label"><span>Efeitos ativos <small>(máx. 6)</small></span><span id="statusCount">0/6</span></div>
+          <div class="status-chips" id="statusChips">
+            <span class="chip empty">sem marcas — adicione com ＋ ou aguarde o mestre</span>
+          </div>
+          <div class="status-actions">
+            <input type="text" id="statusInput" maxlength="26" placeholder="novo efeito…" />
+            <button type="button" class="mini-btn" id="statusAddBtn" data-act="➕ adicionou um efeito">＋ Add</button>
+          </div>
+          <p class="hint-note status-msg" id="statusMsg"></p>
+        </div>
+      </section>
+
+      <!-- ===== Abas ===== -->
+      <nav class="tabs">
+        <button class="tab-btn active" data-tab="perfil">Perfil</button>
+        <button class="tab-btn" data-tab="atributos">Status</button>
+        <button class="tab-btn" data-tab="poderes">Poderes</button>
+        <button class="tab-btn" data-tab="rolagem">Rolagem</button>
+        <button class="tab-btn" data-tab="inventario">Inventário</button>
+        <button class="tab-btn" data-tab="inimigos">Inimigos</button>
+      </nav>
+
+      <!-- Perfil -->
+      <section class="panel active" id="panel-perfil">
+        <h2>Quem é ela</h2>
+        <p class="panel-intro">O mestre ainda vai continuar esta história. Nada aqui está fechado de propósito: os textos são <b>editáveis</b> (clique e escreva) e o que você escrever fica salvo nesta ficha.</p>
+
+        <!-- O que ela faz na mesa HOJE, escrito para a jogadora não precisar perguntar.
+             É a lista do que já existe no motor dela — cada linha abaixo aponta para um botão
+             que funciona, e o que ainda não foi decidido pelo mestre está dito com todas as
+             letras, para ela não sair inventando rolagem que não tem regra. -->
+        <ul class="faz-list">
+          <li><b>🕯️ Brasa (26)</b> é a vida dela: a luz que ela carrega no meio da escuridão. Zerou, ela fica <b>☠️ Apagada</b> — e quem acende de novo é o <b>mestre</b>, não você.</li>
+          <li><b>❤ Vínculo (100)</b> é a sanidade: o que ainda amarra ela aqui fora. É o número que o Crepúsculo tenta comer.</li>
+          <li><b>✨ Os cinco status são de quem está no corpo.</b> Cada personalidade tem o próprio conjunto de números — a tabela completa está na aba Status, e o que está pintado ali em cima é sempre o de quem assume agora. <b>Carisma 16</b> é da Tessalha (ela não bate, ela <b>chega</b>); o Trinstan é o contrário de propósito: <b>Força 8</b>, <b>Inteligência 18</b>; e o Thalles é o do meio, feito de mira: <b>Destreza 17</b> e <b>Força 12</b> pra abrir o arco. Clique num card de Status para rolar <b>d10 + valor</b>.</li>
+          <li><b>🎲 Efeito que atrapalha ou ajuda</b> termina em <b>· +N</b> ou <b>· −N</b> e entra sozinho na conta da rolagem (teto de <b>±3</b> por marca) — a fórmula fica escrita na tela, nunca escondida.</li>
+          <li><b>🎭 Ela são três na mesma pessoa.</b> O botão de personalidade fica ali em cima, sempre à mão: <b>🌿 Tessalha</b> é a aura verde que recebe as curas e os buffs de quem ela escolher; <b>🌀 Trinstan</b> é a razão, e é ele quem arremessa a Orbe; <b>🏹 Thalles</b> é a luz que bate de longe, e é ele quem conjura o Arco. Trocar de personalidade troca <b>o poder, os cinco status e a cor da página</b> — e só <b>Brasa</b> e <b>Vínculo</b> atravessam a troca, porque é o mesmo corpo.</li>
+          <li><b>🌀 A Orbe do Trinstan é um dos dois dados que ela rola de propósito.</b> Escolhido o inimigo na aba Inimigos, aperta <b>🌀 Arremessar a Orbe</b>: sai um <b>d10 de velocidade</b> e o dano é <b>o dobro</b> dela. Orbe devagar (até 2) <b>passa direto</b> e não arranha. Cada lançamento cobra <b>1 de Vínculo</b> — <b>2</b> quando erra. Quem baixa a vida do bicho é o <b>mestre</b>: a Orbe mostra o número, não escreve na ficha dele.</li>
+          <li><b>🏹 O Arco do Thalles é o outro dado — e é o único poder que fere a alma.</b> Primeiro ele <b>carrega</b> o arco (até <b>3 cargas</b>, cada uma cobrando <b>1 de Vínculo</b>); depois solta a flecha e sai um <b>d10 de mira</b>. Cada carga guardada vale <b>4 de dano</b> e <b>−1 de vida MÁXIMA</b> do alvo. Mira <b>10</b> é em cheio e <b>dobra a mordida na alma</b>; até <b>2</b> a flecha <b>se desfaz no ar</b> e o Vínculo já gasto está perdido (cobra <b>2</b>). Vida máxima comida não volta sozinha: no máximo <b>6 por inimigo</b>, e a vida máxima dele nunca cai abaixo de <b>1</b>. Quem baixa o teto do bicho é o <b>mestre</b>: a ficha escreve a conta na tela e no histórico, não no bestiário.</li>
+          <li><b>🌿 A Tessalha não rola nada.</b> Ela é passiva de propósito: não gasta, não invoca, não queima — ela <b>chega junto</b> de quem já foi curada. Os três poderes convivem, mas cada um só aparece na aba Poderes <b>enquanto aquela personalidade está no corpo</b>.</li>
+          <li><b>👁️ Tudo que você clica aparece na tela do mestre</b>, e o histórico de rolagem é do grupo inteiro — vale pra ela tanto quanto vale pra Flora.</li>
+        </ul>
+        <div class="quote-block">
+          <div class="quote-icon">🕯️</div>
+          <div class="quote-info">
+            <div class="quote-text" contenteditable="true" spellcheck="false" data-txt="frase">“Eu não vim te buscar. Vim ficar perto o bastante pra você lembrar que ainda tem uma luz aqui.”</div>
+            <p class="quote-sub" contenteditable="true" spellcheck="false" data-txt="frase2">Regra da casa (ainda sem regra): quem está dentro do Crepúsculo não atravessa de volta de graça. Cada frase que ela diz custa alguma coisa — falta só o mestre dizer quanto.</p>
+          </div>
+        </div>
+        <div class="story-block">
+          <p class="m-block-title">História <small>(clique para editar)</small></p>
+          <p class="story-text" contenteditable="true" spellcheck="false" data-txt="historia">Ela foi o amor da Flora. A alma dela foi levada para o Crepúsculo — como foi que isso aconteceu, o mestre ainda vai contar. O que já se sabe do lugar: é escuro de verdade, e é justamente ela o ponto brilhante dele. Isso não a faz leve. Estar lá dentro é estar impregnada, então a luz e a escuridão aparecem nela ao mesmo tempo, e nenhuma das duas é disfarce. (continua amanhã)</p>
+        </div>
+        <div class="story-block">
+          <p class="m-block-title">Contas abertas para amanhã <small>(clique para editar / riscar o que for decidido)</small></p>
+          <p class="story-text" contenteditable="true" spellcheck="false" data-txt="abertas">☑ 01/10 — O que ela pode fazer: ela não é uma, são <b>três personalidades na mesma pessoa</b>, e a primeira (🌿 Tessalha) já foi escrita.<br>☑ 02/10 — A segunda chegou: 🌀 <b>Trinstan</b>, a razão, com a Orbe que arremessa (d10 de velocidade, dano em dobro, paga em Vínculo).<br>☑ 06/10 — Fechou a tríade: 🏹 <b>Thalles</b>, a luz, com o Arco de Luz que se carrega e cuja flecha come a <b>vida máxima</b> do alvo.<br>☐ Nome definitivo dela (hoje está só "Vesper", que é nome de trabalho).<br>☐ A <b>história</b> dos três — quem são, de onde cada um veio e por que dividem um corpo. O mestre manda depois; até lá, o que está escrito neles é a mecânica, não a biografia.<br>☐ A ferida de alma do Thalles <b>cura</b>? Hoje ela é permanente nas mãos da ficha: falta o mestre dizer quem devolve vida máxima perdida e quanto isso custa.<br>☐ A Tessalha cobra alguma coisa por receber o bem dos outros? Hoje ela não cobra nada — o limite é só a atenção (uma pessoa por vez, dois empréstimos no corpo).<br>☐ A Orbe do Trinstan deve ficar sempre em <b>× 2</b> sobre a velocidade, ou ganha peso com o tempo? Hoje o número mora em <code>CONF.trinstan</code> e é uma linha só pra mudar.<br>☐ Os números do Arco (3 cargas, 4 de dano e −1 de alma por carga, teto de 6 de alma por inimigo) foram os que eu escolhi e moram em <code>CONF.thalles</code> — cada um é uma linha pra reescrever.<br>☐ Ela consegue voltar ao Mundo Real? Com que preço?<br>☐ O vínculo com a Flora é a sanidade dela, é uma corrente, é o quê?<br>☐ Cor / símbolo próprio quando ela usar luz demais. (por enquanto: verde é a Tessalha, azul-aço é o Trinstan, dourado é o Thalles)<br>☐ Os <b>cinco status</b> de cada personalidade: os três conjuntos já existem e trocam com quem está no corpo, mas os números quem escolheu fui eu — o mestre pode reescrever qualquer um na linha <code>attrs</code> de cada uma no js/ficha4.js.</p>
+        </div>
+      </section>
+
+      <!-- Status / Atributos -->
+      <section class="panel" id="panel-atributos">
+        <h2>Status</h2>
+        <p class="panel-intro">Clique num atributo para rolar <b>d10 + o valor dele</b>. Efeitos terminados em <b>· +N</b> somam na rolagem (no máximo <b>±3</b> por marca) e aparecem escritos na fórmula — nada de bônus escondido. <b>Os cinco números são de quem está no corpo agora</b>: trocar de personalidade troca esta tabela inteira (o que muda em cada uma está logo abaixo).</p>
+        <div class="pers-attrs" id="persAttrs"><!-- montado por js/vesper.js: os cinco números de cada personalidade --></div>
+        <div class="attr-grid" id="attrsGrid"><!-- gerado via JS --></div>
+        <div class="roller">
+          <div class="roll-config">
+            <label>Dado
+              <select id="diceType">
+                <option value="4">d4</option>
+                <option value="6">d6</option>
+                <option value="8">d8</option>
+                <option value="10" selected>d10</option>
+                <option value="12">d12</option>
+                <option value="20">d20</option>
+                <option value="100">d100</option>
+              </select>
+            </label>
+            <label>Qtde <input type="number" id="diceQty" value="1" min="1" max="10" /></label>
+            <label>Bônus de
+              <select id="attrBonus">
+                <option value="none">nenhum atributo</option>
+              </select>
+            </label>
+            <button class="btn-major" id="rollBtn">🎲 Rolar</button>
+          </div>
+          <div class="roll-display"><span class="die">🎲</span><p class="roll-msg" id="rollMsg"></p></div>
+        </div>
+        <p class="hint-note">✦ Os valores são os <b>provisórios</b> que o mestre ainda não revisou, e agora cada personalidade traz o seu conjunto distribuído diferente — o total é o mesmo nos três de propósito, senão trocar de humor seria subir de nível disfarçado. Editar um número aqui guarda <b>só pra quem está no corpo</b>: as outras duas continuam com os delas quando assumirem.</p>
+      </section>
+
+      <!-- Poderes: o bloco logo abaixo do título é a personalidade no corpo agora, montado por
+           js/vesper.js. As três fichas embaixo são a descrição delas, editável. -->
+      <section class="panel" id="panel-poderes">
+        <h2>Poderes</h2>
+        <p class="panel-intro">Cada personalidade é <b>uma ficha dentro da ficha</b>. O bloco aqui em cima é sempre o poder de <b>quem está no corpo agora</b> — trocar de personalidade troca este bloco inteiro, o seletor e tudo, <b>e também os cinco status</b> dela (aba Status). As três fichas embaixo são a descrição das três: <b>nome e texto são editáveis</b>, mas o que o poder faz de verdade (limite, o que ecoa, o que custa) é regra escrita no js, pra ninguém ajustar número apagando texto.</p>
+        <div class="pers-poder" id="persPoder"><!-- montado por js/vesper.js --></div>
+        <div class="slot-grid">
+          <div class="slot-card">
+            <span class="slot-tag">🌿 a que recebe</span>
+            <div class="slot-name" contenteditable="true" spellcheck="false" data-txt="poder1nome">Tessalha</div>
+            <p class="slot-desc" contenteditable="true" spellcheck="false" data-txt="poder1desc">A aura verde. Ela escolhe uma pessoa do grupo e passa a receber o bem que cai naquela pessoa: cura e buff chegam sozinhos nela, sem rolagem e sem custo. Dano, maldição e azar não atravessam. Só uma pessoa por vez, e só dois empréstimos no corpo.</p>
+          </div>
+          <div class="slot-card">
+            <span class="slot-tag">🌀 a que arremessa</span>
+            <div class="slot-name" contenteditable="true" spellcheck="false" data-txt="poder2nome">Trinstan</div>
+            <p class="slot-desc" contenteditable="true" spellcheck="false" data-txt="poder2desc">A razão entre os três — a parte que conta em vez de sentir. Ele controla uma Orbe e a arremessa num inimigo da cena: a velocidade sai num <b>d10</b> e o dano é <b>o dobro</b> dela (2–20). Até <b>2</b> a Orbe <b>passa direto</b>: chegou devagar, atravessou o alvo e não dói nada. Cada arremesso cobra <b>1 de Vínculo</b>, e <b>2</b> quando erra. Ele não baixa vida de ninguém — quem faz a conta na ficha do inimigo é o mestre.</p>
+          </div>
+          <div class="slot-card">
+            <span class="slot-tag">🏹 a que fere a alma</span>
+            <div class="slot-name" contenteditable="true" spellcheck="false" data-txt="poder3nome">Thalles</div>
+            <p class="slot-desc" contenteditable="true" spellcheck="false" data-txt="poder3desc">A luz entre os três — a parte que ataca de longe e não perdoa. Ele conjura um <b>Arco de Luz</b> e o carrega até <b>3 cargas</b>, pagando <b>1 de Vínculo</b> por carga. Ao soltar a flecha, a mira sai num <b>d10</b>: cada carga guardada vale <b>4 de dano</b> e <b>−1 de vida MÁXIMA</b> do alvo. Mira <b>10</b> é em cheio e <b>dobra</b> a mordida na alma; até <b>2</b> a flecha <b>se desfaz no ar</b> e o arco já pago está perdido (cobra <b>2</b>). Vida máxima comida não volta sozinha: no máximo <b>6 por inimigo</b>, e o teto dele nunca cai abaixo de <b>1</b>. Ele não escreve na ficha do bicho — quem baixa a vida e o teto na cena é o mestre.</p>
+          </div>
+        </div>
+        <p class="hint-note">✦ Efeito escrito como <b>«nome · +2»</b> entra nas rolagens dela; <b>«nome · −1»</b> atrapalha. Cada personalidade guarda a própria lista de efeitos — os do mestre (☠️ Apagada / 🟡 Vacilando) são a única coisa que atravessa a troca junto com ela.</p>
+      </section>
+
+      <!-- Rolagem -->
+      <section class="panel" id="panel-rolagem">
+        <h2>Histórico de Rolagem</h2>
+        <p class="panel-intro">Compartilhado com o mestre e o resto do grupo — todo mundo vê as rolagens de todo mundo.</p>
+        <ul class="roll-log" id="rollLog">
+          <li class="log-empty">Nenhuma rolagem ainda.</li>
+        </ul>
+      </section>
+
+      <!-- Inventário -->
+      <section class="panel" id="panel-inventario">
+        <h2>Inventário — Armas do Mestre</h2>
+        <p class="panel-intro">O que o <b>mestre</b> te entregou. Role o dano direto daqui (efeitos mandados por ele somam no dano).</p>
+        <div id="invArea">
+          <div class="inv-empty">
+            <span>⚔️</span>
+            Nada nas mãos dela — e provavelmente não é lugar de arma, é lugar de vela.<br />
+            Quando o <b>mestre</b> enviar uma arma pelo painel dele, ela aparece aqui automaticamente.
+          </div>
+        </div>
+      </section>
+
+      <!-- Inimigos em cena (bestiário do mestre — aqui você só olha) -->
+      <section class="panel" id="panel-inimigos">
+        <h2>Inimigos em Cena</h2>
+        <p class="panel-intro">O que o <b>mestre</b> colocou na cena, com a vida e a sanidade de cada bicho.</p>
+        <div class="mob-list" id="mobList"><!-- gerado via js/inimigos.js --></div>
+        <p class="hint-note">✦ É leitura pura: quem cria, machuca e tira da cena é o mestre, no painel dele.</p>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="sheet-footer">Éclipse — modo local (salvamento no seu navegador). Firebase virá depois. ✦
+    <br /><small class="sheet-monitor">👁️ Aviso: suas rolagens e cliques ficam visíveis na tela do mestre.</small>
+  </footer>
+
+  <script src="js/inimigos.js?v=150"></script>
+  <script src="js/ficha4.js?v=150"></script>
+  <script src="js/ficha-comum.js?v=150"></script>
+  <!-- O bloco dela: personalidades + a aura da Tessalha. Vem DEPOIS do motor porque usa
+       window.FICHA_API, do mesmo jeito que js/lampiao.js é depois na ficha da Clara. -->
+  <script src="js/vesper.js?v=150"></script>
+  <script>
+    /* Se o motor não veio (cache velha servindo o js quebrado de antes), o HTML continua na
+       tela e todo botão fica mudo — exatamente o susto que o mestre levou. Então: avisa.
+       o bloco das personalidades é avisado à parte: sem ele a ficha segue jogável, só falta
+       o botão de trocar e o poder de cada uma (🌿 aura / 🌀 Orbe / 🏹 Arco). */
+    setTimeout(function () {
+      var d = document.getElementById('bootWarn');
+      if (!window.__FICHA_OK) {
+        if (d) { d.hidden = false; d.scrollIntoView({ block: 'nearest' }); }
+      } else if (!window.__VESPER_OK) {
+        if (d) {
+          d.innerHTML = '⚠ As personalidades dela não carregaram (js/vesper.js). Recarregue com ' +
+            '<b>Ctrl+Shift+R</b> — o resto da ficha funciona, mas falta o botão de trocar, a aura da Tessalha, a Orbe do Trinstan e o arco do Thalles.';
+          d.hidden = false;
+        }
+      }
+    }, 800);
+  </script>
+</body>
+</html>

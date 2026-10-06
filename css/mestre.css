@@ -1,0 +1,275 @@
+/* ===== Painel do Mestre — Éclipse ===== */
+body.mestre-body {
+  background:
+    radial-gradient(ellipse at 15% 0%, rgba(201,162,75,.12), transparent 45%),
+    radial-gradient(ellipse at 90% 100%, rgba(120,120,130,.14), transparent 45%),
+    linear-gradient(165deg, #efece4 0%, #e6e3db 45%, #f4f2ec 100%);
+  color: var(--ink);
+  min-height: 100vh;
+  padding: 30px 16px 80px;
+}
+.mestre-wrap { max-width: 1180px; margin: 0 auto; }
+
+.mestre-top {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; margin-bottom: 6px;
+}
+.mestre-top h1 {
+  font-family: var(--serif-title);
+  font-size: 40px; letter-spacing: 6px; text-transform: uppercase;
+  color: var(--gold-deep);
+}
+.mestre-top .m-sub { font-style: italic; font-size: 18px; color: #7a7568; }
+.logout-link {
+  font-family: var(--serif-title); font-size: 10px; letter-spacing: 2px;
+  text-transform: uppercase; text-decoration: none;
+  color: #9a9484; border: 1px solid var(--smoke);
+  padding: 8px 14px; border-radius: 3px; transition: .25s; background: rgba(255,253,246,.6);
+}
+.logout-link:hover { color: var(--gold-deep); border-color: var(--gold); }
+
+.mestre-notice {
+  margin: 14px 0 26px; padding: 12px 16px;
+  background: #faf8f2; border: 1px dashed var(--gold-soft); border-radius: 8px;
+  font-size: 15.5px; color: #55505f;
+}
+.mestre-notice b { color: var(--gold-deep); }
+
+/* ---------- Grade de fichas ---------- */
+/* minmax(0,1fr) é OBRIGATÓRIO aqui: com `1fr` puro o track aceita min-width:auto
+   e qualquer texto longo do feed (o significado da carta sorteada) empurra a coluna
+   inteira — a página ficava com ~3300px e só cabia no zoom a 25%.
+   São 5 cards agora (4ª e 5ª fichas entraram): 3 por linha em tela larga, e a última
+   linha fica com dois + um vão — proposital, porque auto-fit deixaria o 5º card
+   esticado sozinho ocupando a linha toda. O passo de 2 colunas abaixo de 1080px
+   só existe pra notebook pequeno; ninguém lê 5 cards de 280px. */
+.sheet-grid {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-bottom: 34px;
+}
+@media (max-width: 1080px) { .sheet-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 860px) { .sheet-grid { grid-template-columns: minmax(0, 1fr); } }
+
+.char-card {
+  background: rgba(255,254,250,.94);
+  border: 1px solid var(--gold-soft);
+  border-radius: 12px;
+  box-shadow: 0 0 0 4px rgba(201,162,75,.08), 0 18px 40px rgba(90,80,50,.16);
+  padding: 20px 20px 22px;
+  display: flex; flex-direction: column; gap: 14px;
+  min-width: 0;                 /* idem: sem isso o card estoura a coluna do grid */
+  overflow-wrap: anywhere;      /* palavra longa (nome de arma, link) quebra em vez de empurrar */
+}
+.char-card.locked {
+  align-items: center; justify-content: center; text-align: center;
+  border-style: dashed; color: #a49e8f; min-height: 200px;
+}
+.char-card.locked .lock-emoji { font-size: 40px; }
+.char-card.locked h3 { font-family: var(--serif-title); letter-spacing: 2px; color: #b3ad9d; }
+
+.card-head { display: flex; align-items: center; gap: 14px; }
+.card-head .mini-portrait {
+  width: 62px; height: 62px; border-radius: 50%; flex-shrink: 0; overflow: hidden;
+  border: 2px solid var(--gold); display: flex; align-items: center; justify-content: center;
+  font-size: 26px; background: radial-gradient(circle at 35% 30%, #fff, #efe9db 60%, #ddd3bd);
+}
+.card-head .mini-portrait img { width: 100%; height: 100%; object-fit: cover; }
+.card-head h2 { font-family: var(--serif-title); font-size: 24px; color: var(--gold-deep); line-height: 1; }
+.card-head .char-class { font-style: italic; font-size: 14px; color: #8b8677; }
+
+.badge {
+  align-self: flex-start; margin-top: 2px;
+  font-family: var(--serif-title); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  padding: 5px 12px; border-radius: 999px; border: 1px solid transparent;
+}
+.badge.alive { color: #2f7d4f; background: #e7f4ec; border-color: #bfe0cc; }
+.badge.incap { color: #9a6b12; background: #fbf1da; border-color: #ecd6a2; }
+.badge.dead  { color: #9c2b2b; background: #f7e3e3; border-color: #e0b4b4; }
+
+/* Barras */
+.mbar-label {
+  font-family: var(--serif-title); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold-deep); display: flex; justify-content: space-between; margin-bottom: 5px;
+}
+.mbar { height: 14px; border-radius: 999px; background: #e6e2d8; border: 1px solid var(--gold-soft); overflow: hidden; }
+.mbar .mfill { height: 100%; border-radius: 999px; transition: width .45s ease; }
+.mfill.hp { background: linear-gradient(90deg, #b74a4a, #d98d8d); }
+.mfill.san { background: linear-gradient(90deg, #7c86c4, #a9b4e6); }
+
+.mini-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.mini-row label { font-size: 13px; color: #6d6857; }
+.mini-row input[type=number] {
+  width: 66px; padding: 6px 8px; font-family: var(--serif-body); font-size: 15px;
+  border: 1px solid var(--smoke); border-radius: 4px; background: #fffdf8;
+}
+.mini-btn {
+  padding: 7px 13px; font-family: var(--serif-title); font-size: 11px; letter-spacing: 1px;
+  border: 1px solid var(--gold-soft); background: #fffdf6; color: var(--gold-deep);
+  border-radius: 4px; cursor: pointer; transition: .2s;
+}
+.mini-btn:hover { background: var(--gold-soft); color: #40331a; }
+.mini-btn.danger { border-color: #c98b8b; color: #9c2b2b; background: #fbeeee; }
+.mini-btn.danger:hover { background: #a33d3d; color: #fff; }
+.mini-btn.warn { border-color: #e0c48a; color: #9a6b12; background: #fbf3e0; }
+.mini-btn.warn:hover { background: #d69a2e; color: #fff; }
+.mini-btn.ok { border-color: #bfe0cc; color: #2f7d4f; background: #eefaf1; }
+.mini-btn.ok:hover { background: #3f9c63; color: #fff; }
+
+/* Atributos */
+.m-attrs { display: grid; grid-template-columns: repeat(auto-fit, minmax(88px,1fr)); gap: 8px; }
+.m-attr {
+  border: 1px solid var(--smoke); border-radius: 8px; padding: 8px 6px; text-align: center; background: #fffdf8;
+}
+.m-attr .a-nome { font-family: var(--serif-title); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--gold-deep); }
+.m-attr input {
+  width: 54px; margin-top: 4px; text-align: center; font-family: var(--serif-body); font-size: 17px;
+  border: 1px solid var(--smoke); border-radius: 4px; background: #fff; padding: 3px;
+}
+
+/* Efeitos chips */
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 14px; padding: 5px 10px; border-radius: 999px;
+  background: #efece4; border: 1px solid var(--smoke); color: #55505f; cursor: pointer;
+}
+.chip::after { content: '✕'; font-size: 11px; color: #a33d3d; }
+.chip.dead { background: #f7e3e3; border-color: #e0b4b4; color: #9c2b2b; }
+.chip.incap { background: #fbf1da; border-color: #ecd6a2; color: #9a6b12; }
+.chip-row { display: flex; flex-wrap: wrap; gap: 7px; }
+
+.m-block-title {
+  font-family: var(--serif-title); font-size: 13px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold-deep); border-bottom: 1px solid var(--gold-soft); padding-bottom: 5px; margin-top: 4px;
+}
+.field-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.field-row input[type=text] {
+  flex: 1; min-width: 120px; padding: 7px 10px; font-family: var(--serif-body); font-size: 15px;
+  border: 1px solid var(--smoke); border-radius: 4px; background: #fffdf8;
+}
+
+/* Inventário / armas recebidas */
+.recv-list, .catalog-list { display: flex; flex-direction: column; gap: 7px; }
+.recv-item, .cat-item {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 8px 12px; border: 1px solid var(--smoke); border-radius: 6px; background: #fffdf8; font-size: 15.5px;
+}
+.cat-item { flex-wrap: wrap; } /* com 5 fichas, a linha tem 6 controles: deixa quebrar em vez de esticar a página */
+.recv-item .w-dice, .cat-item .w-dice { font-family: var(--serif-title); font-size: 12px; color: var(--gold-deep); letter-spacing: 1px; }
+.cat-item .cat-actions { display: flex; gap: 6px; }
+.empty-note { font-style: italic; color: #a49e8f; font-size: 14.5px; }
+
+/* Seção catálogo */
+.panel-section {
+  background: rgba(255,254,250,.94); border: 1px solid var(--gold-soft); border-radius: 12px;
+  box-shadow: 0 0 0 4px rgba(201,162,75,.08), 0 18px 40px rgba(90,80,50,.16);
+  padding: 22px 24px 24px; margin-bottom: 26px;
+}
+.panel-section > h2 {
+  font-family: var(--serif-title); font-size: 20px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold-deep); margin-bottom: 4px;
+}
+.panel-section .sec-sub { font-style: italic; color: #8b8677; margin-bottom: 16px; }
+
+/* ---------- Rolagem do mestre ---------- */
+.roller-grid { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
+.roller-grid label { display: flex; flex-direction: column; gap: 5px; font-size: 13px; color: var(--muted); font-weight: 600; }
+.roller-grid select, .roller-grid input { padding: 9px 12px; border: 1px solid var(--line); border-radius: 6px; font-size: 15px; background: #fff; }
+.roller-grid select { min-width: 92px; }
+.roller-grid input[type="number"] { width: 78px; }
+.mr-quick { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; }
+.mr-quick span { font-size: 13px; color: var(--muted); font-weight: 600; margin-right: 2px; }
+.mr-quick .mini-btn { padding: 5px 11px; font-size: 13px; }
+.mr-result { margin: 16px 0 0; min-height: 22px; font-family: var(--serif-title); font-size: 16px; letter-spacing: .5px; color: var(--gold-deep); opacity: 0; transform: translateY(-4px); transition: opacity .2s, transform .2s; }
+.mr-result.show { opacity: 1; transform: none; }
+.mr-result.crit { color: #1f7a3a; } .mr-result.fumble { color: var(--danger); }
+
+/* ---------- Histórico do mestre ---------- */
+.mlog-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; font-size: 14px; color: var(--muted); font-weight: 600; }
+/* o MESMO truque do .sheet-grid: sem track minmax(0,1fr) e sem min-width:0 no item,
+   uma linha longa do histórico ("sorteou A Imperatriz → [significado inteiro]") tem
+   min-content = o texto todo (é nowrap) e empurra a página inteira pra ~1200px. */
+.mlog { list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; margin-top: 6px; }
+.mlog .empty-note { color: var(--muted); font-style: italic; font-size: 15px; padding: 6px 2px; }
+.mlog-item { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 10px 14px; background: #fffdf8; border: 1px solid var(--line); border-left: 3px solid var(--gold-soft); border-radius: 6px; }
+.mlog-item.crit { border-left-color: #2e9e50; } .mlog-item.fumble { border-left-color: var(--danger); }
+.mlog-left { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.mlog-left b { font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mlog-form { font-size: 13px; color: var(--muted); font-family: var(--serif-title); letter-spacing: .3px; min-width: 0; overflow-wrap: anywhere; }
+.mlog-total { font-family: var(--serif-title); font-size: 22px; color: var(--gold-deep); min-width: 34px; text-align: right; }
+.mlog-item.crit .mlog-total { color: #1f7a3a; } .mlog-item.fumble .mlog-total { color: var(--danger); }
+.mlog-hora { font-size: 12px; color: #b7b0a0; flex: 0 0 auto; }
+.mlog-who { flex: 0 0 auto; min-width: 58px; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase; text-align: center; background: rgba(124,134,196,.16); color: #4d57a0; border: 1px solid rgba(124,134,196,.4); }
+.mlog-who.mestre { background: rgba(201,162,75,.18); color: var(--gold-deep); border-color: rgba(201,162,75,.5); }
+html[data-theme="dark"] .roller-grid select, html[data-theme="dark"] .roller-grid input { background: #211f26; border-color: #3d3a45; color: #efe7d6; }
+html[data-theme="dark"] .mr-result { color: var(--gold-soft); }
+html[data-theme="dark"] .mr-result.crit { color: #6fd08a; }
+html[data-theme="dark"] .mlog-item { background: #26252b; border-color: #3d3a45; }
+html[data-theme="dark"] .mlog-total { color: var(--gold-soft); }
+html[data-theme="dark"] .mlog-item.crit .mlog-total { color: #6fd08a; }
+html[data-theme="dark"] .mlog-who { background: rgba(150,160,220,.16); color: #aab4e6; border-color: rgba(150,160,220,.4); }
+html[data-theme="dark"] .mlog-who.mestre { background: rgba(201,162,75,.16); color: var(--gold-soft); border-color: rgba(201,162,75,.42); }
+
+/* ---------- Feed de atividade por ficha ---------- */
+.feed-block { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--gold-soft); min-width: 0; }
+.feed { list-style: none; display: grid; gap: 6px; margin-top: 8px; max-height: 240px; overflow-y: auto; min-width: 0; }
+.feed .feed-empty { color: var(--muted); font-style: italic; font-size: 14px; }
+.feed-item { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 7px 12px; border-radius: 6px; font-size: 14px; background: #fbf8f1; border-left: 3px solid var(--smoke); min-width: 0; }
+.feed-item.roll { background: rgba(124,134,196,.08); border-left-color: #7c86c4; }
+.feed-item.act { background: #fffdf8; border-left-color: var(--gold-soft); }
+.feed-item.crit { border-left-color: #2e9e50; } .feed-item.fumble { border-left-color: var(--danger); }
+.feed-txt { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.feed-item.roll .feed-txt { font-family: var(--serif-title); letter-spacing: .2px; }
+.feed-item.crit .feed-txt { color: #1f7a3a; } .feed-item.fumble .feed-txt { color: var(--danger); }
+.feed-hora { flex: 0 0 auto; font-size: 12px; color: #b7b0a0; }
+html[data-theme="dark"] .feed-item { background: #211f26; border-left-color: #3d3a45; }
+html[data-theme="dark"] .feed-item.roll { background: rgba(150,160,220,.10); border-left-color: #8a76bd; }
+html[data-theme="dark"] .feed-item.crit .feed-txt { color: #6fd08a; }
+
+.mestre-footer { text-align: center; font-size: 13px; color: #9a9484; margin-top: 30px; font-style: italic; }
+
+/* ---------- Tema escuro ---------- */
+html[data-theme="dark"] body.mestre-body {
+  background:
+    radial-gradient(ellipse at 15% 0%, rgba(201,162,75,.10), transparent 45%),
+    linear-gradient(165deg, #1c1b22 0%, #232128 50%, #1a191f 100%);
+  color: #d8d3c6;
+}
+html[data-theme="dark"] .mestre-top h1 { color: var(--gold-soft); }
+html[data-theme="dark"] .mestre-top .m-sub { color: #a49e8f; }
+html[data-theme="dark"] .mestre-notice { background: #2a2833; color: #cfc9bd; border-color: #57471f; }
+html[data-theme="dark"] .mestre-notice b { color: var(--gold-soft); }
+html[data-theme="dark"] .char-card,
+html[data-theme="dark"] .panel-section { background: #26242d; border-color: #4d4020; }
+html[data-theme="dark"] .card-head h2,
+html[data-theme="dark"] .m-block-title,
+html[data-theme="dark"] .panel-section > h2 { color: var(--gold-soft); }
+html[data-theme="dark"] .char-head .char-class,
+html[data-theme="dark"] .panel-section .sec-sub { color: #a49e8f; }
+html[data-theme="dark"] .mbar { background: #34323b; border-color: #4d4020; }
+html[data-theme="dark"] .mbar-label,
+html[data-theme="dark"] .m-attr .a-nome { color: var(--gold-soft); }
+html[data-theme="dark"] .m-attr { background: #2a282f; border-color: #3c3746; }
+html[data-theme="dark"] .m-attr input,
+html[data-theme="dark"] .mini-row input[type=number],
+html[data-theme="dark"] .field-row input[type=text] { background: #1f1e26; color: #e7e2d6; border-color: #3c3746; }
+html[data-theme="dark"] .mini-btn { background: #2a282f; color: var(--gold-soft); border-color: #57471f; }
+html[data-theme="dark"] .mini-btn:hover { background: #57471f; color: #fff; }
+html[data-theme="dark"] .chip { background: #2a282f; border-color: #3c3746; color: #cfc9bd; }
+html[data-theme="dark"] .recv-item, html[data-theme="dark"] .cat-item { background: #2a282f; border-color: #3c3746; color: #d8d3c6; }
+
+/* ===== Coisas do Nox (mundo/forma) e notas de rodapé dos cards ===== */
+/* (.a-valor saiu daqui: agora as 3 fichas têm atributo editável, só existe o input do .m-attr) */
+.badge.outro { color: #6b4fa0; background: #efe9fa; border-color: #cbb8ec; }
+.chip.ro::after { content: none; } /* chip que é só informação (mundo/forma): sem o ✕ de remover */
+.chip.ro { cursor: default; }
+.chip.outro { background: #efe9fa; border-color: #cbb8ec; color: #6b4fa0; }
+/* O card do Nox assume o tom do crepúsculo enquanto ele estiver no Outro Mundo (só cor: sem animação na sua tela) */
+.char-card.in-outro { background: linear-gradient(165deg, #f7efd7, #f1e5bf); border-color: #c9a94f; box-shadow: 0 0 0 1px rgba(201,169,79,.3), 0 14px 30px rgba(120,90,20,.14); }
+html[data-theme="dark"] .char-card.in-outro { background: linear-gradient(165deg, #2a2313, #211b0f); border-color: #6b5a2a; }
+.ro-note { margin-top: 12px; font-size: 12px; font-style: italic; color: #8a8577; }
+html[data-theme="dark"] .badge.outro { color: #b79be6; background: rgba(107,79,160,.18); border-color: rgba(183,155,230,.4); }
+html[data-theme="dark"] .chip.outro { background: rgba(107,79,160,.18); border-color: rgba(183,155,230,.4); color: #b79be6; }
+html[data-theme="dark"] .ro-note { color: #7c7690; }
+html[data-theme="dark"] .char-card.locked { color: #6f6a5f; border-color: #4d4020; }
+html[data-theme="dark"] .char-card.locked h3 { color: #8a8477; }
+html[data-theme="dark"] .logout-link { background: #26242d; color: #a49e8f; border-color: #4d4020; }
+html[data-theme="dark"] .mestre-footer { color: #7a7568; }

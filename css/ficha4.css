@@ -1,0 +1,323 @@
+/* ===== Ficha 4 — "Vesper" (nome de trabalho) · ela está dentro do Crepúsculo =====
+   Direção de arte pedida pelo mestre: SOMBRIO com CORES VIVAS. Ela é uma luz em cima de toda
+   aquela escuridão — e ao mesmo tempo precisa demonstrar a escuridão de quem está lá dentro.
+   Então: fundo de noite violeta fechada + vinheta pesada (a escuridão), e sobre ela brasa
+   acesa em âmbar/fúcsia/ciano (a luz). Nada de pastel: saturação alta só nos pontos de luz.
+
+   Tema claro = "crepúsculo sobre papel" (vinho + ameixa + brasa), porque a mesa também joga
+   de dia e a ficha tem que continuar legível. */
+
+body.f4-body {
+  /* ---- claro: papel de crepúsculo ---- */
+  --fs-page:
+    radial-gradient(ellipse at 15% 0%, rgba(176,34,95,.12), transparent 45%),
+    radial-gradient(ellipse at 88% 100%, rgba(109,42,134,.12), transparent 45%),
+    linear-gradient(168deg, #f2e9f1 0%, #e9dff0 52%, #f6eef2 100%);
+  --fs-sheet: rgba(255,253,255,.96);
+  --fs-card: #f5edf6;
+  --fs-ink: #2a1d35;
+  --fs-muted: #7b688a;
+  --fs-line: #e0d0e4;
+  --fs-accent: #b0225f;
+  --fs-accent-soft: #d95f92;
+  --fs-accent-deep: #6d2a86;
+  --fs-hp1: #d1521e; --fs-hp2: #f0a437;
+  --fs-san1: #5b32a8; --fs-san2: #178f86;
+  --fs-danger: #b3402f;
+  --fs-ok: #1f7a52;
+  --fs-glow: rgba(109,42,134,.20);
+  --fs-chip: #b0225f; --fs-chip-ink: #fff;
+  /* de dia a vinheta é só um sopro de sombra nas bordas, e a brasa fica discreta */
+  --fs-vig: radial-gradient(ellipse at 50% 38%, transparent 60%, rgba(109,42,134,.10) 100%);
+  --fs-orb: rgba(176,34,95,.5);
+}
+html[data-theme="dark"] body.f4-body {
+  /* ---- escuro: ela dentro do Crepúsculo ---- */
+  --fs-page:
+    radial-gradient(ellipse at 50% -10%, rgba(255,196,107,.16), transparent 55%),
+    radial-gradient(ellipse at 12% 90%, rgba(255,61,139,.14), transparent 50%),
+    radial-gradient(ellipse at 92% 70%, rgba(33,230,193,.10), transparent 50%),
+    linear-gradient(170deg, #170d24 0%, #24102f 45%, #0c0714 100%);
+  --fs-sheet: rgba(23,15,33,.96);
+  --fs-card: #241834;
+  --fs-ink: #ece3f5;
+  --fs-muted: #a998c2;
+  --fs-line: #4a3663;
+  --fs-accent: #ff3d8b;
+  --fs-accent-soft: #ff86c0;
+  --fs-accent-deep: #ffc46b;
+  --fs-hp1: #ff5a3c; --fs-hp2: #ffc46b;
+  --fs-san1: #7b3ffb; --fs-san2: #21e6c1;
+  --fs-danger: #ff5470;
+  --fs-ok: #45d6a4;
+  --fs-glow: rgba(0,0,0,.55);
+  --fs-chip: #ff3d8b; --fs-chip-ink: #fff;
+  --fs-vig: radial-gradient(ellipse at 50% 38%, transparent 42%, rgba(8,4,14,.55) 100%);
+  --fs-orb: rgba(255,196,107,.85);
+}
+
+/* ---------- A luz em cima da escuridão ----------
+   Só dois enfeites, e os dois atrás do conteúdo (lição da v1.28.1: ornamento que vira camada
+   sobre o texto faz a ficha parecer ilegível). .sheet tem z-index:1 e fundo próprio, então o
+   que estiver em .vp-* fica necessariamente fora da leitura. */
+.vp-night {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+}
+.vp-night::before { /* a escuridão que a cerca: vinheta */
+  content: ''; position: absolute; inset: 0;
+  background: var(--fs-vig);
+}
+.vp-orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(2px); opacity: .5;
+  background: radial-gradient(circle, var(--fs-orb), rgba(255,61,139,.35) 55%, transparent 72%);
+  animation: vp-flut 26s ease-in-out infinite;
+}
+.vp-orb:nth-child(1) { width: 12px; height: 12px; left: 6%;  top: 62%; }
+.vp-orb:nth-child(2) { width: 7px;  height: 7px;  left: 93%; top: 30%; animation-delay: -9s; opacity: .38; }
+.vp-orb:nth-child(3) { width: 5px;  height: 5px;  left: 82%; top: 84%; animation-delay: -15s; opacity: .32; }
+@keyframes vp-flut {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(0, -34px, 0); }
+}
+@media (prefers-reduced-motion: reduce) { .vp-orb { animation: none; } }
+
+/* uma lasca de amanhecer correndo no topo da moldura: a luz que não deixa ela sumir */
+.sheet::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px; z-index: 2;
+  background: linear-gradient(90deg, transparent, var(--fs-accent) 22%, var(--fs-accent-deep) 50%, var(--fs-san2, #178f86) 78%, transparent);
+  opacity: .9;
+}
+.sheet { box-shadow: 0 0 0 5px var(--fs-glow), 0 0 0 6px var(--fs-line), 0 30px 70px var(--fs-glow); }
+html[data-theme="dark"] .sheet { border-top-color: #6b4a8a; }
+
+.char-name { text-shadow: 0 0 26px var(--fs-glow); }
+.portrait { box-shadow: 0 0 0 5px rgba(255,196,107,.18), 0 0 34px rgba(255,120,60,.28), 0 12px 26px var(--fs-glow); }
+
+/* a brasa literalmente brilha; o vínculo é frio como o crepúsculo */
+.hp-fill { box-shadow: 0 0 14px rgba(255,150,60,.55) inset, 0 0 10px rgba(255,120,60,.35); }
+.san-fill { box-shadow: 0 0 12px rgba(120,80,255,.35) inset; }
+
+/* os slots vazios (mecânica de amanhã) herdam a cor viva quando o mestre preencher */
+.slot-card { border-left: 3px solid var(--fs-accent); border-style: solid; border-color: var(--fs-line); border-left-color: var(--fs-accent); background: linear-gradient(160deg, var(--fs-card), var(--fs-sheet)); }
+html[data-theme="dark"] .slot-card { background: linear-gradient(160deg, #2a1b3d, #1d1229); }
+
+.chip { box-shadow: 0 0 12px var(--fs-glow); }
+html[data-theme="dark"] .chip.gm { background: #150d1f; color: #f0c9c9; }
+
+/* ---------- As três no mesmo corpo ----------
+   Cada personalidade pinta a ficha com a cor dela, e isso é mecânica, não enfeite: trocar de
+   personalidade tem que ser VISÍVEL na hora, senão o botão parece quebrado. O verde é só da
+   Tessalha (a aura); as outras duas chegam aqui quando o mestre escrever quem são, e o id do
+   js/ficha4.js é o nome do seletor. Brasa e Vínculo ficam onde sempre estiveram — é o corpo. */
+body.f4-body[data-pers="tessalha"] {
+  --fs-accent: #2f9e6b;
+  --fs-accent-soft: #7fd8a6;
+  --fs-accent-deep: #1d6f57;
+  --fs-chip: #22795a; --fs-chip-ink: #f6fff8;
+  --fs-glow: rgba(29,111,87,.20);
+  --fs-orb: rgba(110,220,160,.55);
+  --fs-san2: #2fbf8f;
+}
+html[data-theme="dark"] body.f4-body[data-pers="tessalha"] {
+  --fs-accent: #3ee08f;
+  --fs-accent-soft: #9ef7c6;
+  --fs-accent-deep: #d9ff9e;
+  --fs-chip: #1d8f5f; --fs-chip-ink: #eafff2;
+  --fs-glow: rgba(20,70,46,.6);
+  --fs-orb: rgba(62,224,143,.8);
+  --fs-san2: #3ee08f;
+}
+/* a aura verde vista de fora: as brasas viram vagalumes e a lasca do topo fica folha */
+body.f4-body[data-pers="tessalha"] .vp-orb { background: radial-gradient(circle, var(--fs-orb), rgba(62,224,143,.3) 55%, transparent 72%); }
+body.f4-body[data-pers="tessalha"] .portrait { box-shadow: 0 0 0 5px rgba(62,224,143,.16), 0 0 34px rgba(60,200,130,.26), 0 12px 26px var(--fs-glow); }
+
+/* TRINSTAN — a razão. Azul-aço, frio e conta: nada a ver com o verde da aura da Tessalha, e é
+   de propósito que a ficha inteira troca de pele junto com quem está no comando. Aqui o orbe do
+   topo vira a própria Orbe dele. */
+body.f4-body[data-pers="trinstan"] {
+  --fs-accent: #3d6fa8;
+  --fs-accent-soft: #8fb6e0;
+  --fs-accent-deep: #274f7a;
+  --fs-chip: #2f5d92; --fs-chip-ink: #f2f7ff;
+  --fs-glow: rgba(39,79,122,.18);
+  --fs-orb: rgba(120,170,230,.55);
+  --fs-san2: #3f7fc0;
+}
+html[data-theme="dark"] body.f4-body[data-pers="trinstan"] {
+  --fs-accent: #5aa9ff;
+  --fs-accent-soft: #a8d3ff;
+  --fs-accent-deep: #d6e9ff;
+  --fs-chip: #2f6ea8; --fs-chip-ink: #eaf4ff;
+  --fs-glow: rgba(30,80,140,.6);
+  --fs-orb: rgba(90,169,255,.85);
+  --fs-san2: #5aa9ff;
+}
+body.f4-body[data-pers="trinstan"] .vp-orb { background: radial-gradient(circle at 35% 32%, #fff, var(--fs-orb) 34%, rgba(40,90,150,.35) 62%, transparent 76%); }
+body.f4-body[data-pers="trinstan"] .portrait { box-shadow: 0 0 0 5px rgba(90,169,255,.16), 0 0 34px rgba(70,140,220,.26), 0 12px 26px var(--fs-glow); }
+
+/* THALLES — a luz. Dourado quente: é o único dos três que BRILHA, e é também o único que precisa
+   declarar a tinta do próprio botão (`--fs-btn-ink`): no tema escuro o ouro é tão claro que texto
+   branco em cima dele não se lê — e um botão que ninguém consegue ler é um botão quebrado. */
+body.f4-body[data-pers="thalles"] {
+  --fs-accent: #a9761c;
+  --fs-accent-soft: #e8c681;
+  --fs-accent-deep: #7a5411;
+  --fs-chip: #8f6216; --fs-chip-ink: #fff6e2;
+  --fs-glow: rgba(170,120,30,.18);
+  --fs-orb: rgba(255,214,130,.6);
+  --fs-san2: #d9a441;
+  --fs-btn-ink: #fff;
+}
+html[data-theme="dark"] body.f4-body[data-pers="thalles"] {
+  --fs-accent: #ffcf62;
+  --fs-accent-soft: #ffe6a8;
+  --fs-accent-deep: #fff3d0;
+  --fs-chip: #8a5f18; --fs-chip-ink: #ffeec2;
+  --fs-glow: rgba(120,86,20,.55);
+  --fs-orb: rgba(255,207,98,.85);
+  --fs-san2: #ffcf62;
+  --fs-btn-ink: #231603;
+}
+body.f4-body[data-pers="thalles"] .vp-orb { background: radial-gradient(circle at 40% 30%, #fff, var(--fs-orb) 30%, rgba(180,130,40,.35) 58%, transparent 78%); }
+body.f4-body[data-pers="thalles"] .portrait { box-shadow: 0 0 0 5px rgba(255,207,98,.18), 0 0 34px rgba(255,190,80,.3), 0 12px 26px var(--fs-glow); }
+
+/* ---------- A faixa de troca (sempre visível, fora das abas) ---------- */
+.pers-strip {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin: 0 0 18px; padding: 12px 14px; min-width: 0;
+  background: var(--fs-card); border: 1px solid var(--fs-line);
+  border-left: 4px solid var(--fs-accent); border-radius: 12px;
+}
+.pers-rotulo {
+  font-family: var(--serif-title); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--fs-muted);
+}
+.pers-btn {
+  font-family: var(--serif-title); font-size: 13px; letter-spacing: .5px;
+  padding: 8px 14px; border-radius: 20px; cursor: pointer; transition: .2s;
+  background: var(--fs-sheet); color: var(--fs-ink); border: 1px solid var(--fs-line);
+}
+.pers-btn:hover { border-color: var(--fs-accent); color: var(--fs-accent); }
+.pers-btn.ativa {
+  background: var(--fs-accent); border-color: var(--fs-accent); color: #fff;
+  box-shadow: 0 0 16px var(--fs-glow); cursor: default;
+}
+.pers-btn.vaga { opacity: .45; cursor: not-allowed; border-style: dashed; }
+.pers-btn.vaga:hover { border-color: var(--fs-line); color: var(--fs-ink); }
+.pers-nota { font-size: 12px; font-style: italic; color: var(--fs-muted); margin-left: auto; }
+
+/* ---------- O bloco do poder da personalidade no corpo ---------- */
+.pers-bloco {
+  margin: 0 0 20px; padding: 16px 18px; min-width: 0;
+  background: linear-gradient(160deg, var(--fs-card), var(--fs-sheet));
+  border: 1px solid var(--fs-line); border-left: 4px solid var(--fs-accent); border-radius: 12px;
+}
+.pers-vazio {
+  margin: 0 0 20px; padding: 16px 18px; border: 1px dashed var(--fs-line); border-radius: 12px;
+  background: var(--fs-card);
+}
+.pers-faz { font-size: 15.5px; line-height: 1.6; color: var(--fs-ink); margin: 6px 0 4px; }
+.pers-custa { font-size: 13.5px; font-style: italic; color: var(--fs-muted); margin: 0 0 14px; }
+.pers-alvo { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.pers-alvo label { font-size: 13px; letter-spacing: .5px; color: var(--fs-muted); font-weight: 700; }
+.pers-alvo select {
+  font: inherit; font-size: 15px; padding: 8px 10px; min-width: 170px;
+  background: var(--fs-sheet); color: var(--fs-ink);
+  border: 1px solid var(--fs-accent); border-radius: 8px;
+}
+.pers-estado { font-size: 12.5px; font-style: italic; color: var(--fs-accent-deep); }
+.pers-regras { margin: 10px 0 4px; padding-left: 22px; display: grid; gap: 7px; }
+.pers-regras li { font-size: 14px; line-height: 1.55; color: var(--fs-muted); }
+.pers-regras li::marker { color: var(--fs-accent); font-weight: 700; }
+.pers-regras li b { color: var(--fs-ink); font-weight: 600; }
+.pers-tut { margin-top: 12px; }
+.pers-tut summary, .orb-tut summary {
+  cursor: pointer; font-family: var(--serif-title); font-size: 13px; letter-spacing: 1px;
+  color: var(--fs-accent-deep);
+}
+.orb-tut { margin-top: 12px; }
+/* o resultado do que chegou por eco — mesma linguagem visual do lampião da Clara */
+.pers-result { min-height: 0; margin: 0 0 12px; font-size: 15.5px; line-height: 1.55; color: var(--fs-muted); }
+.pers-result.show {
+  padding: 13px 16px; border-radius: 10px; background: var(--fs-sheet);
+  border: 1px solid var(--fs-line); border-left: 4px solid var(--fs-muted); color: var(--fs-ink);
+}
+.pers-result.show.bom { border-left-color: var(--fs-ok); }
+.pers-result.show.ruim { border-left-color: var(--fs-danger); color: var(--fs-danger); }
+
+/* ---------- O gatilho da Orbe ----------
+   Botão de ação, não de navegação: por isso ele é cheio na cor da personalidade e tem o
+   multiplicador escrito ao lado — quem aperta precisa ver a conta antes de ver o resultado. */
+.orb-acoes { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 2px 0 12px; }
+.orb-btn {
+  font-family: var(--serif-title); font-size: 15px; letter-spacing: .5px;
+  padding: 11px 20px; border-radius: 10px; cursor: pointer; transition: .18s;
+  background: var(--fs-accent); color: #fff; border: 1px solid var(--fs-accent);
+  box-shadow: 0 0 18px var(--fs-glow);
+}
+.orb-btn:hover { filter: brightness(1.12); transform: translateY(-1px); }
+.orb-btn:active { transform: translateY(1px); }
+.orb-conta { font-size: 12.5px; font-style: italic; color: var(--fs-muted); }
+
+/* ---------- O Arco de Luz do Thalles ----------
+   O medidor de cargas é a peça mais importante do bloco: "carregado" precisa ser visto, porque a
+   força da flecha é o quanto ele aceitou pagar antes de soltar. Os dois botões têm pesos
+   diferentes de propósito — carregar é contornado (é compra), soltar é cheio (é a decisão). */
+.arco-cargas {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0;
+  margin: 2px 0 12px;
+}
+.arco-rotulo {
+  font-family: var(--serif-title); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--fs-muted);
+}
+.arco-pip { width: 28px; height: 9px; border-radius: 20px; border: 1px solid var(--fs-accent); background: transparent; transition: .18s; }
+.arco-pip.cheia { background: var(--fs-accent); box-shadow: 0 0 12px var(--fs-orb); }
+.arco-total { font-size: 12.5px; font-style: italic; color: var(--fs-muted); }
+.arco-acoes { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 2px 0 12px; }
+.arco-btn {
+  font-family: var(--serif-title); font-size: 15px; letter-spacing: .5px;
+  padding: 11px 20px; border-radius: 10px; cursor: pointer; transition: .18s;
+}
+.arco-soltar {
+  background: var(--fs-accent); color: var(--fs-btn-ink, #fff); border: 1px solid var(--fs-accent);
+  box-shadow: 0 0 18px var(--fs-glow);
+}
+.arco-carregar { background: transparent; color: var(--fs-accent); border: 1px solid var(--fs-accent); }
+.arco-btn:hover { filter: brightness(1.12); transform: translateY(-1px); }
+.arco-btn:active { transform: translateY(1px); }
+.arco-conta { font-size: 12.5px; font-style: italic; color: var(--fs-muted); }
+
+/* ---------- A tabela dos cinco números por personalidade (aba Status) ----------
+   Ela precisa existir porque trocar de personalidade agora muda STATUS: sem a tabela, o jogador
+   veria os números mudarem "sozinhos" e chamaria isso de bug. A linha da frente é marcada com a
+   cor da personalidade que está no corpo — a mesma cor do resto da página. O fundo usa
+   --fs-glow (tinta translúcida nos dois temas), nunca --fs-page, que é pilha de gradientes. */
+.pers-attrs {
+  margin: 0 0 18px; padding: 14px 16px; min-width: 0;
+  background: var(--fs-card); border: 1px solid var(--fs-line);
+  border-left: 4px solid var(--fs-accent); border-radius: 12px;
+}
+.pers-attrs-titulo {
+  font-family: var(--serif-title); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--fs-muted); margin: 0 0 4px;
+}
+.pers-attrs-linha {
+  display: flex; align-items: baseline; gap: 6px 14px; flex-wrap: wrap;
+  padding: 9px 10px 8px; border-top: 1px dashed var(--fs-line);
+}
+.pers-attrs-quem { font-family: var(--serif-title); font-size: 14px; color: var(--fs-ink); min-width: 130px; }
+.pers-attrs-num { font-size: 13.5px; color: var(--fs-muted); font-variant-numeric: tabular-nums; }
+.pers-attrs-linha.atual {
+  background: var(--fs-glow); border-radius: 8px;
+  box-shadow: inset 3px 0 0 var(--fs-accent);
+}
+.pers-attrs-linha.atual .pers-attrs-num { color: var(--fs-ink); }
+.pers-attrs-atual {
+  font-size: 10.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--fs-accent);
+  border: 1px solid var(--fs-accent); border-radius: 20px; padding: 2px 8px;
+}
+.pers-attrs-linha.vaga { opacity: .55; }
+.pers-attrs-nota { font-size: 12.5px; font-style: italic; color: var(--fs-muted); margin: 10px 0 0; }
+

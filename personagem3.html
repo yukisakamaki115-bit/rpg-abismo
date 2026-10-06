@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dante — O Cartomante | Éclipse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css?v=150" />
+  <link rel="stylesheet" href="css/personagem3.css?v=150" />
+  <script src="js/theme.js?v=150"></script>
+  <script src="js/firebase-config.js?v=150"></script>
+  <script src="js/store.js?v=150"></script>
+  <script src="js/conta.js?v=150"></script>
+</head>
+<body class="santiago-body">
+
+  <!-- Carta que segue o cursor (só PC): o baralho andando com ele -->
+  <div class="cursor-card" id="cursorCard" aria-hidden="true"><span class="cc-face" id="cursorCardFace">🂠</span></div>
+
+  <!-- Aviso de motor ausente: HTML na tela + js quebrado/na cache = botões mudos.
+       O estilo é inline de propósito: não depende de css nenhum para conseguir avisar. -->
+  <div id="bootWarn" hidden style="max-width:1020px;margin:0 auto 18px;padding:14px 18px;border-radius:10px;background:#fbeeee;border:1px solid #e0b4b4;color:#8d2f2f;font-family:var(--serif-title);font-size:13px;letter-spacing:.5px;line-height:1.5">⚠ A ficha abriu sem o motor (js/personagem3.js). Recarregue com <b>Ctrl+Shift+R</b> — sem isso os botões aparecem na tela, mas não fazem nada.</div>
+
+  <main class="sheet">
+    <div class="sheet-inner">
+      <a href="index.html" class="logout-link">Sair ⏎</a>
+
+      <!-- ===== Cabeçalho ===== -->
+      <header class="sheet-header">
+        <div class="portrait-wrap">
+          <div class="portrait" id="portrait" role="button" tabindex="0" title="Clique para carregar a imagem do Dante">
+            <span class="portrait-emoji">🔮</span>
+            <img class="portrait-img" id="portraitImg" alt="Retrato do Dante" hidden />
+            <span class="portrait-hint" id="portraitHint">✦ clicar para carregar imagem ✦</span>
+          </div>
+          <input type="file" id="portraitFile" accept="image/*" hidden />
+          <button type="button" id="portraitRemove" class="portrait-remove" title="Remover imagem" hidden>✕</button>
+        </div>
+        <div class="head-info">
+          <h1 class="char-name">Dante</h1>
+          <p class="char-class">✦ humano · cartomante — herdeiro do baralho dos vinte e dois ✦</p>
+          <div class="bio-grid">
+            <div class="bio-item"><b>Origem</b> Mundo Real (ninguém sabe de qual esquina)</div>
+            <div class="bio-item"><b>Natureza</b> Humano comum — se é que alguém aqui é comum</div>
+            <div class="bio-item"><b>Olhos</b> Castanhos, sempre fazendo contas</div>
+            <div class="bio-item"><b>Sinal</b> Um baralho antigo que nunca foi comprado</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ===== Vitais + Efeitos ===== -->
+      <section class="vitals">
+        <div class="vitals-left">
+          <div class="hp-block">
+            <div class="hp-label"><span>Fôlego</span><span id="hpText">22 / 22</span></div>
+            <div class="hp-bar"><div class="hp-fill" id="hpFill"></div></div>
+            <div class="hp-controls">
+              <input type="number" id="hpInput" value="0" min="0" title="quantidade" />
+              <button class="mini-btn" id="hpDmg" data-act="🤕 perdeu fôlego">− Ferida</button>
+              <button class="mini-btn" id="hpHeal" data-act="🍵 recuperou fôlego">+ Cura</button>
+              <button class="mini-btn" id="hpMax" data-act="🌿 Restaurou o fôlego">Pleno</button>
+            </div>
+          </div>
+          <div class="hp-block san-block">
+            <div class="hp-label"><span>Vontade</span><span id="sanText">100 / 100</span></div>
+            <div class="hp-bar san-bar"><div class="hp-fill san-fill" id="sanFill"></div></div>
+            <div class="hp-controls">
+              <input type="number" id="sanInput" value="0" min="0" title="quantidade" />
+              <button class="mini-btn" id="sanDmg" data-act="🌫️ sofreu um abalo">− Abalo</button>
+              <button class="mini-btn" id="sanHeal" data-act="🕯️ recuperou a vontade">+ Prumo</button>
+              <button class="mini-btn" id="sanMax" data-act="⚖️ refez a vontade">Firme</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Efeitos -->
+        <div class="status-block">
+          <div class="hp-label"><span>Efeitos ativos <small>(máx. 6)</small></span><span id="statusCount">0/6</span></div>
+          <div class="status-chips" id="statusChips">
+            <span class="chip empty">sem efeitos — cartas aplicadas aparecem aqui</span>
+          </div>
+          <div class="status-actions">
+            <input type="text" id="statusInput" maxlength="26" placeholder="novo efeito…" />
+            <button type="button" class="mini-btn" id="statusAddBtn" data-act="➕ adicionou um efeito">＋ Add</button>
+          </div>
+          <p class="hint-note status-msg" id="statusMsg"></p>
+        </div>
+      </section>
+
+      <!-- ===== Abas ===== -->
+      <nav class="tabs">
+        <button class="tab-btn active" data-tab="perfil">Perfil</button>
+        <button class="tab-btn" data-tab="atributos">Status</button>
+        <button class="tab-btn" data-tab="tarot">Tarot</button>
+                <button class="tab-btn" data-tab="rolagem">Rolagem</button>
+        <button class="tab-btn" data-tab="inventario">Inventário</button>
+        <button class="tab-btn" data-tab="inimigos">Inimigos</button>
+      </nav>
+
+      <!-- Perfil -->
+      <section class="panel active" id="panel-perfil">
+        <h2>Quem é ele</h2>
+        <p class="panel-intro">Dante não lança magia — lança <b>probabilidade</b>. O baralho da família dele tem vinte e duas cartas maiores, e cada uma responde com um efeito real… mas nunca com a carta que você queria.</p>
+        <div class="obsessao-card">
+          <div class="obs-icon">🂠</div>
+          <div class="obs-info">
+            <div class="obs-name" contenteditable="true" spellcheck="false" id="obsNome">“As cartas não decidem — elas emprestam coragem.”</div>
+            <p class="obs-desc" contenteditable="true" spellcheck="false" id="obsDesc">Regra da casa: toda leitura cobra um preço em atenção. Dante escolhe para quem aponta o efeito da carta — aliado, ele mesmo ou inimigo. O baralho tolera a escolha; nunca garante a acerto.</p>
+          </div>
+        </div>
+        <div class="story-block">
+          <p class="m-block-title">História <small>(clique para editar)</small></p>
+          <p class="story-text" contenteditable="true" spellcheck="false" id="storyText">Ninguém em família soube explicar de onde veio o baralho: apareceu com a bisavó, sempre apareceu. Dante herdou-o aos doze anos, junto com a mania de somar probabilidades em voz baixa. É humano — sem pele de coelho, sem linha do Outro Mundo, sem lâmina de palco. Só ele, as cartas e uma calma que deixa os outros nervosos. Lê o grupo de graça desde a primeira noite em que todos sumiram juntos; e as respostas vêm certas demais para quem acredita em sorte. Ele mesmo não aposta em nada. Diz que apostou uma vez só — e que a carta cobrou.</p>
+        </div>
+      </section>
+
+      <!-- Status / Atributos -->
+      <section class="panel" id="panel-atributos">
+        <h2>Status</h2>
+        <p class="panel-intro">Clique num atributo para rolar <b>d10 + o valor dele</b>. Cartas aplicadas nele somam parcelas visíveis (ex.: <b>+ 2☀️</b>).</p>
+        <div class="attr-grid" id="attrsGrid"><!-- gerado via JS --></div>
+        <div class="roller">
+          <div class="roll-config">
+            <label>Dado
+              <select id="diceType">
+                <option value="4">d4</option>
+                <option value="6">d6</option>
+                <option value="8">d8</option>
+                <option value="10">d10</option>
+                <option value="12">d12</option>
+                <option value="20" selected>d20</option>
+                <option value="100">d100</option>
+              </select>
+            </label>
+            <label>Qtde <input type="number" id="diceQty" value="1" min="1" max="10" /></label>
+            <label>Bônus de
+              <select id="attrBonus">
+                <option value="none">nenhum atributo</option>
+              </select>
+            </label>
+            <button class="btn-major" id="rollBtn">🎲 Rolar</button>
+          </div>
+          <div class="roll-display"><span class="die" id="die">🎲</span><p class="roll-msg" id="rollMsg"></p></div>
+        </div>
+      </section>
+
+      <!-- Tarot -->
+      <section class="panel" id="panel-tarot">
+        <h2>Tarot — Os 22 Arcanos Maiores</h2>
+        <p class="panel-intro">Sorteie uma carta. Cada arcano tem <b>chance própria</b> (os poderosos saem menos). Quem recebe o efeito, <b>você escolhe</b>: ele mesmo, um aliado — ou um inimigo. E a carta cai de três jeitos: <b>no aliado</b> ela faz só o bem que tem; <b>no inimigo</b> ela <b>fere</b> (o 🗡 <b>dano</b> está escrito no efeito de cada uma); e <b>virar a carta contra o próprio corpo cobra 🕯 Vontade</b> — ler o destino de perto queima.</p>
+
+        <div class="tarot-main">
+          <div class="draw-box">
+            <div class="drawn-card" id="drawnCard">
+              <div class="card-inner">
+                <div class="card-face card-back">🂠</div>
+                <div class="card-face card-front" id="cardFront">
+                  <span class="cf-emoji" id="cardEmoji">🃏</span>
+                  <b class="cf-nome" id="cardNome">—</b>
+                  <small class="cf-sig" id="cardSig">o baralho espera</small>
+                </div>
+              </div>
+            </div>
+            <div class="draw-side">
+              <p class="card-effect" id="cardEfeito">Corte o baralho e consulte. O destino comparece pontualmente — e cobra juros.</p>
+              <label class="target-label">Alvo do efeito
+                <select id="tarotAlvo"></select>
+              </label>
+              <div class="mini-row">
+                <button class="btn-major" id="tarotSortear" data-act="">🂠 Sortear Carta</button>
+                <button class="mini-btn" id="tarotAplicar" disabled>✋ Aplicar</button>
+                <button class="mini-btn" id="tarotDescartar" disabled>🗑 Descartar</button>
+              </div>
+              <p class="hint-note" id="tarotMsg"></p>
+            </div>
+          </div>
+
+          <!-- Os Enamorados: escolha entre duas cartas -->
+          <div class="lovers-pick" id="loversPick" hidden></div>
+
+          <p class="m-block-title deck-title">O Baralho <small>(clique para consultar · a % é a chance de vir)</small></p>
+          <div class="deck-grid" id="deckGrid"><!-- gerado via JS --></div>
+          <p class="card-info" id="cardInfo">✦ passe ou clique numa carta para ver o significado e o efeito</p>
+
+          <p class="m-block-title deck-title">Inimigos <small>(nomeie, ajuste a vida deles — é o ÚNICO lugar onde o 🗡 dano das cartas acontece; a mesa marca o golpe no campo da vida)</small></p>
+          <div class="enemy-list" id="enemyList"><!-- gerado via JS --></div>
+        </div>
+        <p class="hint-note">✦ Efeitos em aliados vão para a ficha deles (aparecem ao vivo, se estiver aberta). Efeitos ± viram marcas clicáveis no seu próprio painel. Duram até alguém <b>descartar</b> — na mesa, isso é decisão de quem sente o efeito (ou do mestre).<br>✦ <b>Como a carta cai:</b> <b>(em aliado)</b> só o lado bom dela, sem ferida nenhuma · <b>(nele mesmo)</b> o lado bom <b>mais o 🕯 preço em Vontade</b> escrito no efeito · <b>(em inimigo)</b> só o 🗡 <b>dano</b> e a marca da carta cravada nele.<br>✦ <b>Dano não mata:</b> a 0 a barra fica 🟥 CAÍDO (ainda vivo, levanta com cura, O Mundo ou O Julgamento). Só A Morte 💀 ceifa de verdade — e a Torre 🌩️ leva metade da vida que o alvo tem.</p>
+      </section>
+
+      <!-- Rolagem -->
+      <section class="panel" id="panel-rolagem">
+        <h2>Histórico de Rolagem</h2>
+        <p class="panel-intro">Compartilhado com o mestre e o resto do grupo — todo mundo vê as rolagens de todo mundo.</p>
+        <ul class="roll-log" id="rollLog">
+          <li class="log-empty">Nenhuma rolagem ainda.</li>
+        </ul>
+        <p class="hint-note">✦ Sorteios e aplicações de carta também caem aqui, com a % da carta.</p>
+      </section>
+
+      <!-- Inventário -->
+      <section class="panel" id="panel-inventario">
+        <h2>Inventário — Armas do Mestre</h2>
+        <p class="panel-intro">O que o <b>mestre</b> te entregou. Role o dano direto daqui (as cartas aplicadas em você somam no dano). 🃏</p>
+        <div id="invArea">
+          <div class="inv-empty">
+            <span>⚔️</span>
+            Suas mãos estão ocupadas demais com o baralho para segurar outra coisa…<br />
+            Quando o <b>mestre</b> enviar uma arma pelo painel dele, ela aparece aqui automaticamente.
+          </div>
+        </div>
+      </section>
+
+      <!-- Inimigos em cena (bestiário do mestre — aqui você só olha) -->
+      <section class="panel" id="panel-inimigos">
+        <h2>Inimigos em Cena</h2>
+        <p class="panel-intro">O que o <b>mestre</b> colocou na cena, com a vida e a sanidade de cada bicho.</p>
+        <div class="mob-list" id="mobList"><!-- gerado via JS --></div>
+        <p class="hint-note">✦ Não confunda com os <b>3 slots de alvo do tarô</b> (aba Tarot): aqueles são o seu caderno, onde o 🗡 dano das suas cartas acontece. Esta aba aqui é a cena do mestre — só leitura, <b>🟥 caído</b> / <b>😵 sem sanidade</b> aparecem sozinhos quando a barra zera.</p>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="sheet-footer">Éclipse — modo local (salvamento no seu navegador). Firebase virá depois. ✦
+    <br /><small class="sheet-monitor">👁️ Aviso: suas rolagens e cliques ficam visíveis na tela do mestre.</small>
+  </footer>
+
+  <!-- ===== Editor de enquadramento do retrato ===== -->
+  <div class="modal-overlay" id="cropModal" hidden>
+    <div class="modal">
+      <h3>Ajustar retrato</h3>
+      <p class="modal-sub">Arraste a foto dentro do círculo e use o zoom até emoldurar como quiser.</p>
+      <div class="crop-stage" id="cropStage"><img id="cropImg" alt="" draggable="false" /></div>
+      <div class="crop-controls">
+        <label>Zoom
+          <input type="range" id="cropZoom" min="1" max="3" step="0.01" value="1" />
+        </label>
+        <button type="button" class="mini-btn" id="cropSwap">🖼 Trocar imagem</button>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="mini-btn" id="cropCancel">Cancelar</button>
+        <button type="button" class="btn-major" id="cropOk">✔ Usar assim</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/inimigos.js?v=150"></script>
+  <script src="js/personagem3.js?v=150"></script>
+  <script>/* Se o motor não chegou (js quebrado ou na cache velha), avisa em vez de sumir. */
+    setTimeout(function () { if (!window.__FICHA_OK) { var d = document.getElementById('bootWarn'); if (d) d.hidden = false; } }, 800);</script>
+</body>
+</html>

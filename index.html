@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Éclipse — O Salão do Elenco</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css?v=150" />
+  <link rel="stylesheet" href="css/escolha.css?v=150" />
+  <script src="js/theme.js?v=150"></script>
+  <!-- Ordem que importa: a config entra antes do vestido (js/store.js), e o vestido antes de
+       qualquer tela ler ou escrever localStorage. O store.js troca o setItem/removeItem do
+       navegador pelo par "grava local + atravessa para o Firestore", então ele tem que ser o
+       primeiro a chegar. O portão não carrega ficha nenhuma: só o elenco. -->
+  <script src="js/firebase-config.js?v=150"></script>
+  <script src="js/store.js?v=150"></script>
+  <script src="js/conta.js?v=150"></script>
+</head>
+<body class="escolha-body">
+
+  <!-- Ornamentos curvados de fundo (os mesmos do portão velho, agora atrás do elenco) -->
+  <svg class="bg-curve bg-curve-1" viewBox="0 0 600 600" aria-hidden="true"><path d="M300 40 C 440 120, 480 260, 400 380 C 340 470, 200 480, 130 400 C 50 310, 90 160, 210 110 C 260 90, 280 70, 300 40 Z"/></svg>
+  <svg class="bg-curve bg-curve-2" viewBox="0 0 600 600" aria-hidden="true"><path d="M300 80 C 180 140, 120 280, 200 400 C 270 500, 430 490, 490 390 C 550 290, 500 150, 380 110 Z"/></svg>
+
+  <header class="salao">
+    <div class="salao-orn">✦ ⚜ ✦</div>
+    <h1 class="salao-titulo">Éclipse</h1>
+    <p class="salao-sub">Crônicas de um palco esquecido</p>
+    <p class="salao-peca">
+      O elenco já está pronto e espera nos bastidores. <b>Escolha o personagem que você vai
+      jogar</b>: assim que você clicar, o card dele fica marcado como
+      <b>✔ JÁ SELECIONADO</b> — e a mesa inteira enxerga a marca, não só o seu aparelho.
+    </p>
+
+    <div class="eu">
+      <label for="euNome">Quem está jogando?</label>
+      <input type="text" id="euNome" autocomplete="name" placeholder="o seu nome, para o selo" />
+      <span class="eu-dica">Fica só neste aparelho (é o seu crachá, não é dado da mesa). As barras de vida embaixo vêm das fichas de verdade: o que o mestre já escreveu aparece aqui.</span>
+    </div>
+  </header>
+
+  <p id="salaoMsg" class="salao-msg" hidden></p>
+
+  <!-- Os cinco cards são desenhados pelo js/escolha.js a partir da tabela do elenco.
+       Motivo: a vida mostrada aqui é lida do estado salvo de cada ficha, e a marca de
+       "já selecionado" é um dado da mesa. Um HTML fixo mentiria sobre os dois. -->
+  <main id="hall" class="hall" aria-label="Elenco da mesa"></main>
+  <noscript><p class="salao-msg">Este portão precisa de JavaScript ligado: ele lê a vida das fichas e a escolha da mesa na hora de desenhar o elenco.</p></noscript>
+
+  <footer class="salao-pe">
+    <p id="salaoResumo">…</p>
+
+    <div class="mestrePortao">
+      <span>Portão do mestre</span>
+      <input type="password" id="mestreSenha" placeholder="palavra-passe" autocomplete="current-password" />
+      <button type="button" id="mestreBtn">Abrir o painel</button>
+    </div>
+
+    <span class="syncChip off" id="syncChip">lendo a conexão…</span>
+
+    <details class="salao-nota">
+      <summary>Como este portão funciona</summary>
+      <ul>
+        <li>🌹 🐰 🔮 🕯️ 🏮 — os cinco personagens abrem direto na ficha, sem senha. Sempre foi assim por trás: o que protegia era o link, não a senha.</li>
+        <li>👑 O painel do mestre continua pedindo a palavra-passe de sempre (<b>mestre</b> / <b>mestre1</b>). Ela fica lembrada neste aparelho depois da primeira vez.</li>
+        <li>✔ A escolha é compartilhada: quem marcar “Nox” primeiro deixa o card marcado para todos. Outro nome em cima é “Tomar para mim” (pergunta antes, não faz escondido).</li>
+        <li>☁ O chip ao lado diz se a mesa já está no Firebase ou ainda vivendo só neste computador. Sem conta e sem rede o jogo continua igual — só não sincroniza.</li>
+      </ul>
+    </details>
+
+    <p class="salaoCredits">Éclipse · salão do elenco · <span id="salaoAno"></span></p>
+  </footer>
+
+  <script src="js/escolha.js?v=150"></script>
+</body>
+</html>

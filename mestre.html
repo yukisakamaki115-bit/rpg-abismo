@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel do Mestre | Éclipse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css?v=150" />
+  <link rel="stylesheet" href="css/mestre.css?v=150" />
+  <script src="js/theme.js?v=150"></script>
+  <script src="js/firebase-config.js?v=150"></script>
+  <script src="js/store.js?v=150"></script>
+  <script src="js/conta.js?v=150"></script>
+</head>
+<body class="mestre-body">
+  <div class="mestre-wrap">
+    <div class="mestre-top">
+      <div>
+        <h1>👑 Painel do Mestre</h1>
+        <p class="m-sub">gerencie as fichas, as armas e o destino de cada personagem</p>
+      </div>
+      <a href="index.html" class="logout-link">Sair ⏎</a>
+    </div>
+
+    <div class="mestre-notice">
+      🖥️ <b>Modo local:</b> o painel lê e grava direto no navegador (mesmo PC) e tem os mesmos controles
+      nas cinco fichas. As alterações aparecem na ficha de quem você mexeu quando <b>abre/atualiza</b> a
+      página dela (<b>Ctrl+F5</b>). Tempo real entre dispositivos diferentes chega com o Firebase, mais adiante.
+    </div>
+
+    <!-- ===== Grade de fichas ===== -->
+    <section class="sheet-grid">
+
+      <!-- FLORA (ficha 1) -->
+      <article class="char-card" id="floraCard">
+        <div class="card-head">
+          <div class="mini-portrait" id="floraPortrait">🩰</div>
+          <div>
+            <h2>Flora Hilton</h2>
+            <p class="char-class">Bailarina · a lâmina que dança</p>
+          </div>
+        </div>
+        <span class="badge alive" id="floraBadge">Viva</span>
+
+        <div>
+          <div class="mbar-label"><span>Pontos de vida</span><span id="floraHpText">30 / 30</span></div>
+          <div class="mbar"><div class="mfill hp" id="floraHpFill" style="width:100%"></div></div>
+          <div class="mini-row" style="margin-top:8px">
+            <input type="number" id="floraHpAmt" value="5" min="0" />
+            <button class="mini-btn danger" data-sheet="flora" data-hp="dmg">− Dano</button>
+            <button class="mini-btn ok" data-sheet="flora" data-hp="heal">+ Cura</button>
+            <button class="mini-btn" data-sheet="flora" data-hp="full">Max</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="mbar-label"><span>Sanidade</span><span id="floraSanText">100 / 100</span></div>
+          <div class="mbar"><div class="mfill san" id="floraSanFill" style="width:100%"></div></div>
+          <div class="mini-row" style="margin-top:8px">
+            <input type="number" id="floraSanAmt" value="5" min="0" />
+            <button class="mini-btn danger" data-sheet="flora" data-san="dmg">− Perde</button>
+            <button class="mini-btn ok" data-sheet="flora" data-san="heal">+ Recupera</button>
+            <button class="mini-btn" data-sheet="flora" data-san="full">Max</button>
+          </div>
+        </div>
+
+        <div>
+          <p class="m-block-title">Status (atributos)</p>
+          <div class="m-attrs" id="floraAttrs"><!-- gerado via JS --></div>
+        </div>
+
+        <div>
+          <p class="m-block-title">Efeitos ativos <small>(máx. 6)</small></p>
+          <div class="chip-row" id="floraEffects"></div>
+          <div class="field-row" style="margin-top:10px">
+            <input type="text" id="floraEffectInput" maxlength="26" placeholder="enviar efeito…" />
+            <button class="mini-btn" id="floraEffectAdd">＋ Enviar</button>
+          </div>
+          <div class="mini-row" style="margin-top:10px">
+            <button class="mini-btn warn" id="floraIncap">🟡 Incapacitar</button>
+            <button class="mini-btn danger" id="floraKill">☠️ Matar (1 clique)</button>
+            <button class="mini-btn ok" id="floraRevive">❤ Restaurar</button>
+          </div>
+        </div>
+
+        <div>
+          <p class="m-block-title">Inventário (armas enviadas)</p>
+          <div class="recv-list" id="floraRecv"></div>
+        </div>
+
+        <div class="mini-row">
+          <a class="mini-btn" href="flor.html" target="_blank" style="text-decoration:none">👁 Abrir ficha</a>
+          <button class="mini-btn" id="floraReload">🔄 Sincronizar</button>
+        </div>
+
+        <div class="feed-block">
+          <p class="m-block-title">🖱️ Atividade do jogador <small>(cliques + rolagens)</small></p>
+          <ul class="feed" id="floraFeed"><li class="feed-empty">sem atividade ainda</li></ul>
+        </div>
+      </article>
+
+      <!-- NOX (ficha 2 · mesma edição da Flora) -->
+      <article class="char-card" id="coelhoCard">
+        <div class="card-head">
+          <div class="mini-portrait" id="coelhoPortrait">🦌</div>
+          <div>
+            <h2>Nox</h2>
+            <p class="char-class">Criatura de muitas peles · olhos vermelhos</p>
+          </div>
+        </div>
+        <span class="badge alive" id="coelhoBadge">Vivo</span>
+
+        <div>
+          <div class="mbar-label"><span>Enchimento</span><span id="coelhoHpText">24 / 24</span></div>
+          <div class="mbar"><div class="mfill hp" id="coelhoHpFill" style="width:100%"></div></div>
+          <div class="mini-row" style="margin-top:8px">
+            <input type="number" id="coelhoHpAmt" value="5" min="0" />
+            <button class="mini-btn danger" data-sheet="coelho" data-hp="dmg">− Dano</button>
+            <button class="mini-btn ok" data-sheet="coelho" data-hp="heal">+ Cura</button>
+            <button class="mini-btn" data-sheet="coelho" data-hp="full">Max</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="mbar-label"><span>Linha (sanidade)</span><span id="coelhoSanText">100 / 100</span></div>
+          <div class="mbar"><div class="mfill san" id="coelhoSanFill" style="width:100%"></div></div>
+          <div class="mini-row" style="margin-top:8px">
+            <input type="number" id="coelhoSanAmt" value="5" min="0" />
+            <button class="mini-btn danger" data-sheet="coelho" data-san="dmg">− Perde</button>
+            <button class="mini-btn ok" data-sheet="coelho" data-san="heal">+ Recupera</button>
+            <button class="mini-btn" data-sheet="coelho" data-san="full">Max</button>
+          </div>
+        </div>
+
+        <div>
+          <p class="m-block-title">Status (atributos)</p>
+          <div class="m-attrs" id="coelhoAttrs"></div>
+        </div>
+
+        <div>
+          <p class="m-block-title">Mundo · Forma atual</p>
+          <div class="chip-row" id="coelhoWorld"></div>
+        </div>
+
+        <div>
+          <p class="m-block-title">Efeitos ativos <small>(máx. 6)</small></p>
+          <div class="chip-row" id="coelhoEffects"></div>
+          <div class="field-row" style="margin-top:10px">
+            <input type="text" id="coelhoEffectInput" maxlength="26" placeholder="enviar efeito…" />
+            <button class="mini-btn" id="coelhoEffectAdd">＋ Enviar</button>
+          </div>
+          <div class="mini-row" style="margin-top:10px">
+            <button class="mini-btn warn" id="noxIncap">🟡 Incapacitar</button>
+            <button class="mini-btn danger" id="noxKill">☠️ Matar (1 clique)</button>
+            <button class="mini-btn ok" id="noxRevive">❤ Restaurar</button>
+          </div>
+        </div>
+
+        <div>
+          <p class="m-block-title">Inventário (armas enviadas)</p>
+          <div class="recv-list" id="coelhoRecv"></div>
+        </div>
+
+        <div class="mini-row">
+          <a class="mini-btn" href="personagem2.html" target="_blank" style="text-decoration:none">👁 Abrir ficha</a>
+          <button class="mini-btn" id="coelhoReload">🔄 Sincronizar</button>
+        </div>
+
+        <div class="feed-block">
+          <p class="m-block-title">🖱️ Atividade do jogador <small>(cliques + rolagens)</small></p>
+          <ul class="feed" id="coelhoFeed"><li class="feed-empty">sem atividade ainda</li></ul>
+        </div>
+      </article>
+
+      <!-- DANTE (ficha 3 · humano cartomante · ao vivo) -->
+      <article class="char-card" id="santiagoCard">
+        <div class="card-head">
+          <div class="mini-portrait" id="santiagoPortrait">🔮</div>
+          <div>
+            <h2>Dante</h2>
+            <p class="char-class">Humano · O Cartomante — 22 Arcanos no baralho</p>
+          </div>
+        </div>
+        <span class="badge alive" id="santiagoBadge">Vivo</span>
+
+        <div>
+          <div class="mbar-label"><span>Fôlego</span><span id="santiagoHpText">22 / 22</span></div>
+          <div class="mbar"><div class="mfill hp" id="santiagoHpFill" style="width:100%"></div></div>
+          <div class="mini-row" style="margin-top:8px">
+            <input type="number" id="santiagoHpAmt" value="5" min="0" />
+            <button class="mini-btn danger" data-sheet="santiago" data-hp="dmg">− Dano</button>
+            <button class="mini-btn ok" data-sheet="santiago" data-hp="heal">+ Cura</button>
+            <button class="mini-btn" data-sheet="santiago" data-hp="full">Max</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="mbar-label"><span>Vontade</span><span id="santiagoSanText">100 / 100</span></div>
+          <div class="mbar"><div class="mfill san" id="santiagoSanFill" style="width:100%"></div></div>
+          <div class="mini-row" style="margin-top:8px">
+            <input type="number" id="santiagoSanAmt" value="5" min="0" />
+            <button class="mini-btn danger" data-sheet="santiago" data-san="dmg">− Perde</button>
+            <button class="mini-btn ok" data-sheet="santiago" data-san="heal">+ Recupera</button>
+            <button class="mini-btn" data-sheet="santiago" data-san="full">Max</button>
+          </div>
+        </div>
+
+        <div>
+          <p class="m-block-title">Status (atributos)</p>
+          <div class="m-attrs" id="santiagoAttrs"></div>
+        </div>
+
+        <div>
+          <p class="m-block-title">Efeitos ativos <small>(máx. 6 · marcas de carta entram nas rolagens dele)</small></p>
+          <div class="chip-row" id="santiagoEffects"></div>
+          <div class="field-row" style="margin-top:10px">
+            <input type="text" id="santiagoEffectInput" maxlength="26" placeholder="enviar efeito…" />
+            <button class="mini-btn" id="santiagoEffectAdd">＋ Enviar</button>
+          </div>
+          <div class="mini-row" style="margin-top:10px">
+            <button class="mini-btn warn" id="santiagoIncap">🟡 Incapacitar</button>
+            <button class="mini-btn danger" id="santiagoKill">☠️ Matar (1 clique)</button>
+            <button class="mini-btn ok" id="santiagoRevive">❤ Restaurar</button>
+          </div>
+        </div>
+
+        <div>
+          <p class="m-block-title">Inventário (armas enviadas)</p>
+          <div class="recv-list" id="santiagoRecv"></div>
+        </div>
+
+        <div class="mini-row">
+          <a class="mini-btn" href="personagem3.html" target="_blank" style="text-decoration:none">👁 Abrir ficha</a>
+          <button class="mini-btn" id="santiagoReload">🔄 Sincronizar</button>
+        </div>
+
+        <div class="feed-block">
+          <p class="m-block-title">🖱️ Atividade do jogador <small>(cliques + rolagens)</small></p>
+          <ul class="feed" id="santiagoFeed"><li class="feed-empty">sem atividade ainda</li></ul>
+        </div>
+        <p class="ro-note">🂠 As cartas que ele aplica nos outros aparecem nos efeitos de cada ficha — e as dele aqui, onde dá pra tirar no clique.</p>
+      </article>
+
+      <!-- FICHA 4 (o amor da Flora, levada para o Crepúsculo · ficha canônica) -->
+      <article class="char-card" id="ficha4Card">
+        <div class="card-head">
+          <div class="mini-portrait" id="ficha4Portrait">🕯️</div>
+          <div>
+            <h2 id="ficha4Nome">Vesper</h2>
+            <p class="char-class">Ficha 4 · o amor da Flora — alma dentro do Crepúsculo</p>
+          </div>
+        </div>
+        <span class="badge alive" id="ficha4Badge">✨ Acesa</span>
+
+        <!-- Quem está no corpo dela agora: a ficha escreve state.persResumo, o painel só lê.
+             Sem o bloco no HTML o resumo simplesmente não aparece (o motor não cria nada). -->
+        <div>
+          <p class="m-block-title">Personalidade no corpo</p>
+          <div class="chip-row" id="ficha4World"><span class="chip ro">🎭 ?</span></div>
+        </div>
+
+        <div>
+          <div class="mbar-label"><span id="ficha4HpNome">Brasa</span><span id="ficha4HpText">26 / 26</span></div>
+          <div class="mbar"><div class="mfill hp" id="ficha4HpFill" style="width:100%"></div></div>
+          <div class="mini-row" style="margin-top:8px">
+            <input type="number" id="ficha4HpAmt" value="5" min="0" />
+            <button class="mini-btn danger" data-sheet="ficha4" data-hp="dmg">− Dano</button>
+            <button class="mini-btn ok" data-sheet="ficha4" data-hp="heal">+ Cura</button>
+            <button class="mini-btn" data-sheet="ficha4" data-hp="full">Max</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="mbar-label"><span id="ficha4SanNome">Vínculo</span><span id="ficha4SanText">100 / 100</span></div>
+          <div class="mbar"><div class="mfill san" id="ficha4SanFill" style="width:100%"></div></div>
+          <div class="mini-row" style="margin-top:8px">
+            <input type="number" id="ficha4SanAmt" value="5" min="0" />
+            <button class="mini-btn danger" data-sheet="ficha4" data-san="dmg">− Perde</button>
+            <button class="mini-btn ok" data-sheet="ficha4" data-san="heal">+ Recupera</button>
+            <button class="mini-btn" data-sheet="ficha4" data-san="full">Max</button>
+          </div>
+        </div>
+
+        <div>
+          <p class="m-block-title">Status (atributos)</p>
+          <div class="m-attrs" id="ficha4Attrs"></div>
+        </div>
+
+        <div>
+          <p class="m-block-title">Efeitos ativos <small>(máx. 6)</small></p>
+          <div class="chip-row" id="ficha4Effects"></div>
+          <div class="field-row" style="margin-top:10px">
+            <input type="text" id="ficha4EffectInput" maxlength="26" placeholder="enviar efeito…" />
+            <button class="mini-btn" id="ficha4EffectAdd">＋ Enviar</button>
+          </div>
+          <div class="mini-row" style="margin-top:10px">
+            <button class="mini-btn warn" id="ficha4Incap">🟡 Vacilar</button>
+            <button class="mini-btn danger" id="ficha4Kill">☠️ Apagar (1 clique)</button>
+            <button class="mini-btn ok" id="ficha4Revive">❤ Restaurar</button>
+          </div>
+        </div>
+
+        <div>
+          <p class="m-block-title">Inventário (armas enviadas)</p>
+          <div class="recv-list" id="ficha4Recv"></div>
+        </div>
+
+        <div class="mini-row">
+          <a class="mini-btn" id="ficha4Open" href="ficha4.html" target="_blank" style="text-decoration:none">👁 Abrir ficha</a>
+          <button class="mini-btn" id="ficha4Reload">🔄 Sincronizar</button>
+        </div>
+
+        <div class="feed-block">
+          <p class="m-block-title">🖱️ Atividade do jogador <small>(cliques + rolagens)</small></p>
+          <ul class="feed" id="ficha4Feed"><li class="feed-empty">sem atividade ainda</li></ul>
+        </div>
+        <p class="ro-note">🕯️ A mecânica dela ainda não existe: por enquanto tudo que chega nela é vida, vínculo, atributo ou efeito enviado daqui. O nome do card acompanha o que ela escrever no topo da ficha.</p>
+      </article>
+
+      <!-- FICHA 5 (Clara Masorack · a coletora de almas) -->
+      <article class="char-card" id="ficha5Card">
+        <div class="card-head">
+          <div class="mini-portrait" id="ficha5Portrait">🏮</div>
+          <div>
+            <h2 id="ficha5Nome">Clara Masorack</h2>
+            <p class="char-class">17 anos · capuz vermelho · o lampião</p>
+          </div>
+        </div>
+        <span class="badge alive" id="ficha5Badge">🕯️ De lampião aceso</span>
+
+        <div>
+          <div class="mbar-label"><span id="ficha5HpNome">Vida</span><span id="ficha5HpText">20 / 20</span></div>
+          <div class="mbar"><div class="mfill hp" id="ficha5HpFill" style="width:100%"></div></div>
+          <div class="mini-row" style="margin-top:8px">
+            <input type="number" id="ficha5HpAmt" value="5" min="0" />
+            <button class="mini-btn danger" data-sheet="ficha5" data-hp="dmg">− Dano</button>
+            <button class="mini-btn ok" data-sheet="ficha5" data-hp="heal">+ Cura</button>
+            <button class="mini-btn" data-sheet="ficha5" data-hp="full">Max</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="mbar-label"><span id="ficha5SanNome">Sanidade</span><span id="ficha5SanText">100 / 100</span></div>
+          <div class="mbar"><div class="mfill san" id="ficha5SanFill" style="width:100%"></div></div>
+          <div class="mini-row" style="margin-top:8px">
+            <input type="number" id="ficha5SanAmt" value="5" min="0" />
+            <button class="mini-btn danger" data-sheet="ficha5" data-san="dmg">− Perde</button>
+            <button class="mini-btn ok" data-sheet="ficha5" data-san="heal">+ Recupera</button>
+            <button class="mini-btn" data-sheet="ficha5" data-san="full">Max</button>
+          </div>
+        </div>
+
+        <div>
+          <p class="m-block-title">Status (atributos)</p>
+          <div class="m-attrs" id="ficha5Attrs"></div>
+        </div>
+
+        <div>
+          <p class="m-block-title">Lampião · onde ela está</p>
+          <div class="chip-row" id="ficha5World"><span class="chip ro">🌍 Mundo Real · 🕯️ 0/6</span></div>
+        </div>
+
+        <div>
+          <p class="m-block-title">Efeitos ativos <small>(máx. 6)</small></p>
+          <div class="chip-row" id="ficha5Effects"></div>
+          <div class="field-row" style="margin-top:10px">
+            <input type="text" id="ficha5EffectInput" maxlength="26" placeholder="enviar efeito…" />
+            <button class="mini-btn" id="ficha5EffectAdd">＋ Enviar</button>
+          </div>
+          <div class="mini-row" style="margin-top:10px">
+            <button class="mini-btn warn" id="ficha5Incap">🟡 Incapacitar</button>
+            <button class="mini-btn danger" id="ficha5Kill">☠️ Matar (1 clique)</button>
+            <button class="mini-btn ok" id="ficha5Revive">❤ Restaurar</button>
+          </div>
+        </div>
+
+        <div>
+          <p class="m-block-title">Inventário (armas enviadas)</p>
+          <div class="recv-list" id="ficha5Recv"></div>
+        </div>
+
+        <div class="mini-row">
+          <a class="mini-btn" id="ficha5Open" href="ficha5.html" target="_blank" style="text-decoration:none">👁 Abrir ficha</a>
+          <button class="mini-btn" id="ficha5Reload">🔄 Sincronizar</button>
+        </div>
+
+        <div class="feed-block">
+          <p class="m-block-title">🖱️ Atividade do jogador <small>(cliques + rolagens)</small></p>
+          <ul class="feed" id="ficha5Feed"><li class="feed-empty">sem atividade ainda</li></ul>
+        </div>
+        <p class="ro-note">🗝️ O poder é dela, a conta é da ficha: as almas 🕯️ e o mundo em que ela está vêm escritos pelo js/lampiao.js dela — aqui você só lê. Invocação nenhuma funciona no Mundo Real, e o que sai é a linha da tabela do d10.</p>
+      </article>
+    </section>
+
+    <!-- ===== Rolagem do Mestre (NPCs e chefes) ===== -->
+    <section class="panel-section">
+      <h2>🎲 Rolagem do Mestre</h2>
+      <p class="sec-sub">Role dados por NPCs, chefes e o que mais estiver no palco.</p>
+
+      <div class="field-row" style="margin-bottom:12px">
+        <input type="text" id="mrLabel" maxlength="40" placeholder="quem / inimigo (ex: Golem Chefe) — opcional" style="flex:1 1 240px" />
+      </div>
+      <div class="roller-grid">
+        <label>Dado
+          <select id="mrTipo">
+            <option value="4">d4</option>
+            <option value="6" selected>d6</option>
+            <option value="8">d8</option>
+            <option value="10">d10</option>
+            <option value="12">d12</option>
+            <option value="20">d20</option>
+            <option value="100">d100</option>
+          </select>
+        </label>
+        <label>Qtd <input type="number" id="mrQtd" value="1" min="1" max="20" /></label>
+        <label>Bônus <input type="number" id="mrBonus" value="0" /></label>
+        <button class="mini-btn ok" id="mrRoll">🎲 Rolar</button>
+      </div>
+      <div class="mr-quick">
+        <span>Rápidas:</span>
+        <button class="mini-btn" data-quick="d20">d20</button>
+        <button class="mini-btn" data-quick="d4">d4</button>
+        <button class="mini-btn" data-quick="d6">d6</button>
+        <button class="mini-btn" data-quick="d8">d8</button>
+        <button class="mini-btn" data-quick="d10">d10</button>
+        <button class="mini-btn" data-quick="2d6">2d6</button>
+        <button class="mini-btn" data-quick="d100">d100</button>
+      </div>
+      <p class="mr-result" id="mrResult"></p>
+    </section>
+
+    <!-- ===== Inimigos em cena (bestiário · os jogadores veem as barras na aba Inimigos) ===== -->
+    <section class="panel-section">
+      <h2>👹 Inimigos em Cena</h2>
+      <p class="sec-sub">Crie o bicho com <b>vida</b> e <b>sanidade</b>: as barras aparecem na aba <b>Inimigos</b> das fichas, ao vivo. Quem machuca e tira da cena aqui é você.</p>
+
+      <div class="mob-new">
+        <input type="text" id="mobNome" maxlength="30" placeholder="nome do inimigo / NPC (ex: Golem Chefe)" />
+        <label>Vida <input type="number" id="mobHp" value="20" min="1" max="999" /></label>
+        <label>Sanidade <input type="number" id="mobSan" value="10" min="0" max="999" /></label>
+        <button class="mini-btn ok" id="mobAdd">＋ Criar inimigo</button>
+      </div>
+
+      <div class="mob-list" id="mobEditList"><!-- gerado via JS --></div>
+      <p class="sec-sub" style="margin-top:14px;margin-bottom:0">✦ <b>Atual</b> é onde a vida dele está agora (marque o golpe da mesa direto no primeiro campo); <b>máx</b> é o teto — mudar o teto não cura nem machuca ninguém. A 0, a barra fica vazia e o jogador vê a etiqueta <b>🟥 caído</b> / <b>😵 sem sanidade</b>. Limite de <b>6</b> em cena pra não engolir a tela.</p>
+    </section>
+
+    <!-- ===== Histórico de Rolagem (compartilhado com todos) ===== -->
+    <section class="panel-section">
+      <h2>📜 Histórico de Rolagem</h2>
+      <p class="sec-sub">Compartilhado com os jogadores: você vê as rolagens de todos e eles veem as suas.</p>
+      <div class="mlog-head">
+        <span id="mlogCount">0 rolagens</span>
+        <button class="mini-btn danger" id="mlogClear">🗑 Limpar</button>
+      </div>
+      <ul class="mlog" id="mlogList"></ul>
+    </section>
+
+    <!-- ===== Lista de Armas (catálogo do mestre) ===== -->
+    <section class="panel-section">
+      <h2>⚔️ Arsenal do Mestre</h2>
+      <p class="sec-sub">Cadastre armas aqui e envie para o inventário dos jogadores.</p>
+
+      <div class="field-row" style="margin-bottom:14px">
+        <input type="text" id="wNome" maxlength="30" placeholder="nome da arma (ex: Florete Prateado)" />
+        <input type="text" id="wDano" maxlength="12" placeholder="dano (ex: d8+2)" style="flex:0 0 120px;min-width:100px" />
+        <button class="mini-btn ok" id="wAdd">＋ Cadastrar</button>
+      </div>
+
+      <div class="catalog-list" id="catalogList"></div>
+    </section>
+
+    <footer class="mestre-footer">Éclipse — modo local. O poder sobre o palco é seu, mestre. ✦</footer>
+  </div>
+
+  <script src="js/inimigos.js?v=150"></script>
+  <script src="js/mestre.js?v=150"></script>
+</body>
+</html>

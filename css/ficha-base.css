@@ -1,0 +1,302 @@
+/* ===== Ficha-base — ossatura das fichas novas (4, 5 e as que vierem) =====
+   As fichas antigas (Flora, Nox, Dante) têm cada uma o próprio CSS de ~400 linhas e ficam
+   como estão. Aqui é o contrário: TODO o layout (moldura, vitais, abas, atributos, rolador,
+   inventário, histórico, retrato) existe uma vez só, pintado com variáveis --fs-*.
+   Quem dá a cara é o css/ficha<n>.css: ele só preenche as variáveis e acrescenta o próprio
+   enfeite. Por isso as duas fichas novas são visualmente distintas sem duplicar estrutura.
+
+   Variáveis obrigatórias (definidas no css da ficha):
+     --fs-page   fundo da página   --fs-sheet  fundo da moldura   --fs-card  cartões internos
+     --fs-ink    texto             --fs-muted  texto secundário   --fs-line  linhas/bordas
+     --fs-accent cor da ficha      --fs-accent-soft / --fs-accent-deep
+     --fs-hp1/--fs-hp2  gradiente da barra de vida   --fs-san1/--fs-san2  gradiente da sanidade
+     --fs-danger --fs-ok --fs-glow (sombra colorida)  --fs-chip/--fs-chip-ink (etiquetas) */
+
+.ficha-body {
+  background: var(--fs-page);
+  color: var(--fs-ink);
+  min-height: 100vh;
+  padding: 30px 16px 80px;
+}
+
+/* ---------- Moldura ---------- */
+.sheet {
+  position: relative; z-index: 1;
+  max-width: 1020px; margin: 0 auto;
+  background: var(--fs-sheet);
+  border: 1px solid var(--fs-line);
+  border-radius: 14px;
+  box-shadow: 0 0 0 5px var(--fs-card), 0 0 0 6px var(--fs-line), 0 24px 60px var(--fs-glow);
+  overflow: hidden;
+}
+.sheet-inner { position: relative; z-index: 1; padding: 32px 42px 40px; }
+
+.logout-link {
+  position: absolute; top: 16px; right: 22px; z-index: 5;
+  font-size: 14px; letter-spacing: .5px; text-decoration: none;
+  color: var(--fs-muted); border: 1px solid var(--fs-line); border-radius: 20px; padding: 5px 14px;
+  background: var(--fs-card); transition: .2s;
+}
+.logout-link:hover { color: #fff; background: var(--fs-accent); border-color: var(--fs-accent); }
+
+/* ---------- Cabeçalho ---------- */
+.sheet-header { display: flex; align-items: center; gap: 30px; flex-wrap: wrap; margin-bottom: 26px; }
+.portrait-wrap { position: relative; flex: 0 0 auto; }
+.portrait {
+  position: relative;
+  width: 158px; height: 158px; border-radius: 50%; overflow: hidden; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 34% 30%, var(--fs-card), var(--fs-sheet) 62%, var(--fs-line));
+  border: 4px solid var(--fs-accent);
+  box-shadow: 0 0 0 5px var(--fs-glow), 0 12px 26px var(--fs-glow);
+}
+.portrait-emoji { font-size: 66px; line-height: 1; }
+.portrait.has-img .portrait-emoji { display: none; }
+/* O retrato das fichas novas é emoldurado pelo editor (arrastar + zoom): quem escreve
+   width/height/left/top é o js/ficha-comum.js, em pixels. Com object-fit a foto ficava
+   "presa" na caixa e o arrasto não alcançava as bordas dela. */
+.portrait-img { position: absolute; max-width: none; z-index: 1; }
+.portrait-hint {
+  position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+  font-size: 9.5px; letter-spacing: .5px; white-space: nowrap; color: #fff;
+  background: rgba(20,16,28,.75); padding: 3px 9px; border-radius: 20px; opacity: 0; transition: .2s;
+  z-index: 2;
+}
+.portrait:hover .portrait-hint, .portrait:focus-visible .portrait-hint { opacity: 1; }
+.portrait-remove {
+  position: absolute; top: -4px; right: -4px; width: 28px; height: 28px; border-radius: 50%;
+  border: none; background: var(--fs-danger); color: #fff; font-size: 14px; cursor: pointer; z-index: 3;
+}
+.head-info { flex: 1; min-width: 240px; }
+.char-name {
+  font-family: var(--serif-title); font-size: 44px; letter-spacing: 5px; text-transform: uppercase;
+  color: var(--fs-accent-deep); line-height: 1; outline: none;
+}
+.char-class { font-style: italic; font-size: 18px; color: var(--fs-muted); margin: 6px 0 16px; outline: none; }
+.bio-grid { display: flex; flex-wrap: wrap; gap: 10px 22px; }
+.bio-item { font-size: 15px; color: var(--fs-ink); }
+.bio-item b { color: var(--fs-accent); font-weight: 600; margin-right: 5px; }
+
+/* ---------- Vitais ---------- */
+.vitals { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; align-items: start; margin-bottom: 26px; }
+.vitals-left { display: grid; gap: 16px; min-width: 0; }
+.hp-block, .status-block {
+  background: var(--fs-card); border: 1px solid var(--fs-line); border-radius: 10px; padding: 14px 16px;
+  min-width: 0;
+}
+.hp-label { display: flex; justify-content: space-between; gap: 10px; font-size: 15px; margin-bottom: 8px; color: var(--fs-accent-deep); font-weight: 600; }
+.hp-bar { height: 20px; border-radius: 20px; background: var(--fs-sheet); overflow: hidden; border: 1px solid var(--fs-line); }
+.hp-fill { height: 100%; width: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--fs-hp1), var(--fs-hp2)); transition: width .35s ease; }
+.san-fill { background: linear-gradient(90deg, var(--fs-san1), var(--fs-san2)); }
+.hp-controls { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.hp-controls input { width: 56px; padding: 6px 8px; border: 1px solid var(--fs-line); border-radius: 6px; font-size: 14px; background: var(--fs-sheet); color: var(--fs-ink); }
+
+.mini-btn {
+  font-family: var(--serif-body); font-size: 14px; padding: 6px 12px; border-radius: 7px; cursor: pointer;
+  border: 1px solid var(--fs-line); background: var(--fs-sheet); color: var(--fs-accent-deep); transition: .18s;
+}
+.mini-btn:hover { background: var(--fs-accent); color: #fff; border-color: var(--fs-accent); }
+.mini-btn:disabled { opacity: .4; cursor: not-allowed; }
+.mini-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+/* ---------- Efeitos ---------- */
+.status-chips { display: flex; flex-wrap: wrap; gap: 8px; min-height: 30px; }
+.chip { font-size: 13px; padding: 5px 11px; border-radius: 20px; background: var(--fs-chip); color: var(--fs-chip-ink); cursor: pointer; }
+.chip.empty { background: transparent; color: var(--fs-muted); border: 1px dashed var(--fs-line); cursor: default; }
+.chip.neg { background: var(--fs-danger); color: #fff; }
+.chip.gm { background: #241f1c; color: #f3f0e6; cursor: not-allowed; border: 1px solid var(--fs-danger); }
+.status-actions { display: flex; gap: 8px; margin-top: 12px; }
+.status-actions input { flex: 1; min-width: 0; padding: 7px 10px; border: 1px solid var(--fs-line); border-radius: 6px; font-size: 14px; background: var(--fs-sheet); color: var(--fs-ink); }
+.status-msg, .hint-note { font-size: 12.5px; font-style: italic; color: var(--fs-muted); margin-top: 8px; }
+
+/* ---------- Abas ---------- */
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; border-bottom: 2px solid var(--fs-line); margin-bottom: 22px; }
+.tab-btn {
+  font-family: var(--serif-title); font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+  background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px;
+  padding: 10px 14px; cursor: pointer; color: var(--fs-muted); transition: .2s;
+}
+.tab-btn:hover { color: var(--fs-accent); }
+.tab-btn.active { color: var(--fs-accent-deep); border-bottom-color: var(--fs-accent); }
+.panel { display: none; animation: fade .3s ease; min-width: 0; }
+.panel.active { display: block; }
+.panel h2 { font-family: var(--serif-title); font-size: 22px; letter-spacing: 2px; text-transform: uppercase; color: var(--fs-accent-deep); margin-bottom: 6px; }
+.panel-intro { font-size: 15px; color: var(--fs-muted); margin-bottom: 18px; line-height: 1.5; }
+@keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ---------- Conteúdo editável ---------- */
+.m-block-title {
+  font-family: var(--serif-title); font-size: 12px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--fs-accent-deep); margin-bottom: 8px;
+}
+.m-block-title small { font-size: 11px; letter-spacing: .5px; text-transform: none; color: var(--fs-muted); }
+.story-block { background: var(--fs-card); border: 1px solid var(--fs-line); border-radius: 10px; padding: 18px; margin-bottom: 18px; }
+.story-text { font-size: 16px; line-height: 1.6; outline: none; }
+.story-text[contenteditable]:hover, .obs-name[contenteditable]:hover, .obs-desc[contenteditable]:hover { background: var(--fs-sheet); }
+.quote-block {
+  display: flex; gap: 16px; background: var(--fs-card); border: 1px solid var(--fs-line);
+  border-left: 4px solid var(--fs-accent); border-radius: 10px; padding: 18px; margin-bottom: 22px;
+}
+.quote-icon { font-size: 40px; line-height: 1; }
+.quote-info { min-width: 0; }
+.quote-text { font-family: var(--serif-title); font-size: 19px; color: var(--fs-accent-deep); margin-bottom: 6px; outline: none; }
+.quote-sub { font-size: 15.5px; line-height: 1.5; color: var(--fs-ink); outline: none; }
+
+/* ---------- Atributos ---------- */
+.attr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.attr-card {
+  background: var(--fs-card); border: 1px solid var(--fs-line); border-top: 3px solid var(--fs-accent);
+  border-radius: 10px; padding: 14px; text-align: center; cursor: pointer; transition: .18s; min-width: 0;
+}
+.attr-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px var(--fs-glow); }
+.attr-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.attr-nome { font-family: var(--serif-title); font-size: 13.5px; letter-spacing: 1px; color: var(--fs-accent-deep); text-transform: uppercase; }
+.attr-mod { font-family: var(--serif-title); font-size: 15px; color: var(--fs-accent); }
+.attr-card input {
+  width: 76px; display: block; margin: 10px auto 4px; text-align: center;
+  font-family: var(--serif-title); font-size: 20px; padding: 4px;
+  border: 1px solid var(--fs-line); border-radius: 8px; background: var(--fs-sheet); color: var(--fs-ink);
+}
+.attr-result { min-height: 20px; margin-top: 8px; font-family: var(--serif-title); font-size: 14px; color: var(--fs-danger); }
+.attr-hint { font-size: 11px; color: var(--fs-muted); margin-top: 4px; }
+
+/* ---------- Rolador ---------- */
+.roller { background: var(--fs-card); border: 1px solid var(--fs-line); border-radius: 12px; padding: 18px 20px; }
+.roll-config { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin-bottom: 14px; }
+.roll-config label { display: flex; flex-direction: column; font-size: 12px; color: var(--fs-muted); font-weight: 600; gap: 4px; font-family: var(--serif-title); letter-spacing: 1px; text-transform: uppercase; }
+.roll-config select, .roll-config input {
+  padding: 6px 8px; border: 1px solid var(--fs-line); border-radius: 6px;
+  background: var(--fs-sheet); color: var(--fs-ink); font-family: var(--serif-body); font-size: 15px;
+}
+.roll-config input[type=number] { width: 62px; }
+.btn-major {
+  width: auto; padding: 10px 22px; margin: 0;
+  font-family: var(--serif-title); font-size: 12px; letter-spacing: 3px; text-transform: uppercase;
+  color: #fff; background: linear-gradient(135deg, var(--fs-accent-deep), var(--fs-accent));
+  border: none; border-radius: 6px; cursor: pointer; transition: .2s;
+  box-shadow: 0 6px 18px var(--fs-glow);
+}
+.btn-major:hover { transform: translateY(-2px); box-shadow: 0 10px 22px var(--fs-glow); }
+.roll-display { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.die { font-size: 42px; display: inline-block; }
+.roll-msg { font-size: 16px; font-family: var(--serif-title); color: var(--fs-accent-deep); }
+
+/* ---------- Histórico ---------- */
+.roll-log { list-style: none; max-height: 460px; overflow-y: auto; border: 1px solid var(--fs-line); border-radius: 10px; background: var(--fs-card); }
+.roll-log li { padding: 12px 16px; border-bottom: 1px dashed var(--fs-line); display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.roll-log li:last-child { border-bottom: none; }
+.roll-log .log-total { font-family: var(--serif-title); font-weight: 700; color: var(--fs-accent); white-space: nowrap; }
+.roll-log .log-crit { color: var(--fs-ok); } .roll-log .log-fumble { color: var(--fs-danger); }
+.roll-log .log-detail { font-style: italic; color: var(--fs-muted); font-size: 13px; }
+.roll-log .log-who { display: inline-block; margin-right: 8px; padding: 1px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; background: var(--fs-sheet); color: var(--fs-accent-deep); border: 1px solid var(--fs-line); }
+.roll-log .log-who.mestre { background: var(--fs-accent); color: #fff; border-color: var(--fs-accent); }
+.roll-log .log-empty { justify-content: center; font-style: italic; color: var(--fs-muted); }
+
+/* ---------- Inventário ---------- */
+.inv-empty {
+  background: var(--fs-card); border: 1px dashed var(--fs-line); border-radius: 12px;
+  padding: 30px 22px; text-align: center; font-style: italic; color: var(--fs-muted); font-size: 15.5px; line-height: 1.6;
+}
+.inv-empty span { font-size: 34px; display: block; margin-bottom: 10px; font-style: normal; }
+.weapon-list { list-style: none; display: grid; gap: 12px; }
+.weapon-item {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  background: var(--fs-card); border: 1px solid var(--fs-line); border-radius: 10px; padding: 12px 14px;
+}
+.weapon-item .w-name { flex: 1 1 140px; min-width: 0; font-weight: 600; font-family: var(--serif-title); letter-spacing: .5px; color: var(--fs-accent-deep); overflow-wrap: anywhere; }
+.weapon-item .w-dice { font-family: var(--serif-title); color: var(--fs-muted); font-size: 14px; }
+.w-actions { display: flex; align-items: center; gap: 12px; }
+.w-roll { padding: 6px 12px; }
+.weapon-result { flex: 1 1 100%; min-height: 20px; font-family: var(--serif-title); font-size: 14.5px; color: var(--fs-danger); }
+
+/* ---------- "O que a personagem faz na mesa" (perfil das fichas novas) ----------
+   Existe porque o pedido do mestre foi esse: o jogador recebe a ficha pronta e tem que
+   saber como o próprio poder funciona sem perguntar. É regra escrita em prosa, não enfeite
+   — por isso cada item tem marcador próprio e a palavra-chave em destaque. */
+.faz-list {
+  list-style: none; display: grid; gap: 10px; margin: 0 0 22px; min-width: 0;
+  background: var(--fs-card); border: 1px solid var(--fs-line); border-radius: 12px; padding: 18px 20px;
+}
+.faz-list li { position: relative; padding-left: 24px; font-size: 15.5px; line-height: 1.55; color: var(--fs-ink); }
+.faz-list li::before { content: '✦'; position: absolute; left: 0; top: 0; color: var(--fs-accent); font-size: 14px; }
+.faz-list li b { color: var(--fs-accent-deep); font-weight: 600; }
+
+/* ---------- Slots vazios (layout pronto pra mecânica que ainda não existe) ---------- */
+.slot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 14px; }
+.slot-card {
+  background: var(--fs-card); border: 1px dashed var(--fs-line); border-radius: 12px; padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 8px; min-width: 0;
+}
+.slot-tag { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--fs-muted); font-weight: 700; }
+.slot-name { font-family: var(--serif-title); font-size: 18px; color: var(--fs-accent-deep); outline: none; }
+.slot-desc { font-size: 15px; line-height: 1.5; color: var(--fs-ink); outline: none; }
+
+/* ---------- Rodapé + aviso de carga ---------- */
+.sheet-footer { max-width: 1020px; margin: 22px auto 0; text-align: center; font-size: 13px; color: var(--fs-muted); font-style: italic; }
+.sheet-monitor { display: inline-block; margin-top: 6px; font-size: 12px; opacity: .85; }
+.boot-warn {
+  max-width: 1020px; margin: 0 auto 18px; padding: 14px 18px; border-radius: 10px;
+  background: #fbeeee; border: 1px solid #e0b4b4; color: #8d2f2f;
+  font-family: var(--serif-title); font-size: 13px; letter-spacing: .5px; line-height: 1.5;
+}
+html[data-theme="dark"] .boot-warn { background: rgba(140,47,47,.22); border-color: rgba(224,180,180,.45); color: #f0b9b9; }
+
+/* ---------- Editor de enquadramento do retrato ----------
+   Mesma peça das fichas antigas (arrastar dentro do círculo + zoom), agora morando no
+   MOTOR: o modal é criado pelo js/ficha-comum.js, então a Vesper, a Clara e qualquer
+   ficha que chegar já nascem com o ajustador, sem copiar modal pro HTML de cada uma. */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 80;
+  background: rgba(16, 13, 20, .74);
+  display: flex; align-items: center; justify-content: center;
+  animation: fade .25s ease;
+}
+.modal-overlay[hidden] { display: none; }
+.modal {
+  width: min(380px, 92vw);
+  padding: 26px 28px;
+  background: var(--fs-sheet); color: var(--fs-ink);
+  border: 1px solid var(--fs-line); border-radius: 18px;
+  box-shadow: 0 0 0 5px var(--fs-glow), 0 30px 80px rgba(0,0,0,.5);
+}
+.modal h3 {
+  font-family: var(--serif-title); font-size: 16px;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--fs-accent-deep); margin-bottom: 4px;
+}
+.modal-sub { font-style: italic; font-size: 14.5px; color: var(--fs-muted); margin-bottom: 16px; }
+.crop-stage {
+  position: relative;
+  width: 280px; height: 280px;
+  max-width: 100%;
+  margin: 0 auto 14px;
+  border-radius: 50%; overflow: hidden;
+  border: 3px solid var(--fs-accent);
+  background: var(--fs-card);
+  cursor: grab;
+  touch-action: none;
+}
+.crop-stage:active { cursor: grabbing; }
+.crop-stage img {
+  /* tamanho e posição vêm do JS: aqui só existe o esqueleto */
+  position: absolute;
+  max-width: none;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.crop-controls {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; margin-bottom: 18px; font-size: 15px; flex-wrap: wrap;
+}
+.crop-controls label { display: flex; align-items: center; gap: 10px; color: var(--fs-muted); }
+.crop-controls input[type="range"] { width: 150px; accent-color: var(--fs-accent); vertical-align: middle; }
+.modal-actions { display: flex; gap: 10px; }
+.modal-actions .btn-major { flex: 1; padding: 11px; font-size: 12px; }
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 720px) {
+  .sheet-inner { padding: 24px 18px 30px; }
+  .vitals { grid-template-columns: minmax(0, 1fr); }
+  .char-name { font-size: 32px; letter-spacing: 3px; }
+}

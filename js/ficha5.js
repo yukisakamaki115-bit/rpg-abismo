@@ -7,8 +7,8 @@
    - vive entre as sobras do crepúsculo, e nas noites do mundo real perambula com o
      lampião de brilho vermelho coletando as almas que foram perdidas  →  🕯️ Almas;
    - "o conhecimento é o poder", e o conhecimento virou poder numa das andanças dela
-     pelas florestas  →  Inteligência 16 é o atributo-chave: é ela que faz a Clara enxergar
-     alma perdida (o teste de d10 + Int ≥ 22). Nas invocações a Int NÃO soma dano: o que sai
+     pelas florestas  →  Inteligência é o atributo-chave dela: é ela que faz a Clara enxergar
+     alma perdida (o teste de d10 + Int ≥ 11). Nas invocações a Int NÃO soma dano: o que sai
      é a linha da tabela, senão o teto declarado do poder ia embora com o buff da cabeça;
    - capuz vermelho + lampião encontrados numa casa abandonada na floresta; o lampião
      chamava o nome dela e ela não consegue se soltar dele  →  o vínculo é mecânica
@@ -25,9 +25,11 @@
    - ☐ o que ela faz lá dentro do crepúsculo ainda não se sabe: NÃO foi inventado. A aba
      Lampião tem o bloco aberto e o painel do mestre mostra ela atravessando.
 
-   Atributos: ela é magra, nova e não bate forte — o que ela tem é cabeça e mão firme.
-   Soma 59 (Flora 67 · Nox 63 · Dante 63 · Vesper 60): de propósito a mais baixa da
-   mesa, porque metade do kit dela só funciona do outro lado da porta. */
+   Atributos: desde 06/10 a mesa tem UMA regra de criação — base 1, até 4 pontos no mesmo
+   atributo, 10 pontos para distribuir (js/atributos.js). Esta ficha abre com os cinco em 1 e a
+   jogadora preenche. Ela é magra, nova e não bate forte: os 10 pontos dela pedem Inteligência e
+   Destreza, porque é a cabeça que acha alma e a mão que segura o arco — e porque metade do kit
+   dela só funciona do outro lado da porta. */
 window.FICHA_CONF = {
   chave: 'eclipse_ficha5_v1',
   quem: 'Clara', // fixo nas rolagens e no feed; o nome bonito ela edita no título
@@ -35,7 +37,7 @@ window.FICHA_CONF = {
   retrato: 'img/clara.png', // a arte que o mestre mandou; some se ela tirar o retrato
   hp: { nome: 'Vida', max: 20 },
   san: { nome: 'Sanidade', max: 100 },
-  attrs: { forca: 9, destreza: 13, constituicao: 10, inteligencia: 16, carisma: 11 },
+  attrs: { forca: 1, destreza: 1, constituicao: 1, inteligencia: 1, carisma: 1 },
   eff: { morta: '☠️ Morta', incap: '🟡 Incapacitada' },
   armasIniciais: [{ nome: 'Arco curto', dano: 'd6' }],
 
@@ -43,7 +45,7 @@ window.FICHA_CONF = {
      poder ajustar sem caçar nada: o motor (js/ficha-comum.js) só sabe existir; quem
      conhece o poder é este arquivo e o js/lampiao.js, que desenha a cara.
      O ciclo, em uma linha:
-       procurar alma (Mundo Real, d10+Int ≥ 22) → guarda no vidro (máx 6) →
+       procurar alma (Mundo Real, d10+Int ≥ 11) → guarda no vidro (máx 6) →
        atravessa de graça pela chave → gasta alma e rola 1d10 numa das duas tabelas →
        o dano é o da linha (0 a 9); o 1 machuca a cabeça dela.
      Fora do crepúsculo ela NÃO invoca nada. Longe do lampião: -2 em tudo (gancho, não ficha). */
@@ -51,7 +53,9 @@ window.FICHA_CONF = {
     almasMax: 6,        // cabe no vidro do lampião. Mais que isso transborda e se perde.
     alma: {
       attr: 'inteligencia',
-      alvo: 22,         // d10 + Inteligência ≥ 22 → 1 🕯️. Com Int 16 ela precisa de 6+ no dado.
+      alvo: 11,         // d10 + Inteligência ≥ 11 → 1 🕯️. Com Int 5 (o teto da mesa) ela precisa de 6+ no
+                        // dado, ~metade das vezes — a mesma chance de antes. Com Int 1 seria só no 10
+                        // natural: por isso a cabeça é o primeiro lugar onde ela deve gastar os 10 pontos.
       marca: '🕯️'
     },
     longe: {

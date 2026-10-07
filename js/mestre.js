@@ -1,8 +1,10 @@
-/* ===== Painel do Mestre — leitura e edição das 5 fichas (localStorage local) =====
+/* ===== Painel do Mestre — leitura e edição das 6 fichas (localStorage local) =====
    As três primeiras (Flora, Nox, Dante) têm cada uma seu leitor/renderizador próprio porque
    cada uma tem estado extra (mundos do Nox, baralho do Dante). As fichas canônicas — as que
    só usam vida, sanidade, atributos, efeitos e armas — entram pela FICHAS abaixo: uma linha de
-   config e o painel ganha card, radicais, envio de arma, inventário e feed. */
+   config e o painel ganha card, radicais, envio de arma, inventário e feed.
+   06/10: a sexta ficha (o ágil) entrou pela MESMA fábrica — uma linha em FICHAS, uma em ELENCO
+   e o card `<article>` no mestre.html. Nada de código novo por ficha. */
 (function () {
   'use strict';
 
@@ -18,7 +20,7 @@
     forca: 'Força', destreza: 'Destreza', constituicao: 'Constituição',
     inteligencia: 'Inteligência', carisma: 'Carisma'
   };
-  var ATTR_DEFAULT = { forca: 10, destreza: 18, constituicao: 12, inteligencia: 11, carisma: 16 };
+  var ATTR_DEFAULT = { forca: 1, destreza: 1, constituicao: 1, inteligencia: 1, carisma: 1 }; // 06/10: a regra nova parte de 1 (js/atributos.js) — isto só vale quando a ficha ainda não escreveu o atributo
 
   var $ = function (id) { return document.getElementById(id); };
 
@@ -138,9 +140,9 @@
   var NOX_EFF_MORTO = '☠️ Morto';
   var NOX_EFF_INCAP = '🟡 Incapacitado';
   var NOX_ATTR_DEFAULT = {
-    forca: { nome: 'Força', valor: 8 }, destreza: { nome: 'Destreza', valor: 16 },
-    constituicao: { nome: 'Constituição', valor: 11 }, inteligencia: { nome: 'Inteligência', valor: 15 },
-    carisma: { nome: 'Carisma', valor: 13 }
+    forca: { nome: 'Força', valor: 1 }, destreza: { nome: 'Destreza', valor: 1 },
+    constituicao: { nome: 'Constituição', valor: 1 }, inteligencia: { nome: 'Inteligência', valor: 1 },
+    carisma: { nome: 'Carisma', valor: 1 }
   };
   function readCoelho() {
     var s = null;
@@ -277,9 +279,9 @@
   var STG_EFF_MORTO = '☠️ Morto';
   var STG_EFF_INCAP = '🟡 Incapacitado';
   var STG_ATTR_DEFAULT = {
-    forca: { nome: 'Força', valor: 9 }, destreza: { nome: 'Destreza', valor: 12 },
-    constituicao: { nome: 'Constituição', valor: 11 }, inteligencia: { nome: 'Inteligência', valor: 17 },
-    carisma: { nome: 'Carisma', valor: 14 }
+    forca: { nome: 'Força', valor: 1 }, destreza: { nome: 'Destreza', valor: 1 },
+    constituicao: { nome: 'Constituição', valor: 1 }, inteligencia: { nome: 'Inteligência', valor: 1 },
+    carisma: { nome: 'Carisma', valor: 1 }
   };
   function readSantiago() {
     var s = null;
@@ -417,7 +419,7 @@
       hpNome: 'Brasa', sanNome: 'Vínculo', hpMax: 26, sanMax: 100,
       eff: { morto: '☠️ Apagada', incap: '🟡 Vacilando' },
       rot: { morto: '☠️ Apagada', incap: '🟡 Vacilando', cado: 'Caída · brasa a 0', vivo: '✨ Acesa' },
-      atr: { forca: 9, destreza: 13, constituicao: 10, inteligencia: 12, carisma: 16 }
+      atr: { forca: 1, destreza: 1, constituicao: 1, inteligencia: 1, carisma: 1 } // base da regra nova; quem distribui é a mesa
     },
     {
       id: 'ficha5', chave: 'eclipse_ficha5_v1', quem: 'Clara', nome: 'Clara Masorack', emoji: '🏮', href: 'ficha5.html',
@@ -425,7 +427,23 @@
       hpNome: 'Vida', sanNome: 'Sanidade', hpMax: 20, sanMax: 100,
       eff: { morto: '☠️ Morta', incap: '🟡 Incapacitada' },
       rot: { morto: '☠️ Morta', incap: '🟡 Incapacitada', cado: 'Caída · 0 de vida', vivo: '🕯️ De lampião aceso' },
-      atr: { forca: 9, destreza: 13, constituicao: 10, inteligencia: 16, carisma: 11 }
+      atr: { forca: 1, destreza: 1, constituicao: 1, inteligencia: 1, carisma: 1 } // idem: o que aparece aqui é o que a ficha não escreveu
+    },
+    {
+      /* 06/10 — o 6º personagem, pedido pelo jogador (ágil, ex-militar, atirador, foice). Ele não
+         tem arte nenhuma ainda, por isso aqui também não há `retrato`: o card usa a inicial. */
+      id: 'ficha6', chave: 'eclipse_ficha6_v1', quem: 'Kael', nome: 'Kael Duarte', emoji: '🌪️', href: 'ficha6.html',
+      hpNome: 'Vida', sanNome: 'Sanidade', hpMax: 22, sanMax: 100,
+      eff: { morto: '☠️ Morto', incap: '🟡 No chão' },
+      rot: { morto: '☠️ Morto', incap: '🟡 No chão', cado: 'Caído · 0 de vida', vivo: '🌪️ Em movimento' },
+      atr: { forca: 1, destreza: 1, constituicao: 1, inteligencia: 1, carisma: 1 }, // base da regra nova
+      // é esta linha que faz o inventário do card mostrar "+ Destreza · vantagem" nas armas dele
+      armaPorNome: {
+        'foice': { attr: 'destreza' },
+        'foice curta': { attr: 'destreza' },
+        'pistola': { attr: 'destreza', adv: true },
+        'pistola leve': { attr: 'destreza', adv: true }
+      }
     }
   ];
 
@@ -493,10 +511,13 @@
   function renderFicha(f) {
     pintaRetrato(f.id, f.chave, f.emoji, f.retrato); // sem o disco no HTML, só o retrato deixa de ser pintado
 
-    // o resumo que a própria ficha escreve: state.persResumo (as três da Tessalha) ou
-    // state.lampiaoResumo (o lampião da Clara). Ficha sem poder próprio não escreve nada,
+    // o resumo que a própria ficha escreve: state.persResumo (as três da Tessalha),
+    // state.lampiaoResumo (o lampião da Clara) ou state.impulsoResumo (o impulso do ágil).
+    // A lista é explícita de propósito: cada poder escreve a string pronta na própria ficha, e
+    // copiar a regra de cada um para cá seria a segunda fonte da verdade (duas cópias de curva
+    // viram desbalanceamento silencioso na próxima mudança). Ficha sem poder não escreve nada,
     // e o chip simplesmente não muda.
-    var resumo = f.s.persResumo || f.s.lampiaoResumo;
+    var resumo = f.s.persResumo || f.s.lampiaoResumo || f.s.impulsoResumo;
     var wo = $(f.id + 'World');
     if (wo && resumo) {
       clear(wo);
@@ -538,6 +559,17 @@
         row.appendChild(el('span', null, '⚔ ' + a.nome));
         var right = el('span');
         right.style.display = 'inline-flex'; right.style.gap = '10px'; right.style.alignItems = 'center';
+        // a ligação arma↔atributo (e a vantagem de atirador) mora na config da ficha, não no
+        // objeto da arma: quando ele manda uma arma pelo catálogo, ela chega como {nome, dano}
+        // e o que a ficha soma nela não se vê. Sem esta linha, o mestre entregaria um d8 achando
+        // que é d8 puro — e o dano dele é d8 + Destreza.
+        var lig = f.armaPorNome ? f.armaPorNome[String(a.nome || '').trim().toLowerCase()] : null;
+        if (lig) {
+          var nota = [];
+          if (lig.attr) nota.push('+ ' + (ATTR_LABELS[lig.attr] || lig.attr));
+          if (lig.adv) nota.push('vantagem');
+          if (nota.length) right.insertBefore(el('span', 'w-liga', nota.join(' · ')), right.firstChild);
+        }
         right.appendChild(el('span', 'w-dice', a.dano || ''));
         var rm = el('button', 'mini-btn danger', '✕');
         rm.title = 'Retirar do inventário';
@@ -603,26 +635,32 @@
     ctl.save();
   }
 
-  // caixinhas de atributo editáveis (0 a 30, o que passar volta arrumado)
+  /* caixinhas de atributo editáveis — e com a MESMA trava da ficha: 06/10 a mesa fechou base 1,
+     no máximo 4 pontos por atributo, 10 para distribuir (js/atributos.js). O teto vale aqui
+     também: se o painel deixasse subir até 30, a regra durava até o mestre tocar na ficha. */
   function renderAttrs(id) {
     var ctl = SHEET_CTLS[id];
     var box = $(id + 'Attrs'); if (!box || !ctl) return;
     var s = ctl.get();
+    var A = window.ECLIPSE_ATR;
+    var lo = A ? A.base : 0, hi = A ? A.teto : 30;
     clear(box);
     ctl.keys.forEach(function (k) {
       var a = s.atributos[k]; if (!a) return; // os leitores já garantem as 5 chaves
       var cell = el('div', 'm-attr');
       cell.appendChild(el('div', 'a-nome', a.nome || ATTR_LABELS[k] || k));
       var inp = el('input');
-      inp.type = 'number'; inp.min = '0'; inp.max = '30'; inp.value = a.valor;
+      inp.type = 'number'; inp.min = lo; inp.max = hi; inp.value = a.valor;
       inp.addEventListener('change', function () {
-        a.valor = clamp(parseInt(inp.value, 10), 0, 30);
+        a.valor = A ? A.ajustar(s, k, parseInt(inp.value, 10)) : clamp(parseInt(inp.value, 10), 0, 30);
         inp.value = a.valor;
         ctl.save();
+        if (A) A.painel(box, s);
       });
       cell.appendChild(inp);
       box.appendChild(cell);
     });
+    if (A) A.painel(box, s); // a linha da regra + o contador de pontos, no card de cada ficha
   }
 
   // cores das fichas: morta/incapacitado e marca negativa de carta (· −N) ficam vermelhas
@@ -945,7 +983,8 @@
     { sel: 'nox', card: 'coelhoCard', nome: 'Nox', chave: 'eclipse_coelho_v1' },
     { sel: 'dante', card: 'santiagoCard', nome: 'Dante', chave: 'eclipse_santiago_v1' },
     { sel: 'vesper', card: 'ficha4Card', nome: 'Tessalha', chave: 'eclipse_ficha4_v1' },
-    { sel: 'clara', card: 'ficha5Card', nome: 'Clara', chave: 'eclipse_ficha5_v1' }
+    { sel: 'clara', card: 'ficha5Card', nome: 'Clara', chave: 'eclipse_ficha5_v1' },
+    { sel: 'kael', card: 'ficha6Card', nome: 'Kael', chave: 'eclipse_ficha6_v1' }
   ];
 
   function desde(t) {

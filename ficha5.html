@@ -6,13 +6,14 @@
   <title>Clara Masorack — A Coletora de Almas | Éclipse</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=153" />
-  <link rel="stylesheet" href="css/ficha-base.css?v=153" />
-  <link rel="stylesheet" href="css/ficha5.css?v=153" />
-  <script src="js/theme.js?v=153"></script>
-  <script src="js/firebase-config.js?v=153"></script>
-  <script src="js/store.js?v=153"></script>
-  <script src="js/conta.js?v=153"></script>
+  <link rel="stylesheet" href="css/style.css?v=156" />
+  <link rel="stylesheet" href="css/ficha-base.css?v=156" />
+  <link rel="stylesheet" href="css/ficha5.css?v=156" />
+  <script src="js/theme.js?v=156"></script>
+  <script src="js/firebase-config.js?v=156"></script>
+  <script src="js/store.js?v=156"></script>
+  <script src="js/conta.js?v=156"></script>
+  <script src="js/atributos.js?v=156"></script><!-- a regra dos 10 pontos: antes de qualquer motor de ficha -->
 </head>
 <body class="ficha-body f5-body">
 
@@ -118,7 +119,7 @@
         <p class="panel-intro">Clara Masorack, 17 anos. Ela vive no meio-termo: metade do dia numa cafeteria, metade da noite andando com um lampião de brilho vermelho entre as sobras do crepúsculo. Abaixo está <b>o que ela faz na mesa</b>, escrito para ela não precisar perguntar pro mestre como o próprio poder funciona.</p>
 
         <ul class="faz-list">
-          <li><b>👁️ Procurar alma perdida:</b> é o único gesto que funciona nos <b>dois mundos</b> — de noite no Mundo Real, e entre as sobras quando está lá dentro. É teste de <b>d10 + Inteligência ≥ 22</b> (com a Int 16 dela, precisa de 6+ no dado; e o que os efeitos mandam entra nessa conta junto). Cada alma achada vira <b>1 🕯️</b> no vidro — cabem <b>6</b>.</li>
+          <li><b>👁️ Procurar alma perdida:</b> é o único gesto que funciona nos <b>dois mundos</b> — de noite no Mundo Real, e entre as sobras quando está lá dentro. É teste de <b>d10 + Inteligência ≥ 11</b> (com a Int no teto da mesa, <b>5</b>, ela precisa de <b>6+</b> no dado — quase metade das vezes; e o que os efeitos mandam entra nessa conta junto). Cada alma achada vira <b>1 🕯️</b> no vidro — cabem <b>6</b>.</li>
           <li><b>🗝️ A chave mágica:</b> qualquer porta serve. Ela gira e o outro lado é o crepúsculo. <b>Não custa nada, sempre funciona</b> — o preço é o que tem lá do lado de dentro, e isso é decisão do mestre.</li>
           <li><b>🕯️ Dentro do crepúsculo:</b> ela chama <b>fogo</b> e <b>criaturas antigas</b> pagando almas. O que vem é <b>sorteio na tabela do d10</b>, escrita inteira na aba Lampião — nada fica na mão de quem narra.</li>
           <li><b>🌍 Fora do crepúsculo: nenhum poder.</b> O lampião alumbra e mostra onde as almas pararam — e é só. O resto é ela, uma moça de 17 anos com um arco nas costas.</li>
@@ -171,7 +172,7 @@ A origem dela ainda é meio sombria e desconhecida: ninguém sabe direito de ond
           <div class="lamp-tut-corpo">
             <ol class="lamp-passos">
               <li><b>Uma habilidade só: o lampião.</b> A única outra coisa mágica nela é a chave que abre o crepúsculo (passo 4) — e a chave só leva até lá; quem faz alguma coisa lá dentro é o lampião.</li>
-              <li><b>Ele queima 🕯️ almas.</b> É o combustível, e ela não nasce com nenhuma: clica <i>procurar uma alma perdida</i> → <b>d10 + Inteligência ≥ 22</b> (com Int 16, é 6+ no dado, ~metade das vezes; os efeitos que o mestre marca nela somam ou atrapalham essa conta). Achou, entra <b>1 🕯️</b>. O vidro cabe <b>6</b>.</li>
+              <li><b>Ele queima 🕯️ almas.</b> É o combustível, e ela não nasce com nenhuma: clica <i>procurar uma alma perdida</i> → <b>d10 + Inteligência ≥ 11</b> (com a Int no teto, <b>5</b>, é 6+ no dado, ~metade das vezes; com Int 1 seria só no 10 natural — por isso a cabeça é o primeiro lugar onde gastar os 10 pontos; os efeitos que o mestre marca nela somam ou atrapalham essa conta). Achou, entra <b>1 🕯️</b>. O vidro cabe <b>6</b>.</li>
               <li><b>No Mundo Real ele só acha alma.</b> Não acende fogo, não chama bicho, não cura — é o que o mestre pediu: <i>“ela não tem poderes fora do mundo do crepúsculo”</i>.</li>
               <li><b>Pra gastar, ela atravessa — e a chave é de graça.</b> Qualquer porta serve (armário, banheiro, portão): gira e o outro lado é o crepúsculo. Nunca falha, nunca custa. O perigo é o que tem lá, não a travessia.</li>
               <li><b>Lá dentro ela paga 🕯️ e rola 1d10.</b> 🔥 Fogo = 1 alma · 🐙 Criatura Antiga = 2. <b>Ela não escolhe o que vem</b>: é a linha que o dado apontou na tabela aqui embaixo. Dano de 0 a 9.</li>
@@ -196,7 +197,7 @@ A origem dela ainda é meio sombria e desconhecida: ninguém sabe direito de ond
       <!-- Status / Atributos -->
       <section class="panel" id="panel-atributos">
         <h2>Status</h2>
-        <p class="panel-intro">Clique num atributo para rolar <b>d10 + o valor dele</b>. Ela é magra, nova e não bate forte — o que ela tem é cabeça e mão firme: <b>Inteligência 16</b> manda em tudo que é dela, e <b>Destreza 13</b> é o arco curto. Efeitos terminados em <b>· +N</b> somam na rolagem (no máximo <b>±3</b> por marca) e aparecem escritos na fórmula — assim como o <b>−2 do 🚫 vínculo</b>, quando ela está longe do lampião.</p>
+        <p class="panel-intro">Clique num atributo para rolar <b>d10 + o valor dele</b> (o número <b>é</b> o bônus). ✦ <b>Regra da mesa desde 06/10:</b> todo atributo nasce valendo <b>1</b>, cada um aceita no máximo <b>4 pontos</b> (o teto dele é <b>5</b>) e você tem <b>10 pontos</b> para distribuir entre os cinco — a regra e a conta de pontos aparecem logo acima dos cards. Ela é magra, nova e não bate forte: os 10 pontos dela pedem <b>Inteligência</b> (é a cabeça que acha alma) e <b>Destreza</b> (é a mão que segura o arco curto). Efeitos terminados em <b>· +N</b> somam na rolagem (no máximo <b>±3</b> por marca) e aparecem escritos na fórmula — assim como o <b>−2 do 🚫 vínculo</b>, quando ela está longe do lampião.</p>
         <div class="attr-grid" id="attrsGrid"><!-- gerado via JS --></div>
         <div class="roller">
           <div class="roll-config">
@@ -261,12 +262,12 @@ A origem dela ainda é meio sombria e desconhecida: ninguém sabe direito de ond
     <br /><small class="sheet-monitor">👁️ Aviso: suas rolagens e cliques ficam visíveis na tela do mestre.</small>
   </footer>
 
-  <script src="js/inimigos.js?v=153"></script>
-  <script src="js/ficha5.js?v=153"></script>
-  <script src="js/ficha-comum.js?v=153"></script>
-  <script src="js/lampiao.js?v=153"></script>
+  <script src="js/inimigos.js?v=156"></script>
+  <script src="js/ficha5.js?v=156"></script>
+  <script src="js/ficha-comum.js?v=156"></script>
+  <script src="js/lampiao.js?v=156"></script>
   <!-- A mini-aba 👥: avisa a mesa que esta ficha está aberta e mostra quem mais está online. -->
-  <script src="js/aliados.js?v=153"></script>
+  <script src="js/aliados.js?v=156"></script>
   <script>
     /* Duas travas separadas de propósito: o motor pode estar bom e o lampião não (arquivo
        novo, mais fácil de ficar velho na cache). Cada um avisa o que faltou. */

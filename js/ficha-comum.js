@@ -35,8 +35,9 @@
   /* ---------- Estado ---------- */
   function defaultState() {
     const attrs = {};
+    const base = (window.ECLIPSE_ATR ? ECLIPSE_ATR.base : 1);
     Object.keys(ATTR_NOMES).forEach(function (k) {
-      attrs[k] = { nome: ATTR_NOMES[k], valor: (CONF.attrs && typeof CONF.attrs[k] === 'number') ? CONF.attrs[k] : 10 };
+      attrs[k] = { nome: ATTR_NOMES[k], valor: (CONF.attrs && typeof CONF.attrs[k] === 'number') ? CONF.attrs[k] : base };
     });
     return {
       hp: CONF.hp.max, hpMax: CONF.hp.max,
@@ -85,6 +86,13 @@
     return s;
   }
   let state = load();
+  /* A regra dos 10 pontos (js/atributos.js) também precisa alcançar quem JÁ tinha ficha salva:
+     o estado gravado no navegador vence o padrão do arquivo, então sem esta linha a pessoa
+     abriria a ficha, veria Força 16 e a regra nova teria sido só propaganda. `regra()` zera os
+     cinco para a base uma única vez e marca `state.atrRegra` — depois disso ela nunca mais toca
+     no que a pessoa distribuiu. */
+  let regraNova = false;
+  try { regraNova = !!(window.ECLIPSE_ATR && ECLIPSE_ATR.regra(state)); } catch (e) { regraNova = false; }
   /* `CONF.migrar(state)`: existe para decisão de mesa que já está escrita no navegador de quem
      joga — nome antigo no título editável, linha de "contas abertas" que foi respondida. Roda uma
      vez, antes de qualquer desenho na tela, e só grava de volta se mexeu em algo: ficha que não
@@ -94,12 +102,16 @@
     try { migrada = !!CONF.migrar(state); } catch (e) { migrada = false; }
   }
   function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); } catch (e) {} }
-  if (CONF.identidade || migrada) save(); // grava a matrícula (e a migracao) na hora: senão resetaria no próximo F5
+  if (CONF.identidade || migrada || regraNova) save(); // grava a matrícula (e as migrações) na hora: senão resetaria no próximo F5
 
   const $ = function (id) { return document.getElementById(id); };
   function on(id, ev, fn) { const el = $(id); if (el) el.addEventListener(ev, fn); } // bind seguro: id faltando não derruba a ficha
   function clamp(v, lo, hi) { v = Math.round(Number(v)); if (!isFinite(v)) v = lo; return Math.max(lo, Math.min(hi, v)); }
-  function mod(v) { return Math.max(0, Math.floor((v - 10) / 2)); }
+  /* O bônus que o atributo soma no d10 É o próprio número (06/10: com a regra nova o atributo
+     vale 1..5, e a conta velha de D&D, (valor − 10) ÷ 2, devolveria 0 em tudo). O delegar tem
+     fallback de propósito — e ele é a MESMA conta: se js/atributos.js não carregar, a ficha
+     continua rolando com o número certo em vez de somar +0 em silêncio. */
+  function mod(v) { return (window.ECLIPSE_ATR ? ECLIPSE_ATR.mod(v) : Math.max(0, Math.round(Number(v)) || 0)); }
   function fmtMod(m) { return (m >= 0 ? '+' : '−') + Math.abs(m); }
 
   /* ---------- Efeitos: o MESMO chip de "· +N" que o Nox/O Dante usam ----------
@@ -140,10 +152,51 @@
     });
     return s;
   }
-  function bonusTotal() { return cardBonus() + hookTotal(); }
+  /* Gancho POR ATRIBUTO (06/10, pedido do jogador do Kael: "aumentar atributos em +2
+     pagando sanidade"). O HOOKS de cima é global e limitado a ±3 — ele serve pra penalidade
+     da mesa, que castiga tudo igualmente. Um buff que só existe na Destreza não cabe ali:
+     somaria em rolagem de Carisma também, e o teto de ±3 cortaria o "+4 em tudo" que foi
+     pedido. Então o gancho tem chave: `key` é o atributo (ou '*' para todos, como o lampião
+     usa) e `teto` é o limite dele, combinado com a mesa.
+     Quem usa o poder escreve o bônus AQUI, nunca dentro de `atributos[k].valor`: o contador
+     dos 10 pontos lê aquele número, e um buff que entrasse nele estaria "gastando" pontos da
+     criação de personagem. Ficha que não registra gancho por atributo continua somando
+     exatamente o que somava antes — a função devolve 0 e a fórmula fica igual. */
+  const ATTR_HOOKS = [];
+  const REDRAWS = [];
+  function hookAttrTotal(key) {
+    if (!key) return 0;
+    let n = 0;
+    ATTR_HOOKS.forEach(function (h) {
+      if (h.key !== key && h.key !== '*') return;
+      const teto = h.teto || 3;
+      n += clamp(h.value(), -teto, teto);
+    });
+    return n;
+  }
+  function hookAttrDetail(key) {
+    let s = '';
+    ATTR_HOOKS.forEach(function (h) {
+      if (h.key !== key && h.key !== '*') return;
+      const teto = h.teto || 3;
+      const v = clamp(h.value(), -teto, teto);
+      if (v) s += (v > 0 ? ' + ' + v : ' − ' + (-v)) + (h.mark || '✦');
+    });
+    return s;
+  }
+  /* `key` é opcional em tudo: sem ele a conta é a de sempre (chips + ganchos globais). */
+  function bonusTotal(key) { return cardBonus() + hookTotal() + hookAttrTotal(key); }
+  function bonusDetail(key) { return cardDetail() + hookDetail() + hookAttrDetail(key); }
 
+  /* "ele não pode agir" é UMA regra, e mora aqui: vida no chão OU marca que só o mestre tira
+     (☠️ / 🟡). O bloco próprio do poder de uma ficha precisa da MESMA resposta que uma
+     rolagem dá — duas definições de "caído" viram um poder que continua funcionando com a
+     pessoa deitada no chão, pagando Sanidade sem ninguém pedir. */
+  function semForcas() {
+    return state.hp <= 0 || state.status.some(function (s) { return GM_ONLY.indexOf(s) !== -1; });
+  }
   function mortoBlock(out) {
-    if (state.hp > 0 && !state.status.some(function (s) { return GM_ONLY.indexOf(s) !== -1; })) return false;
+    if (!semForcas()) return false;
     if (out) { out.textContent = '☠️ Sem forças, não age. É o mestre (ou quem cuida dela) quem levanta.'; }
     return true;
   }
@@ -255,37 +308,57 @@
     const a = state.atributos[key]; if (!a) return;
     const out = card.querySelector('.attr-result');
     if (mortoBlock(out)) return;
-    const b = bonusTotal();
     const face = faceDe(10);
-    const total = face + a.valor + b;
-    const det = cardDetail() + hookDetail();
+    const boost = hookAttrTotal(key);
+    const b = bonusTotal(); // só chips + ganchos globais: o boost deste atributo é somado à parte, senão entraria duas vezes
+    const total = face + a.valor + boost + b;
+    const det = bonusDetail(key);
     out.textContent = '🎲 ' + face + ' + ' + a.valor + det + ' = ' + total;
-    addRoll({ who: WHO, txt: 'Rolou ' + a.nome + ' (d10 ' + fmtMod(a.valor + b) + ')' + det, total: total, detalhe: face, classe: face === 10 ? 'crit' : (face === 1 ? 'fumble' : '') });
+    addRoll({ who: WHO, txt: 'Rolou ' + a.nome + ' (d10 ' + fmtMod(a.valor + boost + b) + ')' + det, total: total, detalhe: face, classe: face === 10 ? 'crit' : (face === 1 ? 'fumble' : '') });
     renderSAN(); save();
+  }
+  /* ---------- o badge do card: o número que aparece no Status ----------
+     Existe uma função só para isso (e não um copia-e-cola dentro de renderAttrs) porque o
+     poder de uma ficha pode mudar o número SEM mudar o valor distribuído: é o 💨 do Kael.
+     Se cada lugar pintasse o seu, acender uma dose deixaria o card em +1 enquanto a rolagem
+     já somava +4 — e a ficha inteira dele foi pedida justamente para não esconder conta. */
+  function pintaBadge(key) {
+    const a = state.atributos[key]; if (!a) return;
+    const grid = $('attrsGrid'); if (!grid) return;
+    const card = grid.querySelector('.attr-card[data-k="' + key + '"]'); if (!card) return;
+    const extra = hookAttrTotal(key);
+    const md = card.querySelector('.attr-mod');
+    if (md) md.textContent = fmtMod(mod(a.valor) + extra);
+    if (extra) card.title = (mod(a.valor) + extra) + ' no total: ' + a.valor + ' que você distribuiu + ' + extra + ' do poder da ficha (não conta nos 10 pontos).';
+    else card.removeAttribute('title');
   }
   function renderAttrs() {
     const grid = $('attrsGrid'); if (!grid) return;
+    const A = window.ECLIPSE_ATR;
+    const lo = A ? A.base : 0, hi = A ? A.teto : 30;
     grid.innerHTML = '';
     Object.keys(ATTR_NOMES).forEach(function (key) {
       const a = state.atributos[key];
-      const card = document.createElement('div'); card.className = 'attr-card';
+      const card = document.createElement('div'); card.className = 'attr-card'; card.dataset.k = key;
       card.innerHTML =
-        '<div class="attr-top"><span class="attr-nome">' + a.nome + '</span><span class="attr-mod">' + fmtMod(mod(a.valor)) + '</span></div>' +
-        '<input type="number" min="0" max="30" value="' + a.valor + '" />' +
+        '<div class="attr-top"><span class="attr-nome">' + a.nome + '</span><span class="attr-mod"></span></div>' +
+        '<input type="number" min="' + lo + '" max="' + hi + '" value="' + a.valor + '" />' +
         '<div class="attr-result combat-result"></div>' +
         '<div class="attr-hint">🎲 d10 + valor do Status (clique no card)</div>';
       const inp = card.querySelector('input');
       inp.addEventListener('input', function () {
         const n = parseInt(inp.value, 10); if (isNaN(n)) return;
-        a.valor = clamp(n, 0, 30); inp.value = a.valor;
-        card.querySelector('.attr-mod').textContent = fmtMod(mod(a.valor));
-        fillBonusOptions(); save();
+        a.valor = A ? A.ajustar(state, key, n) : clamp(n, 0, 30); inp.value = a.valor;
+        pintaBadge(key);
+        fillBonusOptions(); save(); if (A) A.painel(grid, state);
       });
       inp.addEventListener('click', function (e) { e.stopPropagation(); });
       card.addEventListener('click', function () { rolarAtributo(key, card); });
       grid.appendChild(card);
+      pintaBadge(key); // o número e o aviso do buff saem de um lugar só, agora e quando o poder acender
     });
     fillBonusOptions();
+    if (A) A.painel(grid, state); // a linha da regra + o contador de pontos, desenhados pelo módulo
   }
   function fillBonusOptions() {
     const sel = $('attrBonus'); if (!sel) return;
@@ -294,7 +367,7 @@
     Object.keys(state.atributos).forEach(function (k) {
       const a = state.atributos[k];
       const o = document.createElement('option');
-      o.value = k; o.textContent = a.nome + ' (' + fmtMod(mod(a.valor)) + ')';
+      o.value = k; o.textContent = a.nome + ' (' + fmtMod(mod(a.valor) + hookAttrTotal(k)) + ')';
       sel.appendChild(o);
     });
     if (atual && atual !== 'none') sel.value = atual;
@@ -309,12 +382,13 @@
     let soma = 0; const faces = [];
     for (let i = 0; i < qtde; i++) { const f = faceDe(tipo); faces.push(f); soma += f; }
     const base = a ? a.valor : 0;
+    const boost = alvo && alvo !== 'none' ? hookAttrTotal(alvo) : 0;
     const b = bonusTotal();
-    const total = soma + base + b;
-    const det = (base ? ' + ' + base : '') + cardDetail() + hookDetail();
+    const total = soma + base + boost + b;
+    const det = (base ? ' + ' + base : '') + bonusDetail(alvo !== 'none' ? alvo : null);
     out.textContent = '🎲 ' + faces.join(' + ') + det + ' = ' + total;
     const um = qtde === 1 && tipo === 20;
-    addRoll({ who: WHO, txt: (a ? a.nome : qtde + 'd' + tipo) + (a ? ' (d' + tipo + ' ' + fmtMod(base + b) + ')' : ''), total: total, detalhe: faces.join(', '), classe: (um && faces[0] === 20) ? 'crit' : ((um && faces[0] === 1) ? 'fumble' : '') });
+    addRoll({ who: WHO, txt: (a ? a.nome : qtde + 'd' + tipo) + (a ? ' (d' + tipo + ' ' + fmtMod(base + boost + b) + ')' : ''), total: total, detalhe: faces.join(', '), classe: (um && faces[0] === 20) ? 'crit' : ((um && faces[0] === 1) ? 'fumble' : '') });
     renderSAN(); save();
   }
 
@@ -327,21 +401,64 @@
     if (f) return { qtde: 0, faces: 0, bonus: parseInt(f[1], 10) || 0 };
     return null;
   }
+  /* Arma ligada a um atributo, e arma com VANTAGEM (rolar duas vezes e ficar com a melhor):
+     as duas coisas são a primeira vez que a mesa pede — o jogador do 6º personagem é atirador
+     militar, e pediu "excelente vantagem com armas de fogo" + dano que cresça com a Destreza.
+     A ligação vem da arma (`w.attr` / `w.adv`) e tem um segundo caminho de propósito:
+     `CONF.armaPorNome` — quando o mestre manda uma arma pelo catálogo ela chega como
+     {nome, dano} e os campos extras se perdem no caminho. Sem essa reserva a foice dele
+     viraria uma arma muda no meio da sessão, e ele só perceberia numa rolagem.
+     Ficha sem `armaPorNome` e sem esses campos nas armas (todas as outras) cai no perfil
+     vazio e rola exatamente como rolava. */
+  function perfilDeArma(w) {
+    const out = { attr: null, adv: false };
+    if (!w) return out;
+    if (w.attr && state.atributos[w.attr]) out.attr = w.attr;
+    if (w.adv) out.adv = true;
+    const mapa = CONF.armaPorNome;
+    if (mapa) {
+      const p = mapa[String(w.nome || '').trim().toLowerCase()];
+      if (p) {
+        if (!out.attr && p.attr && state.atributos[p.attr]) out.attr = p.attr;
+        if (p.adv) out.adv = true;
+      }
+    }
+    return out;
+  }
+  /* Um lançamento de dados, com a vantagem resolvida dentro: dois montes, fica o de maior
+     soma (empate fica no primeiro, que já foi o que saiu primeiro na mesa). */
+  function lancarDano(d, adv) {
+    function monte() {
+      const faces = []; let soma = 0;
+      for (let i = 0; i < d.qtde; i++) { const f = faceDe(d.faces); faces.push(f); soma += f; }
+      return { faces: faces, soma: soma };
+    }
+    const a = monte();
+    if (!adv || d.qtde < 1) return { faces: a.faces, soma: a.soma, outro: null };
+    const b = monte();
+    return b.soma > a.soma ? { faces: b.faces, soma: b.soma, outro: a.faces } : { faces: a.faces, soma: a.soma, outro: b.faces };
+  }
   function rolarArma(w, li) {
     const d = parseDice(w.dano);
     const out = li.querySelector('.weapon-result');
     if (mortoBlock(out)) return;
     if (!d) { out.textContent = '⚠ o mestre precisa definir um dano (ex: d8+2).'; return; }
+    const perfil = perfilDeArma(w);
+    const ak = perfil.attr;
+    const av = ak ? state.atributos[ak].valor : 0;
+    const boost = ak ? hookAttrTotal(ak) : 0;
     const b = bonusTotal();
-    let total, faceTxt;
+    let total, faceTxt, vant = '';
     if (d.qtde >= 1) {
-      const faces = []; let soma = 0;
-      for (let i = 0; i < d.qtde; i++) { const f = faceDe(d.faces); faces.push(f); soma += f; }
-      total = soma + d.bonus + b; faceTxt = faces.join(' + ');
-    } else { total = d.bonus + b; faceTxt = 'dano fixo'; }
-    const det = (d.bonus ? (d.bonus >= 0 ? ' + ' + d.bonus : ' − ' + (-d.bonus)) : '') + cardDetail() + hookDetail();
-    out.textContent = '🎲 ' + faceTxt + det + ' = ' + total + ' de dano';
-    addRoll({ who: WHO, txt: 'Dano · ' + w.nome + ' (' + (w.dano || '—') + ')' + det, total: total, detalhe: faceTxt });
+      const l = lancarDano(d, perfil.adv);
+      total = l.soma + d.bonus + av + boost + b;
+      faceTxt = l.faces.join(' + ');
+      if (l.outro) vant = '🎯 vantagem (sobrou ' + l.outro.join(' + ') + ') ';
+    } else { total = d.bonus + av + boost + b; faceTxt = 'dano fixo'; }
+    const det = (d.bonus ? (d.bonus >= 0 ? ' + ' + d.bonus : ' − ' + (-d.bonus)) : '') +
+      (ak ? ' + ' + av + ' ' + (ATTR_NOMES[ak] || ak) : '') + bonusDetail(ak);
+    out.textContent = vant + '🎲 ' + faceTxt + det + ' = ' + total + ' de dano';
+    addRoll({ who: WHO, txt: 'Dano · ' + w.nome + ' (' + (w.dano || '—') + (ak ? ' + ' + (ATTR_NOMES[ak] || ak) : '') + (perfil.adv ? ' com vantagem' : '') + ')' + det, total: total, detalhe: faceTxt });
     renderSAN(); save();
   }
   function renderInv() {
@@ -357,6 +474,10 @@
       btn.addEventListener('click', function () { rolarArma(w, li); });
       const right = document.createElement('div'); right.className = 'w-actions'; right.appendChild(dice); right.appendChild(btn);
       const res = document.createElement('p'); res.className = 'weapon-result';
+      const perfil = perfilDeArma(w);
+      const ak = perfil.attr;
+      const aviso = (ak ? 'soma ' + (ATTR_NOMES[ak] || ak) + ' nesta arma' : '') + (perfil.adv ? (ak ? ' · ' : '') + 'rola com vantagem' : '');
+      if (aviso) { res.textContent = aviso; btn.title = 'Rolando: ' + aviso + '.'; }
       li.appendChild(name); li.appendChild(right); li.appendChild(res);
       ul.appendChild(li);
     });
@@ -649,6 +770,9 @@
     if (e.key === SAVE_KEY) {
       state = load();
       renderHP(); renderSAN(); renderStatus(); renderAttrs(); renderInv();
+      /* Os blocos próprios (lampião, impulso) leem o state que acabou de ser trocado: sem esta
+         linha o botão deles continuaria apontando para o objeto velho da memória. */
+      REDRAWS.forEach(function (fn) { try { fn(); } catch (err) {} });
     }
   });
 
@@ -662,10 +786,15 @@
     state: function () { return state; },
     save: save, clamp: clamp, face: faceDe,
     roll: addRoll, activity: activity,
+    /* a mesma trava de "sem forças" que derruba uma rolagem do motor: o poder próprio de uma
+       ficha tem que obedecer a ela, senão o mestre coloca a pessoa no chão e o buff dela
+       continua funcionando por cima do chão. Ficha com motor velho na cache não tem a porta e
+       o bloco usa o `hp` sozinho (por isso o `if` do lado de lá). */
+    semForcas: semForcas,
     /* A conta de bônus da ficha (chips · ±N do mestre + ganchos dos blocos próprios) também
        sai pela API: um teste escrito no bloco da personagem tem que somar o MESMO que uma
        rolagem do motor soma, senão o mestre marca "Desfocada · −2" e metade dela ignora. */
-    bonus: bonusTotal, bonusDetail: function () { return cardDetail() + hookDetail(); },
+    bonus: bonusTotal, bonusDetail: function (key) { return bonusDetail(key); },
     /* vida/sanidade por valor assinado: o lampião cobra em sanidade, e a barra precisa
        mostrar exatamente o número que a mensagem dele mostrou. */
     vital: function (bar, delta) {
@@ -687,7 +816,22 @@
       }
     },
     hook: function (mark, fn) { HOOKS.push({ mark: mark, value: fn }); },
-    redraw: function () { renderHP(); renderSAN(); renderStatus(); renderAttrs(); renderInv(); renderLog(); }
+    /* Irmão por atributo do `hook` de cima: `hookAttr('💨', 'destreza', fn, 4)` só entra nas
+       rolagens que tocam a Destreza ( inclusive as de arma ligada a ela ). `'*'` vale para
+       todas, igual ao gancho global. Ficha que não usa isto não paga nada. */
+    hookAttr: function (mark, key, fn, teto) { ATTR_HOOKS.push({ mark: mark, key: key, value: fn, teto: teto || 3 }); },
+    attrBonus: hookAttrTotal,
+    /* O poder acendeu/desligou uma dose? Isto retoca só o número do card de Status e a lista
+       "Bônus de" do rolador. De propósito não é um `redraw()`: redesenhar a grade inteira
+       apagaria o resultado da última rolagem, que está escrito dentro do card — e perder o
+       número que se acabou de ver na cara do jogador é exatamente o tipo de bug que ninguém
+       perdoa numa mesa em andamento. */
+    refreshAttr: function () { Object.keys(ATTR_NOMES).forEach(pintaBadge); fillBonusOptions(); },
+    /* O bloco próprio precisa redesenhar a si mesmo quando o motor redesenha (o mestre
+       salvou noutra aba → o state trocou de objeto). Sem isto o botão dele ficaria mostrando
+       uma dose que já era. */
+    onRedraw: function (fn) { if (typeof fn === 'function') REDRAWS.push(fn); },
+    redraw: function () { renderHP(); renderSAN(); renderStatus(); renderAttrs(); renderInv(); renderLog(); REDRAWS.forEach(function (fn) { try { fn(); } catch (e) {} }); }
   };
 
   global.__FICHA_OK = true; // o aviso de "motor não carregou" na página usa esta bandeira

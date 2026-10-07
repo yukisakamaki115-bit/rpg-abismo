@@ -76,10 +76,10 @@ body.mestre-body {
 /* minmax(0,1fr) é OBRIGATÓRIO aqui: com `1fr` puro o track aceita min-width:auto
    e qualquer texto longo do feed (o significado da carta sorteada) empurra a coluna
    inteira — a página ficava com ~3300px e só cabia no zoom a 25%.
-   São 5 cards agora (4ª e 5ª fichas entraram): 3 por linha em tela larga, e a última
-   linha fica com dois + um vão — proposital, porque auto-fit deixaria o 5º card
-   esticado sozinho ocupando a linha toda. O passo de 2 colunas abaixo de 1080px
-   só existe pra notebook pequeno; ninguém lê 5 cards de 280px. */
+   São 6 cards agora (a 6ª ficha entrou pela MESMA fábrica de painel): 3 por linha em tela
+   larga, e as duas linhas fecham cheias — por isso `repeat(3)` e não `auto-fit`, que esticaria
+   o último da linha sozinho. O passo de 2 colunas abaixo de 1080px
+   só existe pra notebook pequeno; ninguém lê 6 cards de 280px. */
 .sheet-grid {
   display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-bottom: 34px;
 }
@@ -197,8 +197,11 @@ body.mestre-body {
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
   padding: 8px 12px; border: 1px solid var(--smoke); border-radius: 6px; background: #fffdf8; font-size: 15.5px;
 }
-.cat-item { flex-wrap: wrap; } /* com 5 fichas, a linha tem 6 controles: deixa quebrar em vez de esticar a página */
+.cat-item { flex-wrap: wrap; } /* com 6 fichas, a linha tem 6 controles: deixa quebrar em vez de esticar a página */
 .recv-item .w-dice, .cat-item .w-dice { font-family: var(--serif-title); font-size: 12px; color: var(--gold-deep); letter-spacing: 1px; }
+/* a ligação que a arma tem com o atributo do dono ("+ Destreza · vantagem"): miúda e apagada
+   de propósito, porque é aviso para o mestre, não um terceiro número para somar na conta. */
+.recv-item .w-liga { font-size: 12.5px; font-style: italic; color: #8b8677; }
 .cat-item .cat-actions { display: flex; gap: 6px; }
 .empty-note { font-style: italic; color: #a49e8f; font-size: 14.5px; }
 

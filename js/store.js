@@ -79,7 +79,7 @@
      A presença NÃO passa pelo vestido de `chaves` de propósito, e o motivo é de conta: a
      assinatura do vestido é do nó `chaves` INTEIRO. Se o batimento (uma vez a cada 15 s por
      aba) fosse uma chave lá dentro, cada aba obrigaria o banco a reenviar a mesa inteira —
-     cinco fichas, retratos e logs — para todo mundo, o dia todo. O nó `presenca` é separado,
+     seis fichas, retratos e logs — para todo mundo, o dia todo. O nó `presenca` é separado,
      minúsculo (umas dezenas de bytes por pessoa) e só assina quem está olhando.
      Sem nuvem, o espelho deste navegador (`eclipse_presenca_<id>`, chave que nunca sobe) faz o
      mesmo serviço entre abas da mesma máquina — é assim que a mesa se vê funcionando num

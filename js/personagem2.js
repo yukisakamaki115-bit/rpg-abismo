@@ -71,11 +71,13 @@
     log: [],
     obsessao: { nome: 'Colecionador de Botões', desc: '' },
     atributos: {
-      forca:        { nome: 'Força',        valor: 8 },
-      destreza:     { nome: 'Destreza',     valor: 16 },
-      constituicao: { nome: 'Constituição', valor: 11 },
-      inteligencia: { nome: 'Inteligência', valor: 15 },
-      carisma:      { nome: 'Carisma',      valor: 13 }
+      /* Todos em 1 desde 06/10 — a regra de criação da mesa (base 1, até 4 pontos por atributo,
+         10 para distribuir). Os números velhos (8/16/11/15/13) eram escolha minha. */
+      forca:        { nome: 'Força',        valor: 1 },
+      destreza:     { nome: 'Destreza',     valor: 1 },
+      constituicao: { nome: 'Constituição', valor: 1 },
+      inteligencia: { nome: 'Inteligência', valor: 1 },
+      carisma:      { nome: 'Carisma',      valor: 1 }
     },
     // Cada poder cobra 🧵 Linha (a sanidade dele) — o mesmo jeito das cartas do Dante cobrarem 🕯 Vontade.
     // O id é o que segura a migração: o nome é editável na ficha, então quem renomeia não recebe cópia do poder.
@@ -102,6 +104,9 @@
   };
 
   let state = load();
+  /* A regra dos 10 pontos também vale para quem já tinha ficha salva (o estado gravado vence o
+     padrão do arquivo). Zera uma vez, marca `state.atrRegra`, e nunca mais toca na distribuição. */
+  if (window.ECLIPSE_ATR && ECLIPSE_ATR.regra(state)) save();
   // migração silenciosa: já grava os nomes canônicos dos atributos (os valores são os do jogador)
   if (localStorage.getItem(SAVE_KEY)) save();
 
@@ -316,7 +321,10 @@
   });
 
   // ---------- Atributos ----------
-  function mod(v) { return Math.max(0, Math.floor((v - 10) / 2)); }
+  // O bônus que soma no d10 É o número do atributo (1..5 na regra nova). A conta velha de D&D,
+  // (valor − 10) ÷ 2, com atributo pequeno devolveria 0 em tudo: o ataque ficaria mudo.
+  // O fallback é a MESMA conta da ECLIPSE_ATR: sem o arquivo, a ficha rola com o número certo.
+  function mod(v) { return (window.ECLIPSE_ATR ? ECLIPSE_ATR.mod(v) : Math.max(0, Math.round(Number(v)) || 0)); }
   function fmtMod(m) { return (m >= 0 ? '+' : '−') + Math.abs(m); } // mesmo − (U+2212) das marcas de carta, sem misturar com hífen
 
   const STATUS_MAX = 6;
@@ -414,6 +422,8 @@
 
   function renderAttrs() {
     const grid = $('attrsGrid'); if (!grid) return;
+    const A = window.ECLIPSE_ATR;
+    const lo = A ? A.base : 0, hi = A ? A.teto : 30;
     grid.innerHTML = '';
     Object.keys(state.atributos).forEach(function (key) {
       const a = state.atributos[key];
@@ -421,7 +431,7 @@
       card.className = 'attr-card';
       card.innerHTML =
         '<div class="attr-name">' + a.nome + '</div>' +
-        '<input class="attr-value" type="number" min="0" max="30" value="' + a.valor + '" />' +
+        '<input class="attr-value" type="number" min="' + lo + '" max="' + hi + '" value="' + a.valor + '" />' +
         '<div class="attr-mod">' + fmtMod(mod(a.valor)) + '</div>' +
         '<div class="attr-result"></div>' +
         '<div class="attr-hint">🎲 d10 + valor do Status (+ bônus da forma/mundo)</div>';
@@ -429,9 +439,10 @@
       input.addEventListener('input', function () {
         const n = parseInt(input.value, 10);
         if (isNaN(n)) return;
-        a.valor = Math.max(0, Math.min(30, n));
+        a.valor = A ? A.ajustar(state, key, n) : Math.max(0, Math.min(30, n)); // teto de 4 pontos, 10 no total
         card.querySelector('.attr-mod').textContent = fmtMod(mod(a.valor));
         fillBonusOptions(); save();
+        if (A) A.painel(grid, state);
       });
       input.addEventListener('blur', function () { input.value = a.valor; });
       input.addEventListener('click', function (e) { e.stopPropagation(); });
@@ -439,6 +450,7 @@
       grid.appendChild(card);
     });
     fillBonusOptions();
+    if (A) A.painel(grid, state); // a linha da regra + o contador de pontos
   }
 
   function fillBonusOptions() {

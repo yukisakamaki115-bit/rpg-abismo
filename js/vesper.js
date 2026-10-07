@@ -43,17 +43,20 @@
 
    Ainda no 02/10, ele cobrou a parte que tinha ficado pela metade: "cada personalidade libera uma
    ficha nova... status totalmente diferente" não era só poder e cor — os CINCO números trocam
-   junto. A Tessalha é o conjunto impresso em CONF.attrs; o Trinstan declara o dele (Força 8 /
-   Destreza 15 / Constituição 9 / Inteligência 18 / Carisma 10), com o MESMO total das duas de
-   propósito: se uma tivesse mais pontos que a outra, trocar de personalidade seria level up
-   disfarçado. O corpo não entra nessa: Brasa e Vínculo são um só e atravessam a troca. O que
+   junto. A Tessalha é o conjunto impresso em CONF.attrs — que desde a regra nova está todo em
+   1, porque agora é a jogadora quem distribui os 10 pontos dela; o Trinstan declara o dele
+   (Força 1 / Destreza 5 / Constituição 2 / Inteligência 5 / Carisma 2) e o Thalles declara o dele
+   (Força 4 / Destreza 5 / Constituição 2 / Inteligência 2 / Carisma 2), com os MESMOS 10 pontos
+   gastos de propósito: se uma tivesse mais pontos que a outra, trocar de personalidade seria
+   level up disfarçado. O corpo não entra nessa: Brasa e Vínculo são um só e atravessam a troca. O que
    ela (ou o mestre, pelo painel) editar num número fica no arquivo DAQUELA personalidade, e a
    aba Status imprime os conjuntos de todas — a ficha nunca esconde o número que ela vai somar.
 
    06/10 — Fechou a tríade: THALLES, o terceiro, com o Arco de Luz que o mestre ditou agora
    ("conjura um arco de luz extremamente potente, carregado, e as flechas dele causam dano à alma
-   do alvo, tirando a vida máxima dele"). A história dos três ele manda depois; a mecânica já está
-   toda aqui. Três decisões que o site tinha decidido antes dele pedir:
+   do alvo, tirando a vida máxima dele"). A história dos três já foi escrita (bloco "Os
+   três", na aba Perfil do ficha4.html); a mecânica está toda aqui. Três decisões que o site tinha
+   decidido antes dele pedir:
    ① a flecha NÃO escreve no bestiário — ela mostra a conta ("o teto vai de 40 para 37") e quem
       baixa o número é o MESTRE, pela mesma porta que a Orbe do Trinstan usa;
    ② tudo tem teto: cargas, alma por inimigo e vida máxima mínima de 1 — "tirar vida máxima para
@@ -228,7 +231,12 @@
      personalidade: quem escreve em state.atributos é este bloco, pela mesma porta do resto. */
   function coagirAttr(v) {
     const n = Math.round(Number(v));
-    return isFinite(n) ? Math.max(0, Math.min(30, n)) : 0;   // os mesmos 0–30 do input do motor
+    if (!isFinite(n)) return (window.ECLIPSE_ATR ? ECLIPSE_ATR.base : 0);
+    // 06/10: o teto deixou de ser "o que o input aceite" e passou a ser a regra da mesa — base 1,
+    // 4 pontos por atributo (js/atributos.js). Uma config que prometer número fora da faixa
+    // agora não entra no corpo de ninguém.
+    return Math.max(window.ECLIPSE_ATR ? ECLIPSE_ATR.base : 0,
+      Math.min(window.ECLIPSE_ATR ? ECLIPSE_ATR.teto : 30, n));
   }
 
   /* Personalidade sem `attrs` próprios = o conjunto do corpo (CONF.attrs). É por isso que a

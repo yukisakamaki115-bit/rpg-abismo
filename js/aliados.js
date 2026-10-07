@@ -8,7 +8,7 @@
       mostrando só o que ele pediu: nome, Vida e Sanidade.
 
    Por que é um arquivo só, carregado por toda página: a mesma pergunta ("tem alguém aí?") é
-   feita de cinco fichas, do salão e do painel do mestre, e a resposta tem que ser a mesma
+   feita de seis fichas, do salão e do painel do mestre, e a resposta tem que ser a mesma
    lista em todos os lados. Nada aqui depende de outro arquivo além do js/store.js — e se o
    vestido não estiver na página (cache velha), a mini-aba nem aparece: não há o que anunciar.
 
@@ -28,7 +28,8 @@
     { arq: 'personagem2.html', chave: 'eclipse_coelho_v1', nome: 'Nox', hp: 'Enchimento', san: 'Linha' },
     { arq: 'personagem3.html', chave: 'eclipse_santiago_v1', nome: 'Dante', hp: 'Fôlego', san: 'Vontade' },
     { arq: 'ficha4.html', chave: 'eclipse_ficha4_v1', nome: 'Tessalha', hp: 'Brasa', san: 'Vínculo' },
-    { arq: 'ficha5.html', chave: 'eclipse_ficha5_v1', nome: 'Clara', hp: 'Vida', san: 'Sanidade' }
+    { arq: 'ficha5.html', chave: 'eclipse_ficha5_v1', nome: 'Clara', hp: 'Vida', san: 'Sanidade' },
+    { arq: 'ficha6.html', chave: 'eclipse_ficha6_v1', nome: 'Kael', hp: 'Vida', san: 'Sanidade' }
   ];
   var LEMBRE_KEY = 'eclipse_aliados_v1'; // aberto/fechado é mania deste aparelho: nunca sobe (SO_LOCAIS)
 

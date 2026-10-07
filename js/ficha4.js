@@ -46,7 +46,17 @@
    come um pedaço da VIDA MÁXIMA do alvo, para sempre, até o mestre devolver. Por isso ele é o
    único com três travas (cargas máximas, teto de alma por inimigo e piso de 1 de vida máxima) e
    por isso também quem baixa o teto continua sendo o MESTRE: a ficha escreve a conta na tela e
-   no histórico, e não toca no bestiário. A história dos três ele manda depois. */
+   no histórico, e não toca no bestiário.
+
+   Ainda no 06/10, duas coisas que este arquivo precisa saber para não se contradizer:
+   1. REGRA NOVA DOS 10 PONTOS (js/atributos.js): atributo nasce em 1, aceita no máximo 4 pontos
+      (teto 5) e a pessoa tem 10 para distribuir. CONF.attrs ficou EM 1 de propósito — é o corpo
+      ainda sem distribuir, e quem preenche é a jogadora. Trinstan e Thalles mantêm conjunto
+      próprio, agora com os mesmos 10 pontos gastos de outro jeito: é assim que "cada uma enxerga
+      o mundo diferente" continua existindo sem que trocar de humor seja subir de nível disfarçado.
+   2. A HISTÓRIA DOS TRÊS foi escrita (bloco "Os três" na aba Perfil do ficha4.html), então o que
+      está em `oQueE`/`oQueFaz`/`oQueCusta` aqui embaixo deixou de ser biografia vazia: é a
+      mecânica de quem já tem quem ser. O que continua ☐ é decisão de mesa, não lacuna de texto. */
 window.FICHA_CONF = {
   chave: 'eclipse_ficha4_v1',
   quem: 'Tessalha', // 06/10: era 'Vesper' — o nome novo assina as rolagens novas, as velhas ficam no alias do mestre
@@ -59,20 +69,52 @@ window.FICHA_CONF = {
     var soLetra = function (t) { return String(t).replace(/<[^>]*>/g, ' ').trim().toLowerCase(); };
     if (typeof s.nome === 'string' && soLetra(s.nome) === 'vesper') { s.nome = 'Tessalha'; mudou = true; }
     if (s.textos && typeof s.textos.nome === 'string' && soLetra(s.textos.nome) === 'vesper') { s.textos.nome = 'Tessalha'; mudou = true; }
-    if (s.textos && typeof s.textos.abertas === 'string' && s.textos.abertas.indexOf('Nome definitivo') !== -1) {
-      s.textos.abertas = s.textos.abertas.replace(/☐\s*Nome definitivo[^<]*/,
+    /* As linhas das <b>Contas abertas</b> que já foram respondidas. Cada recorte vai do marcador até
+       o próximo `<br>` (a lista é um contenteditable: nada aqui pode assumir formatação), e só
+       conta como mudança se o texto realmente mudou — do contrário cada F5 gravaria a ficha e a
+       empurraria para o banco à toa. A marca é sempre a linha com o ☐ na frente: é ele que se quer
+       riscar, e procurar sem ele faria esta migração por cima de uma linha que a PESSOA já
+       respondeu do próprio jeito. */
+    var risca = function (txt, marca, novoTxt) {
+      var i = txt.indexOf(marca);
+      if (i === -1) return txt;
+      var j = txt.indexOf('<br>', i); if (j === -1) j = txt.length;
+      return txt.slice(0, i) + novoTxt + txt.slice(j);
+    };
+    if (s.textos && typeof s.textos.abertas === 'string') {
+      var antes = s.textos.abertas;
+      var depois = risca(antes, '☐ Nome definitivo',
         '✔ 06/10 — Nome definitivo dela: <b>Tessalha</b> (até aqui era "Vesper", nome de trabalho).');
-      mudou = true;
+      depois = risca(depois, '☐ A <b>história</b> dos três',
+        '✔ 06/10 — A história dos três está escrita na ficha: bloco <b>Os três</b>, na aba Perfil. Quem é cada um, o que cada um herdou dos últimos dez segundos dela, e por que dividem um corpo só. O resto continua ☐ ali embaixo — decisão sua, não da ficha.');
+      depois = risca(depois, '☐ Os <b>cinco status</b>',
+        '✔ 06/10 — Regra nova dos status, que fecha a linha anterior: base <b>1</b>, no máximo <b>4 pontos</b> em cada atributo, <b>10 pontos</b> para distribuir. O conjunto do corpo está em 1 e quem preenche é a jogadora; Trinstan e Thalles já chegam com os 10 distribuídos do jeito deles.');
+      if (depois !== antes) { s.textos.abertas = depois; mudou = true; }
+    }
+    /* 06/10 — A história dela saiu do rascunho. O bloco <b>História</b> deixa de ser o marcador
+       "(continua amanhã)" e passa a ser o texto que está impresso no HTML da própria página.
+       Ler de lá — em vez de copiar a frase para dentro deste js — é o que impede os dois lugares
+       de divergirem um dia. E só troca enquanto o texto salvo AINDA é o rascunho: quem escreveu
+       por cima não é atropelada. */
+    if (s.textos && typeof s.textos.historia === 'string' && s.textos.historia.indexOf('continua amanhã') !== -1) {
+      var novo = '';
+      try {
+        var no = document.querySelector('#panel-perfil [data-txt="historia"]');
+        novo = no ? no.innerHTML : '';
+      } catch (e) { novo = ''; }
+      if (novo && novo !== s.textos.historia) { s.textos.historia = novo; mudou = true; }
     }
     return mudou;
   },
   hp: { nome: 'Brasa', max: 26 },      // a luz que ela carrega (vida) — é DELA, não de cada personalidade
   san: { nome: 'Vínculo', max: 100 },  // o que ainda a amarra aqui fora (sanidade) — idem
-  /* Os cinco CANÔNICOS (mesmas chaves nas 5 fichas — o motor e os cards do mestre dependem
-     disso). Este conjunto é o corpo sem ninguém no comando, e é também o da Tessalha: uma
+  /* Os cinco CANÔNICOS (mesmas chaves nas 6 fichas — o motor e os cards do mestre dependem
+     disso). Desde 06/10 este conjunto está em 1 de propósito: é o CORPO AINDA SEM DISTRIBUIR —
+     a regra da mesa agora é base 1, até 4 pontos no mesmo atributo, 10 pontos para gastar nos
+     cinco (js/atributos.js), e quem preenche é a jogadora na aba Status. Uma
      personalidade que não declare `attrs` próprios usa estes números aqui. Quem declara, troca
      os cinco ao assumir o corpo — é a "ficha nova dentro da ficha" que o mestre pediu. */
-  attrs: { forca: 9, destreza: 13, constituicao: 10, inteligencia: 12, carisma: 16 },
+  attrs: { forca: 1, destreza: 1, constituicao: 1, inteligencia: 1, carisma: 1 },
   eff: { morta: '☠️ Apagada', incap: '🟡 Vacilando' },
 
   /* As três que ela é. `vaga: true` é lugar reservado de propósito: o botão já aparece na
@@ -92,12 +134,14 @@ window.FICHA_CONF = {
       oQueE: 'a razão dele — a parte que conta em vez de sentir',
       oQueFaz: 'controla uma Orbe e a arremessa em quem ele escolher. O que dói é a velocidade: ela sai num d10, e o dano é o dobro dela. Orbe devagar quase não arranha; orbe no teto esmaga.',
       oQueCusta: '1 de Vínculo por arremesso — 2 quando a Orbe passa direto e não bate em nada. É a razão dele que paga a conta de cada lançamento.',
-      /* Os números dele: a razão não sustenta o mesmo corpo que a aura. Ele não bate (Força 8),
-         mas a mão que solta a Orbe na hora certa é a melhor do grupo (Destreza 15) e ele conta
-         tudo (Inteligência 18) em vez de chegar nas pessoas (Carisma 10). Mesmo total da
-         Tessalha (60): o que muda é a distribuição, senão trocar de personalidade seria subir de
-         nível disfarçado. Estes números valem nas rolagens de Status — a Orbe não usa nenhum. */
-      attrs: { forca: 8, destreza: 15, constituicao: 9, inteligencia: 18, carisma: 10 }
+      /* Os números dele, já na regra nova (06/10): 10 pontos distribuídos, no máximo 4 no mesmo
+         lugar. A razão não sustenta o mesmo corpo que a aura — ele não bate (Força 1), mas a mão
+         que solta a Orbe na hora certa e a cabeça que conta tudo são o teto da mesa
+         (Destreza 5 · Inteligência 5) — e ele não chega nas pessoas (Carisma 2). Mesmos 10 pontos
+         da Tessalha e do Thalles: o que muda é a DISTRIBUIÇÃO, senão trocar de personalidade
+         seria subir de nível disfarçado. Estes números valem nas rolagens de Status — a Orbe não
+         usa nenhum. */
+      attrs: { forca: 1, destreza: 5, constituicao: 2, inteligencia: 5, carisma: 2 }
     },
     /* Thalles, o terceiro dos três (06/10): o arco de luz que fere alma. A história dele ele
        manda depois — o que está escrito aqui é a MECÂNICA que ele pediu, e os números moram em
@@ -109,10 +153,11 @@ window.FICHA_CONF = {
       oQueE: 'a luz dele — a parte que ataca de longe e não perdoa',
       oQueFaz: 'conjura um Arco de Luz e o carrega até três cargas. A flecha que sai fere a ALMA do alvo: além do dano de sempre, o inimigo perde um pedaço da própria vida máxima — e vida máxima perdida não volta sozinha.',
       oQueCusta: '1 de Vínculo por carga e 1 por disparo — e 2 quando a flecha se desfaz no ar depois de o arco já estar pago. Ferir a alma cobra mais caro do que só bater.',
-      /* Os números dele: é o arqueiro dos três. Destreza 17 é a mão que puxa a corda, Força 12 é
-         o braço que segura o arco conjurado, e os outros três caem porque ele é só ataque. Mesmo
-         total das outras duas (60) — trocar de personalidade continua não ser subir de nível. */
-      attrs: { forca: 12, destreza: 17, constituicao: 11, inteligencia: 10, carisma: 10 }
+      /* Os números dele, na regra nova (06/10): é o arqueiro dos três — Destreza 5 é a mão que
+         puxa a corda, Força 4 é o braço que segura o arco conjurado, e os outros três ficam em 2
+         porque ele é só ataque. Mesmos 10 pontos das outras duas: trocar de personalidade
+         continua sem ser subir de nível. */
+      attrs: { forca: 4, destreza: 5, constituicao: 2, inteligencia: 2, carisma: 2 }
     }
   ],
 

@@ -21,12 +21,17 @@
   // Tessalha (matrícula `vesper`) e Clara entraram aqui na v1.31.3: elas também sentam na mesa do tarot.
   // 06/10: o nome exibido dela mudou de "Vesper" para "Tessalha" — a chave e o id ficam, é a etiqueta
   // que a mesa lê que mudou. `morto` aqui tem que bater com o que a própria ficha4 escreve.
+  // 06/10 (v1.40): o Kael entrou. Sem esta linha o Dante não conseguiria virar uma carta para o
+  // 6º personagem da mesa, e — o que é pior — as limpezas em grupo (O Mundo, a Absolução) passariam
+  // por cima dele silenciosamente, deixando marca de carta que ninguém tira. `morto`/`incap` são as
+  // etiquetas EXATAS de `CONF.eff` em js/ficha6.js ('☠️ Morto' / '🟡 No chão').
   const SHEETS = {
     santiago: { key: SAVE_KEY, nome: 'Dante', emoji: '🔮', morto: '☠️ Morto', incap: '🟡 Incapacitado', caiu: 'MORTO' },
     flora:    { key: 'eclipse_flora_v1', nome: 'Flora', emoji: '🌹', morto: '☠️ MORTA', incap: '🟡 Incapacitada', caiu: 'MORTA' },
     nox:      { key: 'eclipse_coelho_v1', nome: 'Nox', emoji: '🐰', morto: '☠️ Morto', incap: '🟡 Incapacitado', caiu: 'MORTO' },
     vesper:   { key: 'eclipse_ficha4_v1', nome: 'Tessalha', emoji: '🕯️', morto: '☠️ Apagada', incap: '🟡 Vacilando', caiu: 'APAGADA' },
-    clara:    { key: 'eclipse_ficha5_v1', nome: 'Clara', emoji: '🏮', morto: '☠️ Morta', incap: '🟡 Incapacitada', caiu: 'MORTA' }
+    clara:    { key: 'eclipse_ficha5_v1', nome: 'Clara', emoji: '🏮', morto: '☠️ Morta', incap: '🟡 Incapacitada', caiu: 'MORTA' },
+    kael:     { key: 'eclipse_ficha6_v1', nome: 'Kael', emoji: '🌪️', morto: '☠️ Morto', incap: '🟡 No chão', caiu: 'MORTO' }
   };
   // Marcas do mestre: o jogador NÃO descarta clicando na ficha dele
   const GM_ONLY = ['☠️ Morto', '☠️ MORTA', '🟡 Incapacitado', '🟡 Incapacitada'];
@@ -123,15 +128,20 @@
     lema: { nome: '“As cartas não decidem — elas emprestam coragem.”', desc: '' },
     inimigos: [ { nome: '', chips: [], morto: false, hp: 10, hpMax: 10 }, { nome: '', chips: [], morto: false, hp: 10, hpMax: 10 }, { nome: '', chips: [], morto: false, hp: 10, hpMax: 10 } ],
     atributos: {
-      forca:        { nome: 'Força',        valor: 9 },
-      destreza:     { nome: 'Destreza',     valor: 12 },
-      constituicao: { nome: 'Constituição', valor: 11 },
-      inteligencia: { nome: 'Inteligência', valor: 17 },
-      carisma:      { nome: 'Carisma',      valor: 14 }
+      /* Todos em 1 desde 06/10 — a regra de criação da mesa (base 1, até 4 pontos por atributo,
+         10 para distribuir). Os números velhos (9/12/11/17/14) eram escolha minha. */
+      forca:        { nome: 'Força',        valor: 1 },
+      destreza:     { nome: 'Destreza',     valor: 1 },
+      constituicao: { nome: 'Constituição', valor: 1 },
+      inteligencia: { nome: 'Inteligência', valor: 1 },
+      carisma:      { nome: 'Carisma',      valor: 1 }
     }
   };
 
   let state = load();
+  /* A regra dos 10 pontos também vale para quem já tinha ficha salva (o estado gravado vence o
+     padrão do arquivo). Zera uma vez, marca `state.atrRegra`, e nunca mais toca na distribuição. */
+  if (window.ECLIPSE_ATR && ECLIPSE_ATR.regra(state)) save();
 
   function load() {
     let merged;
@@ -189,7 +199,10 @@
   });
 
   // ---------- Atributos (+ cartas como parcelas visíveis) ----------
-  function mod(v) { return Math.max(0, Math.floor((v - 10) / 2)); }
+  // O bônus que soma no d10 É o número do atributo (1..5 na regra nova). A conta velha de D&D,
+  // (valor − 10) ÷ 2, com atributo pequeno devolveria 0 em tudo: o ataque ficaria mudo.
+  // O fallback é a MESMA conta da ECLIPSE_ATR: sem o arquivo, a ficha rola com o número certo.
+  function mod(v) { return (window.ECLIPSE_ATR ? ECLIPSE_ATR.mod(v) : Math.max(0, Math.round(Number(v)) || 0)); }
   function fmtMod(m) { return (m >= 0 ? '+' : '−') + Math.abs(m); } // mesmo − (U+2212) das marcas de carta, sem misturar com hífen
 
   // Marca de carta: "emoji Nome · +N" — só esse formato soma nas rolagens
@@ -240,6 +253,8 @@
 
   function renderAttrs() {
     const grid = $('attrsGrid'); if (!grid) return;
+    const A = window.ECLIPSE_ATR;
+    const lo = A ? A.base : 0, hi = A ? A.teto : 30;
     grid.innerHTML = '';
     Object.keys(state.atributos).forEach(function (key) {
       const a = state.atributos[key];
@@ -247,7 +262,7 @@
       card.className = 'attr-card';
       card.innerHTML =
         '<div class="attr-name">' + a.nome + '</div>' +
-        '<input class="attr-value" type="number" min="0" max="30" value="' + a.valor + '" />' +
+        '<input class="attr-value" type="number" min="' + lo + '" max="' + hi + '" value="' + a.valor + '" />' +
         '<div class="attr-mod">' + fmtMod(mod(a.valor)) + '</div>' +
         '<div class="attr-result"></div>' +
         '<div class="attr-hint">🎲 d10 + valor do Status (+ cartas ativas)</div>';
@@ -255,9 +270,10 @@
       input.addEventListener('input', function () {
         const n = parseInt(input.value, 10);
         if (isNaN(n)) return;
-        a.valor = Math.max(0, Math.min(30, n));
+        a.valor = A ? A.ajustar(state, key, n) : Math.max(0, Math.min(30, n)); // teto de 4 pontos, 10 no total
         card.querySelector('.attr-mod').textContent = fmtMod(mod(a.valor));
         fillBonusOptions(); save();
+        if (A) A.painel(grid, state);
       });
       input.addEventListener('blur', function () { input.value = a.valor; });
       input.addEventListener('click', function (e) { e.stopPropagation(); });
@@ -265,6 +281,7 @@
       grid.appendChild(card);
     });
     fillBonusOptions();
+    if (A) A.painel(grid, state); // a linha da regra + o contador de pontos
   }
 
   function fillBonusOptions() {

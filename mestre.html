@@ -6,12 +6,13 @@
   <title>Painel do Mestre | Éclipse</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=153" />
-  <link rel="stylesheet" href="css/mestre.css?v=153" />
-  <script src="js/theme.js?v=153"></script>
-  <script src="js/firebase-config.js?v=153"></script>
-  <script src="js/store.js?v=153"></script>
-  <script src="js/conta.js?v=153"></script>
+  <link rel="stylesheet" href="css/style.css?v=156" />
+  <link rel="stylesheet" href="css/mestre.css?v=156" />
+  <script src="js/theme.js?v=156"></script>
+  <script src="js/firebase-config.js?v=156"></script>
+  <script src="js/store.js?v=156"></script>
+  <script src="js/conta.js?v=156"></script>
+  <script src="js/atributos.js?v=156"></script><!-- a regra dos 10 pontos: a mesma que vale nas fichas -->
 </head>
 <body class="mestre-body">
   <div class="mestre-wrap">
@@ -390,6 +391,80 @@
         </div>
         <p class="ro-note">🗝️ O poder é dela, a conta é da ficha: as almas 🕯️ e o mundo em que ela está vêm escritos pelo js/lampiao.js dela — aqui você só lê. Invocação nenhuma funciona no Mundo Real, e o que sai é a linha da tabela do d10.</p>
       </article>
+
+      <!-- FICHA 6 (Kael Duarte · o ágil, 6º personagem da mesa, pedido pelo jogador em 06/10) -->
+      <article class="char-card" id="ficha6Card">
+        <div class="card-head">
+          <div class="mini-portrait" id="ficha6Portrait">🌪️</div>
+          <div>
+            <h2 id="ficha6Nome">Kael Duarte</h2>
+            <p class="char-class">ex-militar · leve e rápido · foice e pistola</p>
+          </div>
+        </div>
+        <span class="badge alive" id="ficha6Badge">🌪️ Em movimento</span>
+
+        <div>
+          <div class="mbar-label"><span id="ficha6HpNome">Vida</span><span id="ficha6HpText">22 / 22</span></div>
+          <div class="mbar"><div class="mfill hp" id="ficha6HpFill" style="width:100%"></div></div>
+          <div class="mini-row" style="margin-top:8px">
+            <input type="number" id="ficha6HpAmt" value="5" min="0" />
+            <button class="mini-btn danger" data-sheet="ficha6" data-hp="dmg">− Dano</button>
+            <button class="mini-btn ok" data-sheet="ficha6" data-hp="heal">+ Cura</button>
+            <button class="mini-btn" data-sheet="ficha6" data-hp="full">Max</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="mbar-label"><span id="ficha6SanNome">Sanidade</span><span id="ficha6SanText">100 / 100</span></div>
+          <div class="mbar"><div class="mfill san" id="ficha6SanFill" style="width:100%"></div></div>
+          <div class="mini-row" style="margin-top:8px">
+            <input type="number" id="ficha6SanAmt" value="8" min="0" />
+            <button class="mini-btn danger" data-sheet="ficha6" data-san="dmg">− Perde</button>
+            <button class="mini-btn ok" data-sheet="ficha6" data-san="heal">+ Recupera</button>
+            <button class="mini-btn" data-sheet="ficha6" data-san="full">Max</button>
+          </div>
+        </div>
+
+        <div>
+          <p class="m-block-title">Status (atributos)</p>
+          <div class="m-attrs" id="ficha6Attrs"></div>
+        </div>
+
+        <div>
+          <p class="m-block-title">Impulso · o que está aceso</p>
+          <div class="chip-row" id="ficha6World"><span class="chip ro">🌪️ sem leitura da ficha ainda</span></div>
+        </div>
+
+        <div>
+          <p class="m-block-title">Efeitos ativos <small>(máx. 6)</small></p>
+          <div class="chip-row" id="ficha6Effects"></div>
+          <div class="field-row" style="margin-top:10px">
+            <input type="text" id="ficha6EffectInput" maxlength="26" placeholder="enviar efeito…" />
+            <button class="mini-btn" id="ficha6EffectAdd">＋ Enviar</button>
+          </div>
+          <div class="mini-row" style="margin-top:10px">
+            <button class="mini-btn warn" id="ficha6Incap">🟡 No chão</button>
+            <button class="mini-btn danger" id="ficha6Kill">☠️ Matar (1 clique)</button>
+            <button class="mini-btn ok" id="ficha6Revive">❤ Restaurar</button>
+          </div>
+        </div>
+
+        <div>
+          <p class="m-block-title">Inventário (armas enviadas)</p>
+          <div class="recv-list" id="ficha6Recv"></div>
+        </div>
+
+        <div class="mini-row">
+          <a class="mini-btn" id="ficha6Open" href="ficha6.html" target="_blank" style="text-decoration:none">👁 Abrir ficha</a>
+          <button class="mini-btn" id="ficha6Reload">🔄 Sincronizar</button>
+        </div>
+
+        <div class="feed-block">
+          <p class="m-block-title">🖱️ Atividade do jogador <small>(cliques + rolagens)</small></p>
+          <ul class="feed" id="ficha6Feed"><li class="feed-empty">sem atividade ainda</li></ul>
+        </div>
+        <p class="ro-note">💨 O impulso é dele, e a Sanidade que cai no card é o preço: cada +2 aceso cobra 8 de Sanidade na hora, com teto de +4 no atributo e +4 somando tudo. O chip acima diz o que está aceso agora e qual foi a última 🌀 Esquiva rolada — é esse número que o seu ataque precisa passar.</p>
+      </article>
     </section>
 
     <!-- ===== Rolagem do Mestre (NPCs e chefes) ===== -->
@@ -474,13 +549,13 @@
       <br /><small>As fichas se salvam no navegador de cada pessoa; com a mesa ligada, sincronizam sozinhas. Quem está com a ficha aberta aparece no ponto verde do card, no <b>“● … na ficha agora”</b> e na lista 👥 do canto.</small></footer>
   </div>
 
-  <script src="js/inimigos.js?v=153"></script>
+  <script src="js/inimigos.js?v=156"></script>
   <!-- O enquadramento do retrato é UMA conta (js/retrato.js) que a ficha ensinou: sem ele, este
        painel mostra o MEIO da foto original em vez do recorte que a pessoa emoldurou. Vem antes
        de js/mestre.js por causa disso, e na pior hipótese (arquivo não veio) o mestre volta ao
        emoji velho em vez de quebrar. -->
-  <script src="js/retrato.js?v=153"></script>
-  <script src="js/aliados.js?v=153"></script>
-  <script src="js/mestre.js?v=153"></script>
+  <script src="js/retrato.js?v=156"></script>
+  <script src="js/aliados.js?v=156"></script>
+  <script src="js/mestre.js?v=156"></script>
 </body>
 </html>

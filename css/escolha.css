@@ -42,6 +42,15 @@
 .escolha-body .bg-curve { opacity: .5; animation: none; }
 .escolha-body .bg-curve-1 { width: 720px; height: 720px; }
 
+/* 06/10 — O `clip` de cima precisa estar no <html>, não só no <body>, para valer. É uma
+   pegadinha da especificação: quando o `overflow` do <html> é `visible`, o valor do <body> é
+   PROPAGADO para o viewport e o próprio corpo passa a ser tratado como `visible` — ou seja, a
+   linha de cima deixa de cortar nada, e as curvas de 720px voltaram a abrir 240px de rolagem
+   lateral numa janela de 646 (medido: scrollWidth 886 · window.scrollX chegou a 240). Fica com
+   os dois: corpo (corte real quando o html já tem overflow próprio) e html (o dono do viewport).
+   Quem não entender `:has()` continua com o comportamento de antes — nada aqui é essencial. */
+html:has(.escolha-body) { overflow-x: hidden; overflow-x: clip; }
+
 /* ---------- cabeçalho ---------- */
 .salao {
   position: relative;

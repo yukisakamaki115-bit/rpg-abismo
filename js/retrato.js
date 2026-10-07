@@ -6,8 +6,9 @@
    emoldurou. Foto de personagem desenhada em pé = no disco do mestre sai cortada no pescoço,
    "fora do quadro", exatamente como ele relatou em 06/10.
 
-   Este arquivo é a conta UMA vez só, e quem mostra retrato usa: o painel do mestre (5 cards) e
-   o salão (5 cards). A própria ficha não precisa — ela já tem o `framing()` dela, que é dono do
+   Este arquivo é a conta UMA vez só, e quem mostra retrato usa: o painel do mestre (6 cards) e
+   o salão (6 cards — o 6º ainda não tem arte, e por isso nele cai o disco com a inicial).
+   A própria ficha não precisa — ela já tem o `framing()` dela, que é dono do
    editor. Se um dia o editor mudar a matemática, muda aqui junto: as duas precisam concordar.
 
    Nada aqui depende de rede, de config ou de outro arquivo. Sem `ECLIPSE_RETRATO`, as telas

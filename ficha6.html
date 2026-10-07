@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kael Duarte — o ágil | Éclipse</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css?v=156" />
+  <link rel="stylesheet" href="css/ficha-base.css?v=156" />
+  <link rel="stylesheet" href="css/ficha6.css?v=156" />
+  <script src="js/theme.js?v=156"></script>
+  <script src="js/firebase-config.js?v=156"></script>
+  <script src="js/store.js?v=156"></script>
+  <script src="js/conta.js?v=156"></script>
+  <script src="js/atributos.js?v=156"></script><!-- a regra dos 10 pontos: antes de qualquer motor de ficha -->
+</head>
+<body class="ficha-body f6-body">
+
+  <!-- Enfeite puro: o rastro de quem se mexe rápido. Tudo atrás da folha opaca e fora do
+       caminho do mouse — a mesma lição da v1.28.1: ornamento que come clique é bug. -->
+  <div class="f6-glow" aria-hidden="true"></div>
+  <div class="f6-streaks" aria-hidden="true">
+    <i style="top:21%; animation-delay:0s"></i>
+    <i style="top:38%; animation-delay:1.4s"></i>
+    <i style="top:55%; animation-delay:2.8s"></i>
+    <i style="top:71%; animation-delay:.7s"></i>
+    <i style="top:86%; animation-delay:3.6s"></i>
+  </div>
+
+  <div class="boot-warn" id="bootWarn" hidden>
+    ⚠ A ficha abriu sem o motor (js/ficha-comum.js ou js/ficha6.js). Recarregue com
+    <b>Ctrl+Shift+R</b> — sem isso os botões aparecem na tela, mas não fazem nada.
+  </div>
+  <div class="boot-warn" id="impWarn" hidden>
+    ⚠ O motor abriu, mas <b>o impulso não veio</b> (js/impulso.js está quebrado ou na cache
+    velha). A ficha funciona, só que a aba Impulso fica vazia — e é o poder inteiro dele.
+    Recarregue com <b>Ctrl+Shift+R</b>.
+  </div>
+
+  <main class="sheet">
+    <div class="sheet-inner">
+      <a href="index.html" class="logout-link">Sair ⏎</a>
+
+      <!-- ===== Cabeçalho ===== -->
+      <header class="sheet-header">
+        <div class="portrait-wrap">
+          <div class="portrait" id="portrait" role="button" tabindex="0" title="Clique para trocar a imagem dele">
+            <span class="portrait-emoji">🌪️</span>
+            <img class="portrait-img" id="portraitImg" alt="Retrato de Kael Duarte" hidden />
+            <span class="portrait-hint" id="portraitHint">✦ clicar para carregar imagem ✦</span>
+          </div>
+          <input type="file" id="portraitFile" accept="image/*" hidden />
+          <button type="button" id="portraitRemove" class="portrait-remove" title="Tirar a imagem" hidden>✕</button>
+        </div>
+        <div class="head-info">
+          <h1 class="char-name" contenteditable="true" spellcheck="false" data-txt="nome">Kael Duarte</h1>
+          <p class="char-class" contenteditable="true" spellcheck="false" data-txt="classe">✦ o que entra e sai do combate ✦</p>
+          <span class="f6-tag">ex-militar · leve e rápido · difícil de acertar</span>
+          <div class="bio-grid">
+            <div class="bio-item"><b>Idade</b> <span contenteditable="true" spellcheck="false" data-txt="bio1">☐ a definir por quem o joga</span></div>
+            <div class="bio-item"><b>Origem</b> <span contenteditable="true" spellcheck="false" data-txt="bio2">☐ foi militar — qual exército e em qual guerra ainda não foi escrito</span></div>
+            <div class="bio-item"><b>Treino</b> <span contenteditable="true" spellcheck="false" data-txt="bio3">Armas de fogo, desenvolvidas nas missões: é de lá que vem a vantagem dele atirando</span></div>
+            <div class="bio-item"><b>Estilo</b> <span contenteditable="true" spellcheck="false" data-txt="bio4">Entra, acerta, sai. Não bate de frente — força mediana, velocidade alta</span></div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ===== Vitais + Efeitos ===== -->
+      <section class="vitals">
+        <div class="vitals-left">
+          <div class="hp-block">
+            <div class="hp-label"><span id="hpNome">Vida</span><span id="hpText">22 / 22</span></div>
+            <div class="hp-bar"><div class="hp-fill" id="hpFill"></div></div>
+            <div class="hp-controls">
+              <input type="number" id="hpInput" value="0" min="0" title="quantidade" />
+              <button class="mini-btn" id="hpDmg" data-act="🤕 perdeu vida">− Dano</button>
+              <button class="mini-btn" id="hpHeal" data-act="🍵 recuperou vida">+ Cura</button>
+              <button class="mini-btn" id="hpFull" data-act="🌿 vida no máximo">Plena</button>
+            </div>
+          </div>
+          <div class="hp-block">
+            <div class="hp-label"><span id="sanNome">Sanidade</span><span id="sanText">100 / 100</span></div>
+            <div class="hp-bar"><div class="hp-fill san-fill" id="sanFill"></div></div>
+            <div class="hp-controls">
+              <input type="number" id="sanInput" value="0" min="0" title="quantidade" />
+              <button class="mini-btn" id="sanDmg" data-act="🌫️ perdeu sanidade">− Perde</button>
+              <button class="mini-btn" id="sanHeal" data-act="🕯️ recuperou sanidade">+ Recupera</button>
+              <button class="mini-btn" id="sanFull" data-act="⚖️ sanidade inteira">Firme</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="status-block">
+          <div class="hp-label"><span>Efeitos ativos <small>(máx. 6)</small></span><span id="statusCount">0/6</span></div>
+          <div class="status-chips" id="statusChips">
+            <span class="chip empty">sem marcas — adicione com ＋ ou aguarde o mestre</span>
+          </div>
+          <div class="status-actions">
+            <input type="text" id="statusInput" maxlength="26" placeholder="novo efeito…" />
+            <button type="button" class="mini-btn" id="statusAddBtn" data-act="➕ adicionou um efeito">＋ Add</button>
+          </div>
+          <p class="hint-note status-msg" id="statusMsg"></p>
+        </div>
+      </section>
+
+      <!-- ===== Abas ===== -->
+      <nav class="tabs">
+        <button class="tab-btn active" data-tab="perfil">Perfil</button>
+        <button class="tab-btn" data-tab="impulso">Impulso</button>
+        <button class="tab-btn" data-tab="atributos">Status</button>
+        <button class="tab-btn" data-tab="inventario">Inventário</button>
+        <button class="tab-btn" data-tab="inimigos">Inimigos</button>
+        <button class="tab-btn" data-tab="rolagem">Rolagem</button>
+      </nav>
+
+      <!-- Perfil -->
+      <section class="panel active" id="panel-perfil">
+        <h2>Quem é ele</h2>
+        <p class="panel-intro">O 6º personagem da mesa, pedido pelo jogador em 06/10 com uma frase só: <b>ágil, leve, difícil de acertar, atirador treinado, foice na mão e um poder que compra força com sanidade</b>. Abaixo está <b>o que essa frase virou na mesa</b>, escrito para ele não precisar perguntar pro mestre como o próprio poder funciona. O que a frase não disse está marcado com <b>☐</b> — não foi inventado no lugar de ninguém.</p>
+
+        <ul class="faz-list">
+          <li><b>💨 Impulso:</b> o poder dele. Cada dose acende <b>+2 num atributo</b> e cobra <b>8 de Sanidade na hora</b>. Teto de <b>+4 no mesmo atributo</b> e <b>+4 somando tudo</b> — ou dois atributos em +2, ou um em +4. Soltar devolve os pontos, <b>não devolve a Sanidade</b>.</li>
+          <li><b>O +2 não é enfeite de aba:</b> ele entra na rolagem daquele atributo <b>e no dano das armas que somam aquele atributo</b>. É o "buff no corpo, alimentando status" que ele pediu: Destreza acesa vale na Esquiva, vale na foice e vale no tiro.</li>
+          <li><b>🎯 Pistola (d6+1) com vantagem:</b> o treino militar. Rolando o dano dela, <b>lança duas vezes e fica com a melhor</b>. É por isso que a base dela é pequena — quem sempre escolhe o melhor dos dois dados já leva quase <b>+2 de média por tiro</b> sem nenhum número escrito.</li>
+          <li><b>⚔ Foice (d8):</b> a lâmina longa, do jeito que ele descreveu. Soma <b>Destreza</b> no dano. Não é d10 de propósito: d10 + Destreza faria dela a arma mais pesada da mesa na mão de quem se declarou o "leve". O mestre ajusta no painel dele.</li>
+          <li><b>🌀 Esquiva:</b> clica em rolar a Esquiva, sai <b>d10 + Destreza</b> (com a dose acesa, se houver) e <b>esse número é a barra</b> que o ataque do mestre precisa passar. O número aparece no card dele, na tela do mestre.</li>
+          <li><b>Ele não é tanque.</b> Força mediana, vida 22 — entre a Clara (20) e a Tessalha (26). Quem bate de frente é outra pessoa da mesa.</li>
+          <li><b>📖 O passo a passo completo</b> — como acender, quanto custa, um turno de exemplo e o que ele não pode fazer — está escondido na aba <b>Impulso</b>, no <b>“💨 Como funciona o impulso”</b>: clica na linha pra abrir.</li>
+        </ul>
+
+        <div class="story-block">
+          <p class="m-block-title">História <small>(clique para editar)</small></p>
+          <p class="story-text" contenteditable="true" spellcheck="false" data-txt="historia">☐ A história dele ainda não existe — e não foi escrita por aqui no lugar de quem joga. O que se sabe é exatamente o que o jogador pediu, e isso está logo abaixo; o resto é linha em branco esperando a mão dele ou do mestre.
+
+O que já está combinado: ele <b>foi militar</b>. Foi nas missões que ele treinou e desenvolveu uma vantagem excelente com armas de fogo — o treino dele é a razão de a pistola rolar com vantagem. Ele é <b>ágil e leve</b>, trabalha em velocidade, esquiva e mobilidade: entra no combate, acha a brecha, acerta e sai. Não é o cara forte que fica batendo de frente, e tem força só mediana. Parece <b>meio despreocupado, meio estiloso</b> — e na hora do combate é muito difícil de acertar.
+
+A arma longa dele é uma <b>foice</b>, do tipo que ele descreveu como a do Noob Saibot. O poder dele é <b>comprar desempenho com a própria cabeça</b>: o corpo empresta +2 num atributo, a Sanidade paga 8, e o teto é +4 em tudo.
+
+☐ Falta escrever (dele ou do mestre): de onde ele veio, em qual guerra ele serviu, o que ele perdeu naquela farda, por que ele ainda luta, e o que a Sanidade gasta do impulso vai cobrando dele com o tempo.</p>
+        </div>
+
+        <div class="slot-grid">
+          <div class="slot-card">
+            <span class="slot-tag">como ele luta</span>
+            <div class="slot-name" contenteditable="true" spellcheck="false" data-txt="traco1nome">Avanço e dano</div>
+            <p class="slot-desc" contenteditable="true" spellcheck="false" data-txt="traco1desc">Ele cobre distância, cobra o golpe e some antes da resposta. Na mesa isso é Destreza: velocidade, reflexo e mira moram todos nesse atributo — a mesa não tem "Agilidade" separado.</p>
+          </div>
+          <div class="slot-card">
+            <span class="slot-tag">o que ele paga</span>
+            <div class="slot-name" contenteditable="true" spellcheck="false" data-txt="traco2nome">A própria cabeça</div>
+            <p class="slot-desc" contenteditable="true" spellcheck="false" data-txt="traco2desc">Cada +2 aceso custa 8 de Sanidade, e o corpo não devolve o que a cabeça pagou. É um poder que corre atrás do próprio fôlego: quanto mais ele usa numa sessão, mais fino fica o lado dele que não é treino.</p>
+          </div>
+          <div class="slot-card">
+            <span class="slot-tag">☐ a definir</span>
+            <div class="slot-name" contenteditable="true" spellcheck="false" data-txt="traco3nome">A farda antiga</div>
+            <p class="slot-desc" contenteditable="true" spellcheck="false" data-txt="traco3desc">Qual exército, qual guerra, o que ele fez lá e o que ele levou de volta. Foi dito "por conta da vida de militar" — o resto ainda é de quem o joga.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Impulso -->
+      <section class="panel" id="panel-impulso">
+        <h2>O Impulso · o poder dele</h2>
+        <p class="panel-intro">Em uma frase, com as palavras dele: <b>“aumentar atributos em +2 ou mais sacrificando sanidade, máximo de +4 em tudo e mínimo de −8 de sanidade por uso de buff — buff no corpo, alimentando status.”</b> Traduzido em trava: <b>+2 por dose · 8 de Sanidade por dose · +4 no mesmo atributo e +4 somando tudo · o que está aceso vale na rolagem e no dano · soltar devolve os pontos e nunca a Sanidade.</b></p>
+
+        <!-- Tutorial recolhível: uma linha fechada, e o texto inteiro só quando ele abrir.
+             O estado aberto/fechado é lembrado no próprio save da ficha (js/impulso.js). -->
+        <details class="imp-tutorial" id="impulsoTutorial">
+          <summary>💨 Como funciona o impulso <small>tutorial · 7 passos, 1 exemplo e o que ele não pode fazer</small></summary>
+          <div class="imp-tut-corpo">
+            <ol class="imp-passos">
+              <li><b>O corpo empresta, a cabeça paga.</b> Nada aqui é preparação nem poção: é ele pedindo desempenho emprestado do próprio corpo e pagando com a Sanidade que tem na cabeça.</li>
+              <li><b>Como acender.</b> Na aba <b>Impulso</b>, cada um dos cinco atributos tem um <b>+2</b>. Clicar nele <b>baixa 8 de Sanidade na mesma hora</b> e acende <b>+2 naquele atributo</b> — sem teste, sem rolagem, sem espera: é a vez dele.</li>
+              <li><b>Os dois tetos.</b> No mesmo atributo entram <b>duas doses (+4)</b>. Somando tudo o que estiver aceso, o limite também é <b>+4</b>. Então é <b>+4 num atributo só</b> ou <b>+2 em dois atributos</b> — nunca os dois ao mesmo tempo. Estourou o teto, o <b>+2</b> fica <b>acinzentado</b> e é só passar o mouse nele: o aviso diz o que já está aceso e o que precisa ser desligado (−) antes. O que <b>não</b> acinzenta o botão é falta de <b>Sanidade</b> — aí ele continua clicável e a linha embaixo recusa em português, porque esse número muda a cada cena.</li>
+              <li><b>Onde o +2 chega.</b> Ele entra em <b>toda rolagem daquele atributo</b> (clicar no card de Status, e no rolador com “Bônus de” nele) e no <b>dano das armas que somam aquele atributo</b>. A <b>foice</b> e a <b>pistola</b> somam <b>Destreza</b>: dose acesa na Destreza aumenta a Esquiva, o corte e o tiro de uma vez.</li>
+              <li><b>Como desligar.</b> O <b>−</b> derruba uma dose daquele atributo, <b>✋ soltar o impulso</b> derruba todas. Os pontos voltam na hora. <b>A Sanidade paga não volta</b> — se e quando ela volta é ☐ do mestre, escrito no fim desta aba.</li>
+              <li><b>A Esquiva dele.</b> O botão <b>🌀 rolar a Esquiva</b> faz <b>d10 + Destreza</b> (com a dose acesa, se houver) e o total vira <b>a barra que o ataque do mestre precisa passar</b>. O último número rolado aparece no card dele na tela do mestre, então ninguém precisa anotar em papel.</li>
+              <li><b>O impulso não mexe nos 10 pontos.</b> Ele é emprestado, não é distribuído: o contador da regra de criação continua mostrando só os pontos que <b>ele</b> colocou nos atributos, e o badge do card mostra <b>ficha + dose</b> quando estiver aceso.</li>
+            </ol>
+            <p class="imp-exemplo"><b>Uma rodada dele, do começo ao fim:</b> Sanidade <b>62</b>, <b>Destreza 4</b> na ficha, corpo quieto. Clica <b>+2</b> na Destreza → cobra <b>8</b> (fica <b>54</b>) e Destreza passa a valer <b>6</b> para tudo. Clica <b>🌀 rolar a Esquiva</b> → 🎲 <b>7</b> + <b>6</b> = <b>13</b>: agora quem tentar encostar nele precisa passar de 13. Ele atira: 🎲 dois lançamentos de <b>d6</b> da pistola (4 e <b>6</b> — fica o 6) + <b>1</b> do dano fixo + <b>6</b> da Destreza acesa = <b>13 de dano</b>. Acabou a cena, ele clica <b>✋ soltar o impulso</b>: a Destreza volta a ser 4 e a Sanidade <b>continua 54</b>.</p>
+            <p class="m-block-title">O que ele NÃO pode fazer</p>
+            <ul class="imp-nao">
+              <li><b>Não passa de +4 somando tudo</b>, nem com a Sanidade cheia. O teto é do poder, não da carteira dele.</li>
+              <li><b>Não acende com menos de 8 de Sanidade.</b> Nada é pago, nada é aceso — a cabeça não empresta o que já não tem.</li>
+              <li><b>Não recebe a Sanidade de volta ao soltar.</b> Quem devolve os pontos é o corpo; a paga fica cobrada.</li>
+              <li><b>Não gasta nem ganha pontos de criação.</b> O +2 do impulso não entra na conta dos 10 pontos, nunca.</li>
+              <li><b>Não soma na Vida dele</b>, não cura, não dá blindagem e não protege outra pessoa da mesa: a dose é no atributo e no que rola dele.</li>
+              <li><b>Não escolhe a foice como arma de fogo.</b> Vantagem de dois lançamentos é do treino com arma de fogo — hoje isso está ligado só na <b>pistola</b>. Se o mestre quiser a vantagem na foice também, é uma linha no painel dele.</li>
+            </ul>
+          </div>
+        </details>
+
+        <div id="impulsoArea"><!-- desenhado por js/impulso.js --></div>
+      </section>
+
+      <!-- Status / Atributos -->
+      <section class="panel" id="panel-atributos">
+        <h2>Status</h2>
+        <p class="panel-intro">Clique num atributo para rolar <b>d10 + o valor dele</b> (o número <b>é</b> o bônus). ✦ <b>Regra da mesa desde 06/10:</b> todo atributo nasce valendo <b>1</b>, cada um aceita no máximo <b>4 pontos</b> (o teto dele é <b>5</b>) e você tem <b>10 pontos</b> para distribuir entre os cinco — a regra e a conta de pontos aparecem logo acima dos cards. ⚠ <b>Esta mesa não tem atributo “Agilidade” nem “Percepção”:</b> são os mesmos cinco em todas as fichas. <b>Velocidade, reflexo e mira moram na Destreza</b>; <b>percepção mora na Inteligência</b>. É por isso que os 10 dele pedem <b>Destreza</b> primeiro — é o atributo da Esquiva dele <b>e</b> das duas armas, que somam Destreza no dano. Efeitos terminados em <b>· +N</b> somam na rolagem (no máximo <b>±3</b> por marca), e a dose acesa do <b>💨 impulso</b> aparece escrita na fórmula junto.</p>
+        <div class="attr-grid" id="attrsGrid"><!-- gerado via JS --></div>
+        <div class="roller">
+          <div class="roll-config">
+            <label>Dado
+              <select id="diceType">
+                <option value="4">d4</option>
+                <option value="6">d6</option>
+                <option value="8">d8</option>
+                <option value="10">d10</option>
+                <option value="12">d12</option>
+                <option value="20" selected>d20</option>
+                <option value="100">d100</option>
+              </select>
+            </label>
+            <label>Qtde <input type="number" id="diceQty" value="1" min="1" max="10" /></label>
+            <label>Bônus de
+              <select id="attrBonus">
+                <option value="none">nenhum atributo</option>
+              </select>
+            </label>
+            <button class="btn-major" id="rollBtn">🎲 Rolar</button>
+          </div>
+          <div class="roll-display"><span class="die">🎲</span><p class="roll-msg" id="rollMsg"></p></div>
+        </div>
+        <p class="hint-note">✦ O que é poder dele está na aba <b>Impulso</b>. Aqui é só o dado puro — e é aqui que você distribui os 10 pontos.</p>
+      </section>
+
+      <!-- Inventário -->
+      <section class="panel" id="panel-inventario">
+        <h2>Inventário</h2>
+        <p class="panel-intro">A <b>foice</b> e a <b>pistola</b> ele já chegou tendo — a foice é a arma que ele pediu, a pistola é o treino militar dele. As duas <b>somam Destreza no dano</b>, e a pistola rola <b>com vantagem</b> (dois lançamentos, fica o melhor). O resto é o que o <b>mestre</b> te entregar pelo painel dele, e aparece aqui sozinho.</p>
+        <div id="invArea">
+          <div class="inv-empty">
+            <span>⚔️</span>
+            Mãos vazias.<br />
+            Quando o <b>mestre</b> enviar uma arma pelo painel dele, ela aparece aqui automaticamente.
+          </div>
+        </div>
+      </section>
+
+      <!-- Inimigos em cena (bestiário do mestre — aqui você só olha) -->
+      <section class="panel" id="panel-inimigos">
+        <h2>Inimigos em Cena</h2>
+        <p class="panel-intro">O que o <b>mestre</b> colocou na cena, com a vida e a sanidade de cada bicho.</p>
+        <div class="mob-list" id="mobList"><!-- gerado via js/inimigos.js --></div>
+        <p class="hint-note">✦ É leitura pura: quem cria, machuca e tira da cena é o mestre, no painel dele.</p>
+      </section>
+
+      <!-- Rolagem -->
+      <section class="panel" id="panel-rolagem">
+        <h2>Histórico de Rolagem</h2>
+        <p class="panel-intro">Compartilhado com o mestre e o resto do grupo — todo mundo vê as rolagens de todo mundo.</p>
+        <ul class="roll-log" id="rollLog">
+          <li class="log-empty">Nenhuma rolagem ainda.</li>
+        </ul>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="sheet-footer">Éclipse — salva no seu navegador e, com a mesa ligada, sincronizando sozinha: o estado está na mini-aba 👥 no canto. ✦
+    <br /><small class="sheet-monitor">👁️ Aviso: suas rolagens e cliques ficam visíveis na tela do mestre.</small>
+  </footer>
+
+  <script src="js/inimigos.js?v=156"></script>
+  <script src="js/ficha6.js?v=156"></script>
+  <script src="js/ficha-comum.js?v=156"></script>
+  <script src="js/impulso.js?v=156"></script>
+  <!-- A mini-aba 👥: avisa a mesa que esta ficha está aberta e mostra quem mais está online. -->
+  <script src="js/aliados.js?v=156"></script>
+  <script>
+    /* Duas travas separadas de propósito: o motor pode estar bom e o impulso não (arquivo
+       novo, mais fácil de ficar velho na cache). Cada um avisa o que faltou. */
+    setTimeout(function () {
+      if (!window.__FICHA_OK) {
+        var d = document.getElementById('bootWarn');
+        if (d) { d.hidden = false; d.scrollIntoView({ block: 'nearest' }); }
+      } else if (!window.__IMPULSO_OK) {
+        var w = document.getElementById('impWarn');
+        if (w) { w.hidden = false; w.scrollIntoView({ block: 'nearest' }); }
+      }
+    }, 800);
+  </script>
+</body>
+</html>

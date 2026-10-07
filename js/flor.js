@@ -20,12 +20,16 @@
       nome: 'Licor',
       desc: 'Antes de cada apresentação, um gole. Depois de cada aplauso, outro. O licor é o único público que Flora recebe em casa — ele nunca vai embora, mesmo quando ela finge que não precisa dele. O amargor dourado desce como lembrança de Las Vegas: dias melhores servidos em copos pequenos.'
     },
+    /* Todos em 1 desde 06/10: a mesa fechou a regra de criação (base 1, até 4 pontos por
+       atributo, 10 pontos para distribuir) e quem distribui é quem joga, não o arquivo. Os
+       números velhos (10/18/12/11/16) estavam aqui como escolha minha. A trava e o contador
+       moram em js/atributos.js. */
     atributos: {
-      forca:      { nome: 'Força',      valor: 10 },
-      destreza:   { nome: 'Destreza',   valor: 18 },
-      constituicao:{ nome: 'Constituição', valor: 12 },
-      inteligencia:{ nome: 'Inteligência', valor: 11 },
-      carisma:    { nome: 'Carisma',    valor: 16 }
+      forca:      { nome: 'Força',      valor: 1 },
+      destreza:   { nome: 'Destreza',   valor: 1 },
+      constituicao:{ nome: 'Constituição', valor: 1 },
+      inteligencia:{ nome: 'Inteligência', valor: 1 },
+      carisma:    { nome: 'Carisma',    valor: 1 }
     },
     combate: [
       {
@@ -48,6 +52,10 @@
   };
 
   let state = load();
+  /* A regra dos 10 pontos também alcança quem já tinha ficha salva: o estado gravado vence o
+     padrão do arquivo, e sem esta linha a Flora acordaria com Força 10. `regra()` zera uma vez
+     e marca `state.atrRegra` — depois nunca mais toca no que a pessoa distribuiu. */
+  if (window.ECLIPSE_ATR && ECLIPSE_ATR.regra(state)) save();
 
   function load() {
     let merged;
@@ -88,8 +96,11 @@
   });
 
   // ---------- Atributos ----------
-  // Modificador nunca negativo: valores baixos ficam em +0 (sem −5 misterioso).
-  function mod(v) { return Math.max(0, Math.floor((v - 10) / 2)); }
+  // O bônus que soma no d10 É o número do atributo (1..5 na regra nova). A conta velha de
+  // D&D, (valor − 10) ÷ 2, estava nas três fichas antigas e com atributo pequeno devolveria 0
+  // em tudo — o ataque da Flora ficaria mudo sem aviso nenhum. O fallback é a MESMA conta da
+  // ECLIPSE_ATR: se o arquivo não carregar, a ficha rola com o número certo em vez de +0.
+  function mod(v) { return (window.ECLIPSE_ATR ? ECLIPSE_ATR.mod(v) : Math.max(0, Math.round(Number(v)) || 0)); }
   function fmtMod(m) { return (m >= 0 ? '+' : '−') + Math.abs(m); } // mesmo − (U+2212) das marcas de carta, sem misturar com hífen
 
   function rollAttr(key, card) {
@@ -123,6 +134,8 @@
 
   function renderAttrs() {
     const grid = $('attrsGrid');
+    const A = window.ECLIPSE_ATR;
+    const lo = A ? A.base : 0, hi = A ? A.teto : 30;
     grid.innerHTML = '';
     const bonusSel = $('attrBonus');
     bonusSel.innerHTML = '<option value="none">nenhum atributo</option>';
@@ -133,7 +146,7 @@
       card.className = 'attr-card';
       card.innerHTML =
         '<div class="attr-name">' + a.nome + '</div>' +
-        '<input class="attr-value" type="number" min="0" max="30" value="' + a.valor + '" />' +
+        '<input class="attr-value" type="number" min="' + lo + '" max="' + hi + '" value="' + a.valor + '" />' +
         '<div class="attr-mod">' + fmtMod(mod(a.valor)) + '</div>' +
         '<div class="attr-result"></div>' +
         '<div class="attr-hint">🎲 d10 + valor do Status (+ bônus da dança)</div>';
@@ -141,10 +154,11 @@
       input.addEventListener('input', function () {
         const n = parseInt(input.value, 10);
         if (isNaN(n)) return; // campo vazio durante a edição: ignora, mantém o último valor
-        a.valor = Math.max(0, Math.min(30, n)); // permite zerar o status
+        a.valor = A ? A.ajustar(state, key, n) : Math.max(0, Math.min(30, n)); // a regra dos 4 pontos / 10 no total
         card.querySelector('.attr-mod').textContent = fmtMod(mod(a.valor));
         fillBonusOptions();
         save();
+        if (A) A.painel(grid, state);
       });
       input.addEventListener('blur', function () { input.value = a.valor; });
       input.addEventListener('click', function (e) { e.stopPropagation(); });
@@ -152,6 +166,7 @@
       grid.appendChild(card);
     });
     fillBonusOptions();
+    if (A) A.painel(grid, state); // a linha da regra + o contador de pontos
   }
 
   function fillBonusOptions() {

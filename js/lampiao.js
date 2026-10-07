@@ -11,7 +11,8 @@
    As três travas de balanceamento (vieram do pedido dele, não da minha cabeça):
    1) nenhuma invocação funciona no Mundo Real — "ela não tem poderes fora do crepúsculo";
    2) tudo custa 🕯️ alma, e alma só cabe 6 no vidro (conseguida uma de cada vez, num teste
-      de d10 + Inteligência ≥ 22, ou seja: ~50% com a Int 16 dela);
+      de d10 + Inteligência ≥ 11 — a parada veio de 22 para 11 quando a mesa fechou a regra nova
+      dos atributos valendo 1..5; com Int 5 é ~50%, a mesma chance de antes);
    3) o dano vem da tabela impressa, com teto em 9 — ela nunca soma isso em cima de outro
       poder dela, porque não tem outro. E o 1 do dado cobra sanidade DELA.
 

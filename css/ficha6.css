@@ -1,0 +1,247 @@
+/* ===== Ficha 6 — o ágil (Kael Duarte, nome editável na própria ficha) =====
+   Direção de arte vem do que o jogador pediu: leve, rápido, estiloso, treinado. Então nada de
+   brasa nem de ouro: a ficha é pintada em metal frio (grafite e aço), com um azul-gelo que é
+   sempre a luz do impulso — borda dos botões de dose, halo atrás do retrato, barra de Sanidade
+   e o traço à esquerda da história. O vermelho aparece só na Vida e no que dói.
+
+   Tema claro = papel vegetal de prancheta de oficina (cinza-azulado claro, tinta de grafite),
+   porque a mesa joga de dia também e o metal continua sendo o mesmo metal.
+
+   Estrutura não existe aqui: vem de css/ficha-base.css, que só pinta com as --fs-*.
+   Os únicos blocos novos são os do poder dele (.imp-*), desenhados por js/impulso.js — e o
+   tutorial, que é HTML estático nesta ficha, igual ao da Clara. */
+
+body.f6-body {
+  /* ---- claro: aço sobre papel de prancheta ---- */
+  --fs-page:
+    radial-gradient(ellipse at 50% -6%, rgba(70,130,160,.13), transparent 48%),
+    radial-gradient(ellipse at 88% 100%, rgba(40,70,90,.10), transparent 46%),
+    linear-gradient(168deg, #f1f4f6 0%, #e2e8ec 52%, #f3f6f8 100%);
+  --fs-sheet: rgba(250,252,253,.97);
+  --fs-card: #e6ecf0;
+  --fs-ink: #1b2429;
+  --fs-muted: #63767f;
+  --fs-line: #c6d2d9;
+  --fs-accent: #1f6f93;
+  --fs-accent-soft: #4fa3c4;
+  --fs-accent-deep: #34596b;
+  --fs-hp1: #8f2f22; --fs-hp2: #d3703f;
+  --fs-san1: #1f6f93; --fs-san2: #8fd0e4;
+  --fs-danger: #a8301f;
+  --fs-ok: #256f4a;
+  --fs-glow: rgba(60,90,105,.18);
+  --fs-chip: #2b4c5c; --fs-chip-ink: #eef7fb;
+  /* o frio do metal, e a luz do impulso passando atrás da folha */
+  --fs-halo: radial-gradient(circle, rgba(31,111,147,.16), transparent 68%);
+  --fs-spark: rgba(79,163,196,.5);
+  --fs-ouro: rgba(52,89,107,.42);
+}
+html[data-theme="dark"] body.f6-body {
+  /* ---- escuro: oficina à noite, com a respiração dele soltando vapor ---- */
+  --fs-page:
+    radial-gradient(ellipse at 50% -8%, rgba(120,200,230,.13), transparent 52%),
+    radial-gradient(ellipse at 10% 88%, rgba(60,140,180,.12), transparent 50%),
+    radial-gradient(ellipse at 92% 62%, rgba(150,90,70,.08), transparent 52%),
+    linear-gradient(170deg, #0c1216 0%, #131a20 44%, #070a0d 100%);
+  --fs-sheet: rgba(14,20,25,.97);
+  --fs-card: #1a232b;
+  --fs-ink: #dfe8ed;
+  --fs-muted: #8b9aa3;
+  --fs-line: #2c3a45;
+  --fs-accent: #46c4e8;
+  --fs-accent-soft: #8fe3ff;
+  --fs-accent-deep: #d8b06a;
+  --fs-hp1: #b3301f; --fs-hp2: #e8874c;
+  --fs-san1: #1f8fa8; --fs-san2: #9be8e0;
+  --fs-danger: #ff6a52;
+  --fs-ok: #57d69a;
+  --fs-glow: rgba(0,0,0,.55);
+  --fs-chip: #14495c; --fs-chip-ink: #d6f4ff;
+  --fs-halo: radial-gradient(circle, rgba(70,196,232,.26), rgba(216,176,106,.08) 45%, transparent 70%);
+  --fs-spark: rgba(143,227,255,.8);
+  --fs-ouro: rgba(216,176,106,.45);
+}
+
+/* ---------- Moldura: filete de aço com a luz do impulso correndo no topo ---------- */
+.sheet::before { /* o rastro gelado que fica quando ele se mexe rápido */
+  content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px; z-index: 2; pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--fs-accent) 22%, var(--fs-accent-soft) 46%, var(--fs-accent-deep) 72%, transparent);
+}
+.sheet::after { /* o fio metálico interno, como a bainha de uma peça usinada */
+  content: ''; position: absolute; inset: 9px; z-index: 1; pointer-events: none;
+  border: 1px solid var(--fs-ouro); border-radius: 9px;
+}
+.sheet { box-shadow: 0 0 0 5px var(--fs-card), 0 0 0 6px var(--fs-ouro), 0 26px 64px var(--fs-glow); }
+.sheet-inner { padding: 32px 46px 40px; }
+@media (max-width: 720px) { .sheet-inner { padding: 26px 22px 32px; } }
+
+/* ---------- Enfeites: halo + rastros, tudo ATRÁS da folha (lição da v1.28.1) ----------
+   .sheet tem z-index:1 e fundo quase opaco, então nada daqui mancha a leitura. Os dois são
+   pointer-events:none de propósito: ornamento que come clique é bug, não estética. */
+.f6-glow {
+  position: fixed; z-index: 0; pointer-events: none;
+  width: 58vmin; height: 58vmin; left: 50%; top: -8vmin; transform: translateX(-50%);
+  background: var(--fs-halo);
+  animation: f6-resp 7s ease-in-out infinite;
+}
+/* os rastros são horizontais: a moving door dele é velocidade, não brasa subindo */
+.f6-streaks { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.f6-streaks i {
+  position: absolute; left: -18%; width: 16%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--fs-spark), transparent);
+  animation: f6-passa 6s linear infinite;
+}
+@keyframes f6-resp { 0%, 100% { opacity: .7; } 50% { opacity: 1; } }
+@keyframes f6-passa {
+  0%   { transform: translate3d(0, 0, 0); opacity: 0; }
+  12%  { opacity: .85; }
+  70%  { opacity: .5; }
+  100% { transform: translate3d(140vw, 0, 0); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .f6-glow, .f6-streaks i { animation: none; }
+  .f6-streaks i { opacity: .25; }
+}
+
+/* ---------- Cabeçalho ---------- */
+.portrait { border-color: var(--fs-accent-deep); }
+html[data-theme="dark"] .portrait {
+  box-shadow: 0 0 0 5px rgba(70,196,232,.14), 0 0 42px rgba(120,200,230,.3), 0 12px 26px var(--fs-glow);
+}
+.char-name { color: var(--fs-accent); text-shadow: 0 0 28px var(--fs-glow); }
+/* "KAEL DUARTE" em Cinzel 44px/5px passaria por baixo do botão Sair: nome um pouco menor e
+   respiro à direita — em tela estreita ele quebra, não se esconde (a mesma conta da Clara). */
+.sheet-header .char-name { font-size: 38px; letter-spacing: 3px; padding-right: 96px; }
+.f6-tag {
+  display: inline-block; margin: 4px 0 12px; padding: 4px 13px; border-radius: 999px;
+  border: 1px solid var(--fs-accent); color: var(--fs-accent);
+  background: var(--fs-card);
+  font-family: var(--serif-title); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+}
+
+/* vida = o que dói (vermelho); sanidade = o gelo do impulso, porque é com ela que ele paga */
+.hp-fill { box-shadow: 0 0 14px rgba(230,120,70,.45) inset, 0 0 10px rgba(220,90,60,.28); }
+.san-fill { box-shadow: 0 0 12px rgba(90,200,230,.3) inset; }
+
+/* ---------- O que ele faz na mesa ----------
+   A lista do perfil (.faz-list) é estrutura compartilhada e mora no css/ficha-base.css,
+   pintada com as --fs-* daqui. */
+.faz-list li::before { text-shadow: 0 0 10px var(--fs-accent); }
+
+/* a história dele (ainda em ☐): o gelo como filete à esquerda */
+.story-block { border-left: 4px solid var(--fs-accent); }
+.story-block .story-text b { color: var(--fs-accent); }
+
+.slot-card { border-style: solid; border-left: 3px solid var(--fs-accent); }
+.slot-card:hover { border-color: var(--fs-line); border-left-color: var(--fs-accent-deep); }
+
+/* ---------- O painel do impulso (js/impulso.js desenha isto) ---------- */
+
+/* O tutorial, em ficha6.html ANTES dos números. É um <details>: fechado ele é uma linha só,
+   e o estado aberto é lembrado no save da ficha (js/impulso.js) — igual ao da Clara. */
+.imp-tutorial {
+  min-width: 0; margin: 0 0 18px;
+  background: var(--fs-card); border: 1px solid var(--fs-line);
+  border-left: 4px solid var(--fs-accent); border-radius: 12px;
+}
+.imp-tutorial > summary {
+  cursor: pointer; list-style: none;
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  padding: 13px 16px; font-family: var(--serif-title);
+  font-size: 13.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--fs-accent-deep);
+}
+.imp-tutorial > summary::-webkit-details-marker { display: none; }
+.imp-tutorial > summary::before {
+  content: '▸'; color: var(--fs-accent); font-size: 14px;
+  transition: transform .18s ease;
+}
+.imp-tutorial[open] > summary::before { transform: rotate(90deg); }
+.imp-tutorial > summary:hover { color: var(--fs-accent); }
+.imp-tutorial > summary small {
+  font-family: var(--serif-body); font-size: 12px; letter-spacing: .3px;
+  text-transform: none; color: var(--fs-muted);
+}
+.imp-tut-corpo {
+  padding: 4px 16px 16px; border-top: 1px dashed var(--fs-line);
+  min-width: 0;
+}
+.imp-tut-corpo .m-block-title { margin: 16px 0 8px; }
+
+.imp-passos { margin: 12px 0 14px; padding-left: 22px; display: grid; gap: 8px; }
+.imp-passos li { font-size: 14px; line-height: 1.55; color: var(--fs-muted); padding-left: 4px; }
+.imp-passos li::marker { color: var(--fs-accent); font-weight: 700; }
+.imp-passos li b { color: var(--fs-ink); font-weight: 600; }
+.imp-passos li i { color: var(--fs-accent); font-style: italic; }
+/* fundo tinta (fs-glow) em vez de fs-page: fs-page é gradiente, e pintaria um
+   recorte da parede dentro da caixa (a lição da ficha 5, repetida aqui de propósito). */
+.imp-exemplo {
+  min-width: 0; margin: 0 0 14px; padding: 12px 14px;
+  background: var(--fs-glow); border: 1px dashed var(--fs-accent-deep); border-radius: 10px;
+  font-size: 14px; line-height: 1.6; color: var(--fs-ink);
+}
+.imp-exemplo b { color: var(--fs-accent); }
+.imp-nao { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.imp-nao li { font-size: 13.5px; line-height: 1.5; color: var(--fs-muted); }
+.imp-nao li b { color: var(--fs-danger); font-weight: 600; }
+
+/* a faixa de cima: quanto está aceso agora + quanto ele tem de Sanidade + soltar tudo */
+.imp-strip {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  background: var(--fs-card); border: 1px solid var(--fs-line); border-radius: 12px; padding: 12px 14px;
+  margin-bottom: 16px;
+}
+.imp-contador {
+  font-family: var(--serif-title); font-size: 16px; letter-spacing: .6px; color: var(--fs-accent);
+  padding: 6px 14px; border-radius: 999px; border: 1px dashed var(--fs-accent);
+  background: var(--fs-sheet); white-space: nowrap;
+}
+.imp-soltar { border-style: dashed; margin-left: auto; }
+.imp-soltar:not(:disabled):hover { background: var(--fs-accent); border-color: var(--fs-accent); color: #fff; }
+
+/* os cinco atributos com dose: linha por atributo, e o ★ é o dele (Destreza) */
+.imp-grade {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(268px, 1fr)); gap: 10px;
+  margin-bottom: 14px;
+}
+.imp-attr {
+  display: flex; align-items: center; gap: 8px; min-width: 0;
+  background: var(--fs-card); border: 1px solid var(--fs-line); border-radius: 10px; padding: 9px 12px;
+}
+.imp-nome {
+  font-family: var(--serif-title); font-size: 13.5px; letter-spacing: .8px; color: var(--fs-ink);
+  min-width: 8.6em;
+}
+.imp-base { font-size: 12.5px; color: var(--fs-muted); white-space: nowrap; }
+.imp-boost { font-size: 12.5px; color: var(--fs-muted); white-space: nowrap; }
+.imp-boost.on {
+  color: var(--fs-accent); font-weight: 600;
+  text-shadow: 0 0 14px var(--fs-glow);
+}
+.imp-attr .mini-btn { flex: 0 0 auto; padding: 6px 11px; font-size: 13.5px; }
+.imp-mais { border-color: var(--fs-accent); color: var(--fs-accent); }
+.imp-mais:not(:disabled):hover { background: var(--fs-accent); border-color: var(--fs-accent); color: #fff; }
+html[data-theme="dark"] .imp-mais:not(:disabled) { box-shadow: 0 0 14px rgba(70,196,232,.22); }
+.imp-esquiva { border-color: var(--fs-accent-deep); }
+
+.imp-acoes { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+.imp-acoes .mini-btn { font-size: 15px; padding: 9px 15px; }
+
+.imp-result {
+  min-height: 0; margin: 0 0 12px; font-size: 15.5px; line-height: 1.55; color: var(--fs-muted);
+}
+.imp-result.show {
+  padding: 13px 16px; border-radius: 10px; background: var(--fs-sheet);
+  border: 1px solid var(--fs-line); border-left: 4px solid var(--fs-muted); color: var(--fs-ink);
+}
+.imp-result.show.bom { border-left-color: var(--fs-ok); }
+.imp-result.show.ruim { border-left-color: var(--fs-danger); color: var(--fs-danger); }
+
+/* o bloco que ainda não tem regra: pontilhado de propósito, pra ninguém ler como pronto */
+.imp-aberto { border-style: dashed; border-left: 4px dashed var(--fs-accent-deep); }
+.imp-aberto .story-text { color: var(--fs-muted); font-style: italic; }
+
+/* ---------- O resto herda o gelo só onde é a luz dele ---------- */
+.chip { box-shadow: 0 0 12px var(--fs-glow); }
+html[data-theme="dark"] .chip.gm { background: #101a20; color: #cdeaf6; }
+.attr-card:hover { box-shadow: 0 10px 24px rgba(70,196,232,.18); }
+.roll-log .log-crit { color: var(--fs-ok); }

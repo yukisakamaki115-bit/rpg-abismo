@@ -6,13 +6,14 @@
   <title>Tessalha — luz dentro do Crepúsculo | Éclipse</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=153" />
-  <link rel="stylesheet" href="css/ficha-base.css?v=153" />
-  <link rel="stylesheet" href="css/ficha4.css?v=153" />
-  <script src="js/theme.js?v=153"></script>
-  <script src="js/firebase-config.js?v=153"></script>
-  <script src="js/store.js?v=153"></script>
-  <script src="js/conta.js?v=153"></script>
+  <link rel="stylesheet" href="css/style.css?v=156" />
+  <link rel="stylesheet" href="css/ficha-base.css?v=156" />
+  <link rel="stylesheet" href="css/ficha4.css?v=156" />
+  <script src="js/theme.js?v=156"></script>
+  <script src="js/firebase-config.js?v=156"></script>
+  <script src="js/store.js?v=156"></script>
+  <script src="js/conta.js?v=156"></script>
+  <script src="js/atributos.js?v=156"></script><!-- a regra dos 10 pontos: antes de qualquer motor de ficha -->
 </head>
 <body class="ficha-body f4-body">
 
@@ -112,7 +113,7 @@
       <!-- Perfil -->
       <section class="panel active" id="panel-perfil">
         <h2>Quem é ela</h2>
-        <p class="panel-intro">O mestre ainda vai continuar esta história. Nada aqui está fechado de propósito: os textos são <b>editáveis</b> (clique e escreva) e o que você escrever fica salvo nesta ficha.</p>
+        <p class="panel-intro">A história dela está escrita aqui embaixo, e o que ela <b>faz</b> na mesa está na lista do meio desta aba. Nada ficou escondido em outro lugar: os textos são <b>editáveis</b> (clique e escreva) e o que você escrever fica salvo nesta ficha.</p>
 
         <!-- O que ela faz na mesa HOJE, escrito para a jogadora não precisar perguntar.
              É a lista do que já existe no motor dela — cada linha abaixo aponta para um botão
@@ -121,7 +122,7 @@
         <ul class="faz-list">
           <li><b>🕯️ Brasa (26)</b> é a vida dela: a luz que ela carrega no meio da escuridão. Zerou, ela fica <b>☠️ Apagada</b> — e quem acende de novo é o <b>mestre</b>, não você.</li>
           <li><b>❤ Vínculo (100)</b> é a sanidade: o que ainda amarra ela aqui fora. É o número que o Crepúsculo tenta comer.</li>
-          <li><b>✨ Os cinco status são de quem está no corpo.</b> Cada personalidade tem o próprio conjunto de números — a tabela completa está na aba Status, e o que está pintado ali em cima é sempre o de quem assume agora. <b>Carisma 16</b> é da Tessalha (ela não bate, ela <b>chega</b>); o Trinstan é o contrário de propósito: <b>Força 8</b>, <b>Inteligência 18</b>; e o Thalles é o do meio, feito de mira: <b>Destreza 17</b> e <b>Força 12</b> pra abrir o arco. Clique num card de Status para rolar <b>d10 + valor</b>.</li>
+          <li><b>✨ Os cinco status são de quem está no corpo.</b> Todo atributo nasce valendo <b>1</b>, cada um aceita no máximo <b>4 pontos</b> (o teto dele é <b>5</b>) e você tem <b>10 pontos</b> para distribuir entre os cinco — a conta fica escrita na aba Status, e o que passar do teto não entra. O <b>🌿 Tessalha</b> começa com os 10 na mão: quem escolhe onde cair é você, e ela é feita de <b>chegar junto</b>, não de bater. O <b>🌀 Trinstan</b> já chega gastando a cabeça e a mira (<b>Destreza 5 · Inteligência 5</b>, Força 1); o <b>🏹 Thalles</b> já chega gastando mira e braço (<b>Destreza 5 · Força 4</b>). Os três com os <b>mesmos 10 pontos</b>, de propósito: se uma tivesse mais, trocar de personalidade seria subir de nível disfarçado. Clique num card de Status para rolar <b>d10 + valor</b>.</li>
           <li><b>🎲 Efeito que atrapalha ou ajuda</b> termina em <b>· +N</b> ou <b>· −N</b> e entra sozinho na conta da rolagem (teto de <b>±3</b> por marca) — a fórmula fica escrita na tela, nunca escondida.</li>
           <li><b>🎭 Ela são três na mesma pessoa.</b> O botão de personalidade fica ali em cima, sempre à mão: <b>🌿 Tessalha</b> é a aura verde que recebe as curas e os buffs de quem ela escolher; <b>🌀 Trinstan</b> é a razão, e é ele quem arremessa a Orbe; <b>🏹 Thalles</b> é a luz que bate de longe, e é ele quem conjura o Arco. Trocar de personalidade troca <b>o poder, os cinco status e a cor da página</b> — e só <b>Brasa</b> e <b>Vínculo</b> atravessam a troca, porque é o mesmo corpo.</li>
           <li><b>🌀 A Orbe do Trinstan é um dos dois dados que ela rola de propósito.</b> Escolhido o inimigo na aba Inimigos, aperta <b>🌀 Arremessar a Orbe</b>: sai um <b>d10 de velocidade</b> e o dano é <b>o dobro</b> dela. Orbe devagar (até 2) <b>passa direto</b> e não arranha. Cada lançamento cobra <b>1 de Vínculo</b> — <b>2</b> quando erra. Quem baixa a vida do bicho é o <b>mestre</b>: a Orbe mostra o número, não escreve na ficha dele.</li>
@@ -138,18 +139,26 @@
         </div>
         <div class="story-block">
           <p class="m-block-title">História <small>(clique para editar)</small></p>
-          <p class="story-text" contenteditable="true" spellcheck="false" data-txt="historia">Ela foi o amor da Flora. A alma dela foi levada para o Crepúsculo — como foi que isso aconteceu, o mestre ainda vai contar. O que já se sabe do lugar: é escuro de verdade, e é justamente ela o ponto brilhante dele. Isso não a faz leve. Estar lá dentro é estar impregnada, então a luz e a escuridão aparecem nela ao mesmo tempo, e nenhuma das duas é disfarce. (continua amanhã)</p>
+          <p class="story-text" contenteditable="true" spellcheck="false" data-txt="historia">Houve um tempo em que os palcos mais famosos do mundo se acendiam para ver <b>Flora</b> e <b>Agnes Hawkins</b> dançarem. Não eram rivais, nem dupla: eram uma coisa só vista de dois lados — onde uma ia, a outra já estava, e quando uma caía a outra levantava sem que a plateia percebesse.<br><br>Naquela noite o carro encostou <b>devagar demais para ser azar</b> e foi embora <b>rápido demais para ser aviso</b>. Alguém queria Agnes morta. Flora só estava perto dela, como sempre estava. A música do salão não parou junto com o resto — parou junto com o corpo dela.<br><br>O <b>Crepúsculo</b> guarda o que este mundo jogou fora. Chegar lá dentro não é morrer: é <b>ficar</b>. Agnes ficou. Mas não ficou inteira — os últimos dez segundos da vida dela se partiram em três, e as três partes aprenderam a dividir um corpo só. Nenhuma delas é ela por completo, e nenhuma delas mente sobre ser.<br><br>É por isso que ela é hoje o ponto brilhante de um lugar escuro de verdade. Isso não a faz leve: estar lá dentro é estar <b>impregnada</b>, então a luz e a escuridão aparecem nela ao mesmo tempo, e nenhuma das duas é disfarce.<br><br><b>Quem são os três</b> — o que cada um herdou daqueles dez segundos, e por que continuam morando na mesma pessoa — está escrito no bloco abaixo.</p>
+        </div>
+        <!-- Bloco NOVO (06/10): a história dos três, que era a primeira ☐ das Contas abertas.
+             Chave `tres` não existe em ficha salva nenhuma, então o `initTextos()` do motor
+             não tem o que por cima dela: quem joga vê este texto na hora, e se editar passa a
+             ver a própria edição salva igualzinho aos outros blocos. -->
+        <div class="story-block">
+          <p class="m-block-title">Os três <small>(clique para editar)</small></p>
+          <p class="story-text" contenteditable="true" spellcheck="false" data-txt="tres">🌿 <b>Tessalha</b> é o que sobrou de quem amava. Ela não nasceu do ódio, nem do susto: nasceu do último pensamento dela, enquanto o carro ainda estava virando a esquina — <i>“a Flora vai ficar sozinha no meio do palco”</i>. É por isso que ela é a única das três que <b>não faz nada com o próprio corpo</b>: ela recebe, sem custo, todo bem que cai na pessoa que escolher, porque ficar perto de quem se ama é a única coisa que ela já soube fazer desde quando ainda era gente. É a parte que ainda sorri — e a que mais sente falta.<br><br>🌀 <b>Trinstan</b> é o que sobrou de quem contou. Ele nasceu dos três segundos entre o farol e o vidro: a cabeça dela fez, naquela hora, a única coisa que ainda dava para fazer — <b>medir</b>. Dele é a Orbe, que não tem força nenhuma e tem <b>velocidade</b>, porque velocidade é a única coisa que uma bailarina aprende a amar no próprio corpo. Ele cobra <b>Vínculo</b> a cada lançamento: é a razão dele que paga a conta de um mundo onde nada chegou a tempo. Ele é frio de propósito — se ele sentisse, a conta pararia.<br><br>🏹 <b>Thalles</b> é o que sobrou de quem não alcançou. Ele nasceu do meio passo que faltou: a parte dela que ficou no salão, olhando o carro ir embora. Por isso ele bate <b>de longe</b>, e por isso a flecha dele não fere só o corpo — <b>fere a alma e come vida máxima</b>, porque ele sabe melhor do que qualquer um desta mesa o que é carregar um pedaço que tiraram de você e que nunca voltou. É o mais caro dos três, e não por maldade: é que ele é a parte que <b>não perdoa</b> quem faz isso com gente.<br><br>Os três juntos têm o nome que ela escolheu para a coisa que é agora: <b>Tessalha</b> — três folhas, uma haste só. Trocar de personalidade não é virar outra pessoa; é dizer <b>qual delas está assumindo o corpo</b>. Brasa e Vínculo atravessam a troca porque é o mesmo corpo, e os cinco status trocam junto porque cada uma enxerga o mundo de um jeito — e nenhuma das três distribuiu os <b>10 pontos</b> do mesmo jeito, <b>de propósito</b>.<br><br>O que ainda é decisão do <b>mestre</b> (e está ☐ nas Contas abertas lá embaixo): se ela consegue voltar ao Mundo Real e com que preço, o que exatamente o Vínculo com a Flora é, se a ferida do Thalles cura, e se a Tessalha cobra alguma coisa por receber o bem dos outros.</p>
         </div>
         <div class="story-block">
           <p class="m-block-title">Contas abertas para amanhã <small>(clique para editar / riscar o que for decidido)</small></p>
-          <p class="story-text" contenteditable="true" spellcheck="false" data-txt="abertas">☑ 01/10 — O que ela pode fazer: ela não é uma, são <b>três personalidades na mesma pessoa</b>, e a primeira (🌿 Tessalha) já foi escrita.<br>☑ 02/10 — A segunda chegou: 🌀 <b>Trinstan</b>, a razão, com a Orbe que arremessa (d10 de velocidade, dano em dobro, paga em Vínculo).<br>☑ 06/10 — Fechou a tríade: 🏹 <b>Thalles</b>, a luz, com o Arco de Luz que se carrega e cuja flecha come a <b>vida máxima</b> do alvo.<br>☑ 06/10 — Nome definitivo dela: <b>Tessalha</b> (até aqui era "Vesper", que era nome de trabalho).<br>☐ A <b>história</b> dos três — quem são, de onde cada um veio e por que dividem um corpo. O mestre manda depois; até lá, o que está escrito neles é a mecânica, não a biografia.<br>☐ A ferida de alma do Thalles <b>cura</b>? Hoje ela é permanente nas mãos da ficha: falta o mestre dizer quem devolve vida máxima perdida e quanto isso custa.<br>☐ A Tessalha cobra alguma coisa por receber o bem dos outros? Hoje ela não cobra nada — o limite é só a atenção (uma pessoa por vez, dois empréstimos no corpo).<br>☐ A Orbe do Trinstan deve ficar sempre em <b>× 2</b> sobre a velocidade, ou ganha peso com o tempo? Hoje o número mora em <code>CONF.trinstan</code> e é uma linha só pra mudar.<br>☐ Os números do Arco (3 cargas, 4 de dano e −1 de alma por carga, teto de 6 de alma por inimigo) foram os que eu escolhi e moram em <code>CONF.thalles</code> — cada um é uma linha pra reescrever.<br>☐ Ela consegue voltar ao Mundo Real? Com que preço?<br>☐ O vínculo com a Flora é a sanidade dela, é uma corrente, é o quê?<br>☐ Cor / símbolo próprio quando ela usar luz demais. (por enquanto: verde é a Tessalha, azul-aço é o Trinstan, dourado é o Thalles)<br>☐ Os <b>cinco status</b> de cada personalidade: os três conjuntos já existem e trocam com quem está no corpo, mas os números quem escolheu fui eu — o mestre pode reescrever qualquer um na linha <code>attrs</code> de cada uma no js/ficha4.js.</p>
+          <p class="story-text" contenteditable="true" spellcheck="false" data-txt="abertas">☑ 01/10 — O que ela pode fazer: ela não é uma, são <b>três personalidades na mesma pessoa</b>, e a primeira (🌿 Tessalha) já foi escrita.<br>☑ 02/10 — A segunda chegou: 🌀 <b>Trinstan</b>, a razão, com a Orbe que arremessa (d10 de velocidade, dano em dobro, paga em Vínculo).<br>☑ 06/10 — Fechou a tríade: 🏹 <b>Thalles</b>, a luz, com o Arco de Luz que se carrega e cuja flecha come a <b>vida máxima</b> do alvo.<br>☑ 06/10 — Nome definitivo dela: <b>Tessalha</b> (até aqui era "Vesper", que era nome de trabalho).<br>✔ 06/10 — A história dos três está escrita na ficha: bloco <b>Os três</b>, na aba Perfil. Quem é cada um, o que cada um herdou dos últimos dez segundos dela, e por que dividem um corpo só. O resto continua ☐ ali embaixo — decisão sua, não da ficha.<br>☐ A ferida de alma do Thalles <b>cura</b>? Hoje ela é permanente nas mãos da ficha: falta o mestre dizer quem devolve vida máxima perdida e quanto isso custa.<br>☐ A Tessalha cobra alguma coisa por receber o bem dos outros? Hoje ela não cobra nada — o limite é só a atenção (uma pessoa por vez, dois empréstimos no corpo).<br>☐ A Orbe do Trinstan deve ficar sempre em <b>× 2</b> sobre a velocidade, ou ganha peso com o tempo? Hoje o número mora em <code>CONF.trinstan</code> e é uma linha só pra mudar.<br>☐ Os números do Arco (3 cargas, 4 de dano e −1 de alma por carga, teto de 6 de alma por inimigo) foram os que eu escolhi e moram em <code>CONF.thalles</code> — cada um é uma linha pra reescrever.<br>☐ Ela consegue voltar ao Mundo Real? Com que preço?<br>☐ O vínculo com a Flora é a sanidade dela, é uma corrente, é o quê?<br>☐ Cor / símbolo próprio quando ela usar luz demais. (por enquanto: verde é a Tessalha, azul-aço é o Trinstan, dourado é o Thalles)<br>✔ 06/10 — Regra nova dos status, que fecha a linha anterior: base <b>1</b>, no máximo <b>4 pontos</b> em cada atributo, <b>10 pontos</b> para distribuir. O conjunto do corpo está em 1 e quem preenche é a jogadora; Trinstan e Thalles já chegam com os 10 distribuídos do jeito deles.</p>
         </div>
       </section>
 
       <!-- Status / Atributos -->
       <section class="panel" id="panel-atributos">
         <h2>Status</h2>
-        <p class="panel-intro">Clique num atributo para rolar <b>d10 + o valor dele</b>. Efeitos terminados em <b>· +N</b> somam na rolagem (no máximo <b>±3</b> por marca) e aparecem escritos na fórmula — nada de bônus escondido. <b>Os cinco números são de quem está no corpo agora</b>: trocar de personalidade troca esta tabela inteira (o que muda em cada uma está logo abaixo).</p>
+        <p class="panel-intro">Clique num atributo para rolar <b>d10 + o valor dele</b> (o número <b>é</b> o bônus — sem conta de D&D no meio). Efeitos terminados em <b>· +N</b> somam na rolagem (no máximo <b>±3</b> por marca) e aparecem escritos na fórmula — nada de bônus escondido. ✦ <b>Regra da mesa desde 06/10:</b> todo atributo nasce valendo <b>1</b>, cada um aceita no máximo <b>4 pontos</b> (o teto dele é <b>5</b>) e você tem <b>10 pontos</b> para distribuir entre os cinco — a regra e a conta de pontos aparecem logo acima dos cards, e o que passar do teto ou do que você tem não entra. <b>Os cinco números são de quem está no corpo agora</b>: trocar de personalidade troca esta tabela inteira (o que muda em cada uma está logo abaixo).</p>
         <div class="pers-attrs" id="persAttrs"><!-- montado por js/vesper.js: os cinco números de cada personalidade --></div>
         <div class="attr-grid" id="attrsGrid"><!-- gerado via JS --></div>
         <div class="roller">
@@ -241,14 +250,14 @@
     <br /><small class="sheet-monitor">👁️ Aviso: suas rolagens e cliques ficam visíveis na tela do mestre.</small>
   </footer>
 
-  <script src="js/inimigos.js?v=153"></script>
-  <script src="js/ficha4.js?v=153"></script>
-  <script src="js/ficha-comum.js?v=153"></script>
+  <script src="js/inimigos.js?v=156"></script>
+  <script src="js/ficha4.js?v=156"></script>
+  <script src="js/ficha-comum.js?v=156"></script>
   <!-- O bloco dela: personalidades + a aura da Tessalha. Vem DEPOIS do motor porque usa
        window.FICHA_API, do mesmo jeito que js/lampiao.js é depois na ficha da Clara. -->
-  <script src="js/vesper.js?v=153"></script>
+  <script src="js/vesper.js?v=156"></script>
   <!-- A mini-aba 👥: avisa a mesa que esta ficha está aberta e mostra quem mais está online. -->
-  <script src="js/aliados.js?v=153"></script>
+  <script src="js/aliados.js?v=156"></script>
   <script>
     /* Se o motor não veio (cache velha servindo o js quebrado de antes), o HTML continua na
        tela e todo botão fica mudo — exatamente o susto que o mestre levou. Então: avisa.

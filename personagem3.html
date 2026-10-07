@@ -6,12 +6,13 @@
   <title>Dante — O Cartomante | Éclipse</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=153" />
-  <link rel="stylesheet" href="css/personagem3.css?v=153" />
-  <script src="js/theme.js?v=153"></script>
-  <script src="js/firebase-config.js?v=153"></script>
-  <script src="js/store.js?v=153"></script>
-  <script src="js/conta.js?v=153"></script>
+  <link rel="stylesheet" href="css/style.css?v=156" />
+  <link rel="stylesheet" href="css/personagem3.css?v=156" />
+  <script src="js/theme.js?v=156"></script>
+  <script src="js/firebase-config.js?v=156"></script>
+  <script src="js/store.js?v=156"></script>
+  <script src="js/conta.js?v=156"></script>
+  <script src="js/atributos.js?v=156"></script><!-- a regra dos 10 pontos: antes de qualquer motor de ficha -->
 </head>
 <body class="santiago-body">
 
@@ -118,7 +119,7 @@
       <!-- Status / Atributos -->
       <section class="panel" id="panel-atributos">
         <h2>Status</h2>
-        <p class="panel-intro">Clique num atributo para rolar <b>d10 + o valor dele</b>. Cartas aplicadas nele somam parcelas visíveis (ex.: <b>+ 2☀️</b>).</p>
+        <p class="panel-intro">Clique num atributo para rolar <b>d10 + o valor dele</b> (o número <b>é</b> o bônus — sem conta de D&D no meio). Cartas aplicadas nele somam parcelas visíveis (ex.: <b>+ 2☀️</b>). ✦ <b>Regra da mesa desde 06/10:</b> todo atributo nasce valendo <b>1</b>, cada um aceita no máximo <b>4 pontos</b> (o teto dele é <b>5</b>) e você tem <b>10 pontos</b> para distribuir entre os cinco. A regra e a conta de pontos aparecem logo acima dos cards — passar do teto ou gastar o que não tem não entra.</p>
         <div class="attr-grid" id="attrsGrid"><!-- gerado via JS --></div>
         <div class="roller">
           <div class="roll-config">
@@ -246,10 +247,10 @@
     </div>
   </div>
 
-  <script src="js/inimigos.js?v=153"></script>
-  <script src="js/personagem3.js?v=153"></script>
+  <script src="js/inimigos.js?v=156"></script>
+  <script src="js/personagem3.js?v=156"></script>
   <!-- A mini-aba 👥: avisa a mesa que esta ficha está aberta e mostra quem mais está online. -->
-  <script src="js/aliados.js?v=153"></script>
+  <script src="js/aliados.js?v=156"></script>
   <script>/* Se o motor não chegou (js quebrado ou na cache velha), avisa em vez de sumir. */
     setTimeout(function () { if (!window.__FICHA_OK) { var d = document.getElementById('bootWarn'); if (d) d.hidden = false; } }, 800);</script>
 </body>

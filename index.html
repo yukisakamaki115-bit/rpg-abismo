@@ -6,16 +6,16 @@
   <title>Éclipse — O Salão do Elenco</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=153" />
-  <link rel="stylesheet" href="css/escolha.css?v=153" />
-  <script src="js/theme.js?v=153"></script>
+  <link rel="stylesheet" href="css/style.css?v=156" />
+  <link rel="stylesheet" href="css/escolha.css?v=156" />
+  <script src="js/theme.js?v=156"></script>
   <!-- Ordem que importa: a config entra antes do vestido (js/store.js), e o vestido antes de
        qualquer tela ler ou escrever localStorage. O store.js troca o setItem/removeItem do
        navegador pelo par "grava local + atravessa para o Firestore", então ele tem que ser o
        primeiro a chegar. O portão não carrega ficha nenhuma: só o elenco. -->
-  <script src="js/firebase-config.js?v=153"></script>
-  <script src="js/store.js?v=153"></script>
-  <script src="js/conta.js?v=153"></script>
+  <script src="js/firebase-config.js?v=156"></script>
+  <script src="js/store.js?v=156"></script>
+  <script src="js/conta.js?v=156"></script>
 </head>
 <body class="escolha-body">
 
@@ -43,7 +43,7 @@
 
   <p id="salaoMsg" class="salao-msg" hidden></p>
 
-  <!-- Os cinco cards são desenhados pelo js/escolha.js a partir da tabela do elenco.
+  <!-- Os seis cards são desenhados pelo js/escolha.js a partir da tabela do elenco.
        Motivo: a vida mostrada aqui é lida do estado salvo de cada ficha, e a marca de
        "já selecionado" é um dado da mesa. Um HTML fixo mentiria sobre os dois. -->
   <main id="hall" class="hall" aria-label="Elenco da mesa"></main>
@@ -63,7 +63,7 @@
     <details class="salao-nota">
       <summary>Como este portão funciona</summary>
       <ul>
-        <li>🌹 🐰 🔮 🕯️ 🏮 — os cinco personagens abrem direto na ficha, sem senha. Sempre foi assim por trás: o que protegia era o link, não a senha.</li>
+        <li>🌹 🐰 🔮 🕯️ 🏮 🌪️ — os seis personagens abrem direto na ficha, sem senha. Sempre foi assim por trás: o que protegia era o link, não a senha. O 🌪️ é o mais novo: o <b>nome dele ainda é um ☐</b>, quem joga é que escreve na ficha.</li>
         <li>👑 O painel do mestre continua pedindo a palavra-passe de sempre (<b>mestre</b> / <b>mestre1</b>). Ela fica lembrada neste aparelho depois da primeira vez.</li>
         <li>✔ A escolha é compartilhada: quem marcar “Nox” primeiro deixa o card marcado para todos. Outro nome em cima é “Tomar para mim” (pergunta antes, não faz escondido).</li>
         <li>☁ O chip ao lado diz se a mesa já está no Firebase ou ainda vivendo só neste computador. Sem conta e sem rede o jogo continua igual — só não sincroniza.</li>
@@ -75,9 +75,9 @@
 
   <!-- O mesmo enquadramento do retrato que a ficha desenha (zoom + arrasto), agora no salão: sem
        ele, o card mostra o meio da foto original e não o recorte que a pessoa emoldurou. -->
-  <script src="js/retrato.js?v=153"></script>
+  <script src="js/retrato.js?v=156"></script>
   <!-- A mini-aba 👥: quem está no site agora, e a bolinha verde de cada um. -->
-  <script src="js/aliados.js?v=153"></script>
-  <script src="js/escolha.js?v=153"></script>
+  <script src="js/aliados.js?v=156"></script>
+  <script src="js/escolha.js?v=156"></script>
 </body>
 </html>

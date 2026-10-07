@@ -1,5 +1,5 @@
 /* ===== Éclipse — js/escolha.js: o salão onde o jogador escolhe quem vai jogar =====
-   Por que esta tela existe: os cinco personagens já estão prontos. Então em vez de pedir
+   Por que esta tela existe: os seis personagens já estão prontos. Então em vez de pedir
    login e senha antes de mostrar qualquer coisa, a porta de entrada agora é o próprio elenco:
    o jogador vê NOME e IDADE de cada um, passa o mouse (ou toca no "detalhes") e lê vida,
    habilidades e história. Ao clicar, o card vira "✔ JÁ SELECIONADO".
@@ -14,13 +14,13 @@
    do teclado, não da mesa. O nome que ele digita aqui é o que aparece no selo.
 
    Nada aqui reescreve ficha nenhuma: só LEMOS as chaves que as fichas já salvam
-   (`hp`/`hpMax`/`san`/`sanMax` têm o mesmo nome nas cinco, então uma função serve todas).
+   (`hp`/`hpMax`/`san`/`sanMax` têm o mesmo nome nas seis, então uma função serve todas).
 
    ─── A REGRA DE OURO DA VERSÃO NOVA (06/10): esta tela NUNCA redesenha o salão inteiro ───
    Na primeira versão, cada evento `storage` chamava `render()`, e o vestido do js/store.js
-   dispara UM desses eventos por chave que desce do banco. Com cinco fichas, cinco retratos
+   dispara UM desses eventos por chave que desce do banco. Com seis fichas, os retratos
    em base64 e os logs da mesa na conta, abrir o portão virava dezenas de
-   `innerHTML = <5 cards>` em sequência: o navegador decodificava retrato grande de novo a
+   `innerHTML = <6 cards>` em sequência: o navegador decodificava retrato grande de novo a
    cada vez, e a página travava. Agora: `render()` roda UMA vez (no boot), e tudo o que
    envelhece depois — selo, vida, "há 3 min", quem está no corpo — é corrigido NO LUGAR por
    `atualizar()`, com os avisos da rede ajuntados num debounce de 400 ms.
@@ -40,7 +40,9 @@
      de contrariar a ficha — os 17 da Clara vieram da ficha dela, mas o 24 da Flora brigava com o
      "Anos 22" da aba Perfil dela (número que o autor definiu na v1.6 e disse para não regraver
      sem ele). Restam três sem idade em lugar nenhum (Nox · Dante · Tessalha): esses são escolha
-     nossa — troque o número na tabela e o card obedece. */
+     nossa — troque o número na tabela e o card obedece.
+     06/10: o 6º personagem chegou sem idade escrita em lugar nenhum, e o jogador não deu uma.
+     `idade: '☐'` é o card dizendo a verdade na tela: falta ele decidir, não falta número aqui. */
   var PERSONAGENS = [
     {
       id: 'flora', emoji: '🌹', nome: 'Flora', classe: 'A Bailarina', idade: 22,
@@ -98,6 +100,17 @@
         '🐙 Criatura Antiga (custa 2 almas) — longe do lampião, −2 em tudo'
       ],
       historia: 'Coleta almas com um lampião que não alumbra caminho, alumbra gente. Fora do Crepúsculo ela é só uma mulher com um vidro na mão.'
+    },
+    {
+      id: 'kael', emoji: '🌪️', nome: 'Kael Duarte', classe: 'O que entra e sai do combate', idade: '☐',
+      chave: 'eclipse_ficha6_v1', destino: 'ficha6.html',
+      hpNome: 'Vida', hpMax: 22, sanNome: 'Sanidade', sanMax: 100,
+      habilidades: [
+        '💨 Impulso: +2 num atributo por dose, 8 de Sanidade na hora — teto de +4 no atributo e +4 somando tudo',
+        '🎯 Pistola (d6+1) com vantagem de atirador militar: dois lançamentos de dano, fica o melhor',
+        '⚔ Foice (d8) e 🌀 Esquiva — as duas somam Destreza, e o +2 aceso vale nas três'
+      ],
+      historia: 'Ex-militar que virou a coisa mais difícil de acertar da mesa. Leve, rápido, estiloso por fora e treino puro na hora do combate: entra, acha a brecha, cobra o preço e sai antes da resposta.'
     }
   ];
 
@@ -254,7 +267,7 @@
 
   /* Reconstrói SÓ o buraco do selo + botão de um card. É a única parte do card que pode
      trocar de markup (escolher → abrir / tomar), e mesmo assim é um pedaço de ~10 linhas,
-     não cinco cards com retrato dentro.
+     não seis cards com retrato dentro.
      A assinatura (`data-sig`) guarda quem está no card e desde quando: enquanto ela for a
      mesma, nada é re-escrito. Sem isso, cada evento que desce do banco recriaria o selo e o
      carimbo "✔ JÁ SELECIONADO" ficaria sendo batido de novo a cada 400 ms na cara do jogador. */

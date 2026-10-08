@@ -414,11 +414,40 @@
     API.save();
   }
 
+  /* ---------- 🩸 a tranca do massacre (07/10 — Batch C) ----------
+     O pedido do mestre: "um tapa-olho de rosa vermelha... o lado bobo de Tristan é ocultado e só
+     resta o sangue... ela não consegue usar o Tristam quando estiver usando isso".
+     A regra do QUE está trancado não é escrita aqui: ela mora em js/extase.js, no campo `tranca`
+     da ficha 4, e esta ficha só obedece — assim o mestre pode trocar o objeto (ou a tranca) sem
+     mexer neste arquivo. O que mora aqui é a obediência: recusar a troca, riscar o botão e — se o
+     tapa-olho for posto com a Orbe já na mão — devolver o corpo pra dona, do jeito de sempre
+     (efeitos e números arquivados pela própria `trocar`, sem atalho). */
+  /* js/extase.js é carregado DEPOIS deste arquivo, então a tabela nunca é capturada na leitura:
+     é perguntada na hora do clique. Se ele não vier (cache velha, erro de rede), a ficha apenas
+     não conhece tranca nenhuma — e continua funcionando inteira. */
+  function extaseApi() { return global.ECLIPSE_EXTASE || null; }
+  function extKey() { const X = extaseApi(); return (X && X.KEY) || 'eclipse_extase_v1'; }
+  function massacreNo() { const X = extaseApi(); return !!(X && typeof X.ativa === 'function' && X.ativa(CONF.chave)); }
+  function trancaDoMassacre() {
+    const X = extaseApi();
+    if (!X || typeof X.efeitos !== 'function') return null;
+    const e = X.efeitos(CONF.chave) || {};
+    return (X.ativa && X.ativa(CONF.chave)) ? (e.tranca || null) : null;
+  }
+
   /* ---------- trocar de personalidade ---------- */
   function trocar(id) {
     const p = cfg(id);
     if (!p) return;
     if (p.vaga) { saida('☐ ' + id + ' ainda não existe: o mestre não escreveu o que ela faz.'); return; }
+    const trava = trancaDoMassacre();
+    if (trava && id === trava) {
+      saida('🚫🌹 Com o tapa-olho posto o massacre não deixa ' + (p.nome || id) + ' assumir o corpo: '
+        + 'o lado bobo está oculto e a Orbe ficou do lado de fora, com o riso dele. '
+        + 'Largue o objeto (aba Massacre) para ele voltar.', 'ruim');
+      API.activity(CONF.quem, '🚫 tentou chamar ' + (p.nome || id) + ' com o 🌹 tapa-olho posto');
+      return;
+    }
     const s = st();
     if (s.pers === id) return;
     const antiga = atual();
@@ -776,14 +805,18 @@
   function desenharStrip() {
     if (!strip) return;
     const s = st();
+    const trava = trancaDoMassacre();
     strip.innerHTML = '';
     strip.appendChild(el('span', 'pers-rotulo', '🎭 Personalidade'));
     CONF.personalidades.forEach(function (p, i) {
-      const b = el('button', 'pers-btn' + (p.id === s.pers ? ' ativa' : '') + (p.vaga ? ' vaga' : ''));
+      const preso = !!trava && p.id === trava;
+      const b = el('button', 'pers-btn' + (p.id === s.pers ? ' ativa' : '') + (p.vaga ? ' vaga' : '') + (preso ? ' trancada' : ''));
       b.type = 'button';
-      b.textContent = p.vaga ? '☐ vaga ' + (i + 1) : (p.emoji || '') + ' ' + (p.nome || 'sem nome');
-      b.title = p.vaga ? 'o mestre ainda vai escrever esta personalidade' : 'assumir ' + p.nome;
-      if (p.vaga) b.disabled = true;
+      b.textContent = p.vaga ? '☐ vaga ' + (i + 1) : (preso ? '🚫 ' : '') + (p.emoji || '') + ' ' + (p.nome || 'sem nome');
+      b.title = p.vaga ? 'o mestre ainda vai escrever esta personalidade'
+        : preso ? '🌹 o tapa-olho posto esconde este lado — ele só volta quando o massacre acabar'
+        : 'assumir ' + p.nome;
+      if (p.vaga || preso) b.disabled = true; // o clique que a tranca recusar nem precisa acontecer
       else b.addEventListener('click', function () { trocar(p.id); });
       strip.appendChild(b);
     });
@@ -896,6 +929,20 @@
 
   function desenhar() { desenharStrip(); desenharAttrs(); desenharPoder(); }
 
+  /* O tapa-olho posto com a Orbe já na mão: o lado bobo é ocultado na hora, então o corpo volta
+     pra dona. Feito com a `trocar` de sempre de propósito — nada de mexer no state por fora, ou
+     os efeitos e os números do Trinstan ficariam soltos no meio do corpo de outra. */
+  function obedecerTranca() {
+    const trava = trancaDoMassacre();
+    if (!trava || st().pers !== trava) return false;
+    const volta = (CONF.personalidades.filter(function (p) { return !p.vaga && p.id !== trava; })[0] || {}).id || 'tessalha';
+    if (volta === st().pers) return false;
+    trocar(volta);
+    saida('🌹 O tapa-olho desceu com a Orbe na mão: o massacre não deixa o lado bobo ficar. ' +
+      (cfg(trava) ? cfg(trava).nome + ' ' : 'Ele ') + 'saiu do corpo — os efeitos e os números dele ficaram guardados e voltam quando ela largar o objeto.', 'ruim');
+    return true;
+  }
+
   /* ---------- ligações ---------- */
   ts(); // normaliza o estado (e escolhe a primeira personalidade que existe, se preciso)
   attrsSetup(); // a estreia dos cinco números por personalidade: cria os arquivos uma vez e não toca mais no que já foi salvo
@@ -908,6 +955,11 @@
      na chave daquela pessoa → compara, aplica o que subiu. O próprio salvamento dela não gera
      evento em si mesma, então não existe eco de eco nem looping. */
   global.addEventListener('storage', function (e) {
+    if (e.key === extKey()) { // o massacre mudou em qualquer aba (inclusive o painel do mestre)
+      obedecerTranca();
+      desenhar();
+      return;
+    }
     if (e.key === MOB_KEY) { // o mestre mexeu na cena: a mira da Orbe e a do arco são outra lista agora
       if (trinstanLigada() || thallesLigada()) { publicar(); desenhar(); }
       return;
@@ -926,4 +978,8 @@
   });
 
   global.__VESPER_OK = true; // o banner da página usa isto pra avisar se o bloco não veio
+  /* js/extase.js monta depois deste arquivo e avisa quando chegou: é aí que a tranca é conferida
+     uma vez na entrada (ela pode ter ficado ligada noutro aparelho ou num F5 com o massacre on). */
+  global.addEventListener('eclipse-extase-ready', function () { if (obedecerTranca()) desenhar(); else desenharStrip(); });
+  global.addEventListener('eclipse-extase', function () { if (obedecerTranca()) desenhar(); else desenharStrip(); });
 })(window);

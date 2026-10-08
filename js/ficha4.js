@@ -56,7 +56,22 @@
       o mundo diferente" continua existindo sem que trocar de humor seja subir de nível disfarçado.
    2. A HISTÓRIA DOS TRÊS foi escrita (bloco "Os três" na aba Perfil do ficha4.html), então o que
       está em `oQueE`/`oQueFaz`/`oQueCusta` aqui embaixo deixou de ser biografia vazia: é a
-      mecânica de quem já tem quem ser. O que continua ☐ é decisão de mesa, não lacuna de texto. */
+      mecânica de quem já tem quem ser. O que continua ☐ é decisão de mesa, não lacuna de texto.
+
+   07/10 — O MESTRE CONTOU A ORIGEM DE VERDADE, na boca dela: o passeio com a Flora na noite
+   chovosa, os homens armados atirando, a sala completamente vazia com DUAS CRIANÇAS que ela não
+   sabia quem eram (Trinstan e Thalles), o abraço que uniu os três num corpo só, o mundo sombrio
+   das criaturas que os caçam, os quase 100 anos "aqui embaixo", e o vínculo de hoje (o que ri e
+   balança a Orbe · o frio de ótimo coração que protege todo mundo com o arco). Duas consequências
+   deste arquivo:
+   - A versão anterior ("os últimos dez segundos dela se partiram em três") era INVENÇÃO MINHA e
+     caiu. `CONF.migrar` troca o texto salvo de quem ainda carrega a frase velha — e só dela:
+     quem escreveu por cima não é atropelado.
+   - Tessalha É a mulher da Flora: a mesma Agnes Hawkins da ficha da Flora e do retrato canônico
+     da v1.6. Não é personagem nova — é ela do lado de dentro, e a emboscada da chuva é a mesma
+     emboscada de carro que sempre esteve escrita. Nada aqui precisou mudar de número por isso.
+   - E a regra da mesa: ninguém lembra de nada quando o RPG começa. O bloco ☁ em cada ficha é o
+     que avisa quem joga. */
 window.FICHA_CONF = {
   chave: 'eclipse_ficha4_v1',
   quem: 'Tessalha', // 06/10: era 'Vesper' — o nome novo assina as rolagens novas, as velhas ficam no alias do mestre
@@ -96,13 +111,39 @@ window.FICHA_CONF = {
        Ler de lá — em vez de copiar a frase para dentro deste js — é o que impede os dois lugares
        de divergirem um dia. E só troca enquanto o texto salvo AINDA é o rascunho: quem escreveu
        por cima não é atropelada. */
+    var doDom = function (k) {
+      var no = document.querySelector('#panel-perfil [data-txt="' + k + '"]');
+      return no ? no.innerHTML : '';
+    };
     if (s.textos && typeof s.textos.historia === 'string' && s.textos.historia.indexOf('continua amanhã') !== -1) {
-      var novo = '';
-      try {
-        var no = document.querySelector('#panel-perfil [data-txt="historia"]');
-        novo = no ? no.innerHTML : '';
-      } catch (e) { novo = ''; }
+      var novo = doDom('historia');
       if (novo && novo !== s.textos.historia) { s.textos.historia = novo; mudou = true; }
+    }
+    /* 07/10 — A origem real dos três chegou e desfez a minha invenção. Quem ainda tem o texto
+       velho no navegador (reconhecido pela frase-âncora do bloco antigo) recebe o texto novo do
+       HTML; quem já tinha escrito por cima continua intocado. São as duas âncoras abaixo, ambas
+       frases que só existiam na VERSÃO QUE EU CRIEI — nunca na que a jogadora digita. */
+    var trocaVelho = function (k, ancora) {
+      if (!s.textos || typeof s.textos[k] !== 'string') return;
+      if (s.textos[k].indexOf(ancora) === -1) return;
+      var novo = doDom(k);
+      if (novo && novo !== s.textos[k]) { s.textos[k] = novo; mudou = true; }
+    };
+    trocaVelho('historia', 'se partiram em três');
+    trocaVelho('tres', 'é o que sobrou de quem contou');
+    /* Contas abertas: as linhas NOVAS de 07/10 são cortadas do próprio HTML e coladas no fim da
+       lista salva, uma a uma, só quando aquela linha ainda não está lá. Assim o js não duplica a
+       prosa (que é o que faria os dois lugares divergirem) e quem já respondeu as ☐ antigas não
+       perde a resposta. */
+    if (s.textos && typeof s.textos.abertas === 'string') {
+      var def = doDom('abertas');
+      var i0 = def.indexOf('☑ 07/10');
+      if (i0 !== -1) {
+        def.slice(i0).split('<br>').forEach(function (linha) {
+          var marca = String(linha).replace(/<[^>]*>/g, ' ').trim().slice(0, 30);
+          if (marca && s.textos.abertas.indexOf(marca) === -1) { s.textos.abertas += '<br>' + linha; mudou = true; }
+        });
+      }
     }
     return mudou;
   },
@@ -131,26 +172,26 @@ window.FICHA_CONF = {
     },
     {
       id: 'trinstan', nome: 'Trinstan', emoji: '🌀',
-      oQueE: 'a razão dele — a parte que conta em vez de sentir',
+      oQueE: 'a criança que ri — a que brinca com a Orbe no meio do mundo sombrio',
       oQueFaz: 'controla uma Orbe e a arremessa em quem ele escolher. O que dói é a velocidade: ela sai num d10, e o dano é o dobro dela. Orbe devagar quase não arranha; orbe no teto esmaga.',
-      oQueCusta: '1 de Vínculo por arremesso — 2 quando a Orbe passa direto e não bate em nada. É a razão dele que paga a conta de cada lançamento.',
+      oQueCusta: '1 de Vínculo por arremesso — 2 quando a Orbe passa direto e não bate em nada. Ele ri enquanto joga, mas cada lançamento cobra do vínculo dos três.',
       /* Os números dele, já na regra nova (06/10): 10 pontos distribuídos, no máximo 4 no mesmo
-         lugar. A razão não sustenta o mesmo corpo que a aura — ele não bate (Força 1), mas a mão
-         que solta a Orbe na hora certa e a cabeça que conta tudo são o teto da mesa
+         lugar. O menino que ri não sustenta o mesmo corpo que a mulher — ele não bate (Força 1),
+         mas a mão que solta a Orbe na hora certa e a cabeça que conta tudo são o teto da mesa
          (Destreza 5 · Inteligência 5) — e ele não chega nas pessoas (Carisma 2). Mesmos 10 pontos
          da Tessalha e do Thalles: o que muda é a DISTRIBUIÇÃO, senão trocar de personalidade
          seria subir de nível disfarçado. Estes números valem nas rolagens de Status — a Orbe não
          usa nenhum. */
       attrs: { forca: 1, destreza: 5, constituicao: 2, inteligencia: 5, carisma: 2 }
     },
-    /* Thalles, o terceiro dos três (06/10): o arco de luz que fere alma. A história dele ele
-       manda depois — o que está escrito aqui é a MECÂNICA que ele pediu, e os números moram em
-       CONF.thalles logo abaixo. É o único poder do grupo que mexe no TETO de um inimigo, então é
-       também o único com teto próprio (`almaMax`) e com a trava de nunca deixar a vida máxima
-       do bicho cair pra menos de 1. */
+    /* Thalles, o terceiro dos três (06/10): o arco de luz que fere alma. É o outro menino da sala
+       vazia — frio no jeito, coração inteiro, e é ele quem protege os três de longe. Os números
+       dele moram em CONF.thalles logo abaixo. É o único poder do grupo que mexe no TETO de um
+       inimigo, então é também o único com teto próprio (`almaMax`) e com a trava de nunca deixar a
+       vida máxima do bicho cair pra menos de 1. */
     {
       id: 'thalles', nome: 'Thalles', emoji: '🏹',
-      oQueE: 'a luz dele — a parte que ataca de longe e não perdoa',
+      oQueE: 'o irmão frio de coração inteiro — a parte que protege os três de longe',
       oQueFaz: 'conjura um Arco de Luz e o carrega até três cargas. A flecha que sai fere a ALMA do alvo: além do dano de sempre, o inimigo perde um pedaço da própria vida máxima — e vida máxima perdida não volta sozinha.',
       oQueCusta: '1 de Vínculo por carga e 1 por disparo — e 2 quando a flecha se desfaz no ar depois de o arco já estar pago. Ferir a alma cobra mais caro do que só bater.',
       /* Os números dele, na regra nova (06/10): é o arqueiro dos três — Destreza 5 é a mão que

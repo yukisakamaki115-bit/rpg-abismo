@@ -21,17 +21,21 @@
   // Tessalha (matrícula `vesper`) e Clara entraram aqui na v1.31.3: elas também sentam na mesa do tarot.
   // 06/10: o nome exibido dela mudou de "Vesper" para "Tessalha" — a chave e o id ficam, é a etiqueta
   // que a mesa lê que mudou. `morto` aqui tem que bater com o que a própria ficha4 escreve.
-  // 06/10 (v1.40): o Kael entrou. Sem esta linha o Dante não conseguiria virar uma carta para o
-  // 6º personagem da mesa, e — o que é pior — as limpezas em grupo (O Mundo, a Absolução) passariam
-  // por cima dele silenciosamente, deixando marca de carta que ninguém tira. `morto`/`incap` são as
-  // etiquetas EXATAS de `CONF.eff` em js/ficha6.js ('☠️ Morto' / '🟡 No chão').
+  // 06/10 (v1.40): o 6º personagem entrou. Sem esta linha o Dante não conseguiria virar uma carta para
+  // ele, e — o que é pior — as limpezas em grupo (O Mundo, a Absolução) passariam por cima dele
+  // silenciosamente, deixando marca de carta que ninguém tira. `morto`/`incap` são as etiquetas EXATAS
+  // de `CONF.eff` em js/ficha6.js ('☠️ Morto' / '🟡 No chão').
+  // 07/10: a etiqueta que a mesa lê passou de "Kael" (placeholder) para **Vesper Graves**; a chave
+  // `kael` aqui é a MATRÍCULA do alvo no seletor do tarô — é ela que viaja no estado, e mexer nela
+  // deixaria um alvo escolhido antes órfão. Ela não aparece na tela. ⚠ Não confundir com a linha
+  // `vesper` de cima: essa é a Tessalha, que atendeu por "Vesper" até 06/10.
   const SHEETS = {
     santiago: { key: SAVE_KEY, nome: 'Dante', emoji: '🔮', morto: '☠️ Morto', incap: '🟡 Incapacitado', caiu: 'MORTO' },
     flora:    { key: 'eclipse_flora_v1', nome: 'Flora', emoji: '🌹', morto: '☠️ MORTA', incap: '🟡 Incapacitada', caiu: 'MORTA' },
     nox:      { key: 'eclipse_coelho_v1', nome: 'Nox', emoji: '🐰', morto: '☠️ Morto', incap: '🟡 Incapacitado', caiu: 'MORTO' },
     vesper:   { key: 'eclipse_ficha4_v1', nome: 'Tessalha', emoji: '🕯️', morto: '☠️ Apagada', incap: '🟡 Vacilando', caiu: 'APAGADA' },
     clara:    { key: 'eclipse_ficha5_v1', nome: 'Clara', emoji: '🏮', morto: '☠️ Morta', incap: '🟡 Incapacitada', caiu: 'MORTA' },
-    kael:     { key: 'eclipse_ficha6_v1', nome: 'Kael', emoji: '🌪️', morto: '☠️ Morto', incap: '🟡 No chão', caiu: 'MORTO' }
+    kael:     { key: 'eclipse_ficha6_v1', nome: 'Vesper Graves', emoji: '🌪️', morto: '☠️ Morto', incap: '🟡 No chão', caiu: 'MORTO' }
   };
   // Marcas do mestre: o jogador NÃO descarta clicando na ficha dele
   const GM_ONLY = ['☠️ Morto', '☠️ MORTA', '🟡 Incapacitado', '🟡 Incapacitada'];
@@ -212,9 +216,22 @@
     return (m[1] === '+' ? 1 : -1) * Math.min(3, parseInt(m[2], 10) || 0);
   }
   function isCardChip(txt) { return chipValue(txt) !== 0 || /·\s*[+−]\s*\d+$/.test(String(txt || '')); }
-  function cardBonus() { return state.status.reduce(function (acc, s) { return acc + chipValue(s); }, 0); }
+  /* Os dois abaixo somam TUDO que pesa nele mesmo, e é por isso que a 🩸 MASSACRE entrou aqui:
+     os três lugares que calculam rolagem/dano desta ficha chamam `cardBonus()`, e um bônus que
+     mora em um lugar só é um bônus que não aparece em rolagem nenhuma por descuido. Nome
+     histórico à parte, o que a função devolve hoje é "o que está somando nele": cartas que
+     recebeu (±3 por marca) + o +6 do Louco de Sangue, se a carta estiver na mão dele. 07/10 —
+     o item dele é a **Carta do Louco de Sangue** (ditado do mestre): ele fica completamente
+     maluco, quer torturar o inimigo de todas as maneiras possíveis e perde toda consciência do
+     certo e do errado. O estado mora na chave compartilhada `eclipse_extase_v1` (js/extase.js),
+     então o painel do mestre e os outros cinco veem a mesma coisa. Sem o módulo na página
+     (cache velha) a função devolve o que sempre devolveu. */
+  function extaseBonus() { var X = window.ECLIPSE_EXTASE; return X ? X.valor(SAVE_KEY) : 0; }
+  function cardBonus() { return state.status.reduce(function (acc, s) { return acc + chipValue(s); }, 0) + extaseBonus(); }
   function cardDetail() {
     let s = '';
+    const ex = extaseBonus();
+    if (ex) s += ' + ' + ex + '🩸';
     state.status.forEach(function (t) {
       const v = chipValue(t);
       if (v) s += (v > 0 ? ' + ' : ' − ') + Math.abs(v) + (String(t).split(' ')[0] || '🃏');
@@ -1263,6 +1280,18 @@
   buildTargetSelect();
   resetDraw();
   renderLog();
+
+  /* 🩸 07/10 — a Carta do Louco de Sangue mexe na conta dele inteira (+6 em tudo), e o estado da
+     carta não mora nesta ficha: mora na chave compartilhada que js/extase.js traz. Ele é o
+     ÚLTIMO script da página, por isso avisa quando chega (ready) e quando a carta muda de mão:
+     sem isso, abrir a ficha com o Louco em pé mostraria os números velhos até a próxima rolagem. */
+  function aoMudarMassacre(e) {
+    if (e && e.detail && e.detail.chave && e.detail.chave !== SAVE_KEY) return;
+    renderAttrs();
+    renderStatus();
+  }
+  window.addEventListener('eclipse-extase', aoMudarMassacre);
+  window.addEventListener('eclipse-extase-ready', aoMudarMassacre);
 })();
 
 window.__FICHA_OK = true; // a ficha carregou o motor: esconde o aviso de cache velha

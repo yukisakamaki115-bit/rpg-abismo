@@ -6,13 +6,13 @@
   <title>Nox — Criatura de Muitas Peles | Éclipse</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=156" />
-  <link rel="stylesheet" href="css/personagem2.css?v=156" />
-  <script src="js/theme.js?v=156"></script>
-  <script src="js/firebase-config.js?v=156"></script>
-  <script src="js/store.js?v=156"></script>
-  <script src="js/conta.js?v=156"></script>
-  <script src="js/atributos.js?v=156"></script><!-- a regra dos 10 pontos: antes de qualquer motor de ficha -->
+  <link rel="stylesheet" href="css/style.css?v=157" />
+  <link rel="stylesheet" href="css/personagem2.css?v=157" />
+  <script src="js/theme.js?v=157"></script>
+  <script src="js/firebase-config.js?v=157"></script>
+  <script src="js/store.js?v=157"></script>
+  <script src="js/conta.js?v=157"></script>
+  <script src="js/atributos.js?v=157"></script><!-- a regra dos 10 pontos: antes de qualquer motor de ficha -->
 </head>
 <body class="coelho-body">
 
@@ -104,6 +104,8 @@
           <div class="world-toggle form-toggle" id="formToggle">
             <button type="button" class="mini-btn" id="formaCoelho" data-act="🐇 vestiu a pele de coelho">🐇 Coelho</button>
             <button type="button" class="mini-btn" id="formaLobo" data-act="🐺 vestiu a pele de lobo">🐺 Lobo</button>
+            <!-- 🧍 A pele de gente só aparece na mão: js/extase.js conta o colar e js/personagem2.js mostra este botão -->
+            <button type="button" class="mini-btn" id="formaHumano" data-act="🧍 vestiu a pele de gente" hidden>🧍 Gente</button>
             <span class="forma-true" id="formaTrue" hidden>🖤 Forma Verdadeira (humanoide — sem pele emprestada)</span>
           </div>
           <p class="hint-note form-note" id="formNote">No Mundo Real ele veste peles de animal: <b>🐇 coelho</b> dá <b>+2 em Destreza</b>, <b>🐺 lobo</b> dá <b>+2 em Força</b>.</p>
@@ -132,6 +134,7 @@
         <button class="tab-btn" data-tab="poderes">Poderes</button>
         <button class="tab-btn" data-tab="magia">Magia</button>
         <button class="tab-btn" data-tab="rolagem">Rolagem</button>
+        <button class="tab-btn" data-tab="massacre">Massacre</button>
         <button class="tab-btn" data-tab="inventario">Inventário</button>
         <button class="tab-btn" data-tab="inimigos">Inimigos</button>
       </nav>
@@ -211,6 +214,16 @@
         <p class="hint-note">✦ Isto já é verdade: com a mesa ligada, as rolagens aparecem para o grupo inteiro em tempo real, entre dispositivos diferentes. O chip do rodapé diz se a mesa está de nuvem ou só neste navegador.</p>
       </section>
 
+      <!-- Massacre (07/10) — o bloco é desenhado por js/extase.js porque o ESTADO é da mesa
+           inteira: o +6, o descontrole e o "qualquer um pode morrer com isso" valem para as seis
+           fichas, e o painel do mestre precisa ver o mesmo que a ficha vê. Aqui o +6 entra no
+           ponto onde o motor do Nox já somava os próprios bônus (mundo, pele, círculos). -->
+      <section class="panel" id="panel-massacre">
+        <h2>Massacre — o colar com pingente de sangue</h2>
+        <p class="panel-intro">Regra ditada pelo mestre em 07/10, igual para os seis: <b>arma ou objeto usado para deixar o personagem em êxtase, causando banho de sangue, tirando a capacidade de pensar e querendo só matar o alvo — ou todos ao redor.</b> Enquanto o objeto estiver na mão: <b>+6 em tudo</b> e <b>nenhuma noção de certo e errado</b> (aliado incluído — qualquer um pode morrer com isso). O dele é o <b>colar com pingente de sangue</b>: com ele no pescoço o Nox <b>consegue se transformar em humano</b>, e a mente se perde buscando o máximo de sangue possível em qualquer situação. O <b>😵 doce do mundo humano</b> é o vício dele, logo abaixo.</p>
+        <div id="extaseArea"><!-- desenhado por js/extase.js: o massacre e o vício dele --></div>
+      </section>
+
       <!-- Inventário -->
       <section class="panel" id="panel-inventario">
         <h2>Inventário — Armas do Mestre</h2>
@@ -224,12 +237,12 @@
         </div>
       </section>
 
-      <!-- Inimigos em cena (bestiário do mestre — aqui você só olha) -->
+      <!-- Inimigos em cena (bestiário do mestre — e o golpe que VOCÊ marca nele) -->
       <section class="panel" id="panel-inimigos">
         <h2>Inimigos em Cena</h2>
-        <p class="panel-intro">O que o <b>mestre</b> colocou na cena, com a vida e a sanidade de cada bicho.</p>
+        <p class="panel-intro">O que o <b>mestre</b> colocou na cena, com a vida e a sanidade de cada bicho — e, desde 07/10, <b>o seu golpe aplicado aqui mesmo</b>.</p>
         <div class="mob-list" id="mobList"><!-- gerado via JS --></div>
-        <p class="hint-note">✦ Só o mestre mexe aqui: você vê a barra cair em tempo real (com a aba aberta). A 0 aparece <b>🟥 caído</b> / <b>😵 sem sanidade</b>.</p>
+        <p class="hint-note">✦ <b>07/10 — quem bate é você, e não existe teste de acerto.</b> Escreva no campo <b>golpe</b> o total que a sua rolagem deu e clique <b>🗡 bater</b>: o dano entra direto na vida do bicho. A única coisa que pode salvá-lo é <b>ele</b> rolar <b>d10 + Destreza</b> e passar de <b>12</b> — a etiqueta <b>🌀 destreza N</b> diz quando ele tem essa chance, e bicho sem etiqueta nunca desvia. O golpe (e o desvio) aparece no histórico compartilhado e na tela do mestre, que continua podendo corrigir qualquer número. 🐰→🧍 <b>Sob o efeito do colar</b>, com a forma de humano e o +6 na mão, é agora que ele alcança qualquer coisa.</p>
       </section>
 
     </div>
@@ -263,10 +276,15 @@
     </div>
   </div>
 
-  <script src="js/inimigos.js?v=156"></script>
-  <script src="js/personagem2.js?v=156"></script>
+  <script src="js/inimigos.js?v=157"></script>
+  <script src="js/personagem2.js?v=157"></script>
   <!-- A mini-aba 👥: avisa a mesa que esta ficha está aberta e mostra quem mais está online. -->
-  <script src="js/aliados.js?v=156"></script>
+  <script src="js/aliados.js?v=157"></script>
+  <!-- 🩸 js/extase.js: o massacre e o vício são estado da MESA (uma chave só, todos veem). Ele é o
+       ÚLTIMO da fila de propósito: soma o +6 no motor que já está montado e avisa as fichas pelo
+       evento `eclipse-extase-ready`. 🎲 js/mesa.js: a iniciativa da mesa e a regra da memória. -->
+  <script src="js/extase.js?v=157"></script>
+  <script src="js/mesa.js?v=157"></script>
   <script>/* Se o motor não chegou (js quebrado ou na cache velha), avisa em vez de sumir. */
     setTimeout(function () { if (!window.__FICHA_OK) { var d = document.getElementById('bootWarn'); if (d) d.hidden = false; } }, 800);</script>
 </body>

@@ -193,9 +193,9 @@ html[data-theme="dark"] .theme-toggle:hover { background: var(--gold-deep); colo
 .soon-body a:hover { background: var(--gold-deep); color: #fff; }
 
 /* ---------- INIMIGOS EM CENA (bestiário) ----------
-   Um CSS só serve as 3 fichas (aba Inimigos) e o bloco do painel do mestre — por isso mora
-   aqui no style.css, que as 4 páginas carregam. Tudo com prefixo .mob- pra não brigar com
-   o visual próprio de cada ficha. */
+   Um CSS só serve às seis fichas (aba Inimigos) e ao bloco do painel do mestre — por isso mora
+   aqui no style.css, que é o único arquivo que TODAS as páginas carregam. Tudo com prefixo
+   .mob- pra não brigar com o visual próprio de cada ficha. */
 .mob-list { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .mob-row {
   border: 1px solid var(--smoke); border-radius: 10px; padding: 10px 12px 12px;
@@ -241,6 +241,14 @@ html[data-theme="dark"] .theme-toggle:hover { background: var(--gold-deep); colo
 .mob-tag.choque { color: #6b4fa0; background: #efe9fa; border-color: #cbb8ec; }
 .mob-empty { font-style: italic; color: #a49e8f; font-size: 15.5px; }
 
+/* 07/10 — bater direto na ficha. O golpe entra sem teste de acerto (mandado do mestre: "quero
+   que acertem e ponto"), e a única coisa que pode salvá-lo é a Destreza do próprio bicho. A
+   linha `golpe` só existe na lista dos jogadores; no painel do mestre a linha nova é `desvio`. */
+.mob-hit { display: flex; align-items: center; gap: 8px; margin-top: 9px; min-width: 0; }
+.mob-hit-msg { margin: 6px 0 0; font-size: 12.5px; line-height: 1.45; color: #8d2126; min-height: 16px; }
+.mob-tag.destreza { color: #1f6570; background: #e2f1f3; border-color: #a9d4da; }
+.mob-desvio-txt { font-size: 11.5px; color: #6d6857; }
+
 /* formulário "criar inimigo" — só existe no painel do mestre */
 .mob-new { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 14px; }
 .mob-new input[type=text] {
@@ -265,3 +273,6 @@ html[data-theme="dark"] .mob-lb, html[data-theme="dark"] .mob-new label { color:
 html[data-theme="dark"] .mob-empty { color: #7c7690; }
 html[data-theme="dark"] .mob-tag.caido { color: #e79b9b; background: rgba(156,43,43,.2); border-color: rgba(231,155,155,.4); }
 html[data-theme="dark"] .mob-tag.choque { color: #b79be6; background: rgba(107,79,160,.18); border-color: rgba(183,155,230,.4); }
+html[data-theme="dark"] .mob-tag.destreza { color: #8fd0dc; background: rgba(31,101,112,.24); border-color: rgba(143,208,220,.4); }
+html[data-theme="dark"] .mob-hit-msg { color: #e79b9b; }
+html[data-theme="dark"] .mob-desvio-txt { color: #9a9484; }

@@ -29,7 +29,7 @@
     { arq: 'personagem3.html', chave: 'eclipse_santiago_v1', nome: 'Dante', hp: 'Fôlego', san: 'Vontade' },
     { arq: 'ficha4.html', chave: 'eclipse_ficha4_v1', nome: 'Tessalha', hp: 'Brasa', san: 'Vínculo' },
     { arq: 'ficha5.html', chave: 'eclipse_ficha5_v1', nome: 'Clara', hp: 'Vida', san: 'Sanidade' },
-    { arq: 'ficha6.html', chave: 'eclipse_ficha6_v1', nome: 'Kael', hp: 'Vida', san: 'Sanidade' }
+    { arq: 'ficha6.html', chave: 'eclipse_ficha6_v1', nome: 'Vesper Graves', hp: 'Vida', san: 'Sanidade' }
   ];
   var LEMBRE_KEY = 'eclipse_aliados_v1'; // aberto/fechado é mania deste aparelho: nunca sobe (SO_LOCAIS)
 

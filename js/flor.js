@@ -239,8 +239,18 @@
   const EXAUSTA = '💤 Exaustão da Dança';
 
   // Bônus/penalidade das formas de combate conforme o estado da dança
+  /* 07/10 — O 🩸 MASSACRE virou regra da mesa inteira ("+6 em tudo, válido pra todos até
+     mesmo pra Flora"), e o estado dele não mora mais dentro desta ficha: mora na chave
+     compartilhada `eclipse_extase_v1` (js/extase.js), para que o painel do mestre e os colegas
+     vejam a mesma coisa. O chip 🩸 continua sendo a VISUAL dela na lista de efeitos — ele para
+     de somar por conta própria, senão o +6 do massacre e o +3 antigo entrariam juntos.
+     Sem o módulo na página (cache velha), o chip volta a valer +3 sozinho: ficha velha não
+     fica muda, fica como estava. */
+  function extase() { return !!(window.ECLIPSE_EXTASE && window.ECLIPSE_EXTASE.ativa(SAVE_KEY)); }
   function dancaBase() {
-    if (state.status.indexOf(EXTOSE) !== -1) return 3;
+    var X = window.ECLIPSE_EXTASE;
+    if (X) { if (X.ativa(SAVE_KEY)) return X.BONUS; }                 // 🩸 +6 da regra de mesa
+    else if (state.status.indexOf(EXTOSE) !== -1) return 3;           // cache velha: como era antes
     if (state.status.indexOf(EXAUSTA) !== -1) return -2;
     return 0;
   }
@@ -283,7 +293,7 @@
   function dancaDetail() {
     let s = '';
     const b = dancaBase();
-    if (b > 0) s += ' + 3🩸';
+    if (b > 0) s += ' + ' + b + '🩸';
     if (b < 0) s += ' − 2💤';
     return s + cardDetail();
   }
@@ -587,7 +597,7 @@
   $('mscExtase').addEventListener('click', function () {
     const msg = $('mscMsg');
     if (mortoBlock(msg)) return;
-    if (state.status.indexOf(EXTOSE) !== -1) {
+    if (extase()) {
       msg.textContent = 'Ela já está dentro da valsa vermelha.';
       return;
     }
@@ -595,20 +605,27 @@
       msg.textContent = '💤 O corpo ainda está exausto da última dança — ela não consegue entrar em êxtase de novo até descansar.';
       return;
     }
-    addStatus(EXTOSE);
-    msg.textContent = state.status.indexOf(EXTOSE) !== -1
-      ? '🩸 O mundo apaga. Só resta a dança — e o que ela corta. (+3 em todas as rolagens)'
-      : '⚠ ' + addStatus(EXTOSE);
+    /* O estado verdadeiro é a chave compartilhada; o chip é a marca na lista dela. Se o chip não
+       couber (seis efeitos já na mente), o massacre vale do mesmo jeito — é o estado que conta,
+       e a mensagem diz o que faltou, em vez de fingir que não aconteceu. Sem o módulo na
+       página (cache velha), ela dança com o chip sozinho, como dançava antes. */
+    var X = window.ECLIPSE_EXTASE;
+    if (X) X.ligar(SAVE_KEY, true);
+    const coube = state.status.indexOf(EXTOSE) === -1 && addStatus(EXTOSE).indexOf('Limite') === -1;
+    renderStatus(); save();
+    msg.textContent = '🩸 O mundo apaga. Só resta a dança — e o que ela corta. (+' + (X ? X.BONUS : 3) +
+      ' em tudo, sem noção de certo e errado' + (coube ? '' : ' · o chip não coube na lista, mas o massacre vale') + ')';
   });
 
   $('mscRecuperar').addEventListener('click', function () {
     const msg = $('mscMsg');
     const idx = state.status.indexOf(EXTOSE);
-    if (idx === -1) {
+    if (!extase() && idx === -1) {
       msg.textContent = 'Ela não está em êxtase agora.';
       return;
     }
-    state.status.splice(idx, 1);
+    if (window.ECLIPSE_EXTASE) window.ECLIPSE_EXTASE.ligar(SAVE_KEY, false);
+    if (idx !== -1) state.status.splice(idx, 1);
     addStatus(EXAUSTA);
     renderStatus(); save();
     msg.textContent = '🕊 A consciência volta como aplausos distantes.' +
@@ -1016,6 +1033,20 @@
       renderHP(); renderSAN(); renderStatus(); renderInv();
     }
   });
+
+  /* 🩸 07/10 — a tesoura dela agora é estado da MESA (js/extase.js), não só chip da ficha: se o
+     mestre puser ou tirar a tesoura da mão dela no painel dele, a aba Massacre, os números do
+     Status e as fórmulas de combate têm que mudar nesta página sem F5. js/extase.js é o último
+     script da lista e avisa quando chega (ready) — é por isso que os dois eventos existem. */
+  function aoMudarMassacre(e) {
+    if (e && e.detail && e.detail.chave && e.detail.chave !== SAVE_KEY) return;
+    renderStatus();
+    renderAttrs();
+    renderCombat();
+    renderMassacre();
+  }
+  window.addEventListener('eclipse-extase', aoMudarMassacre);
+  window.addEventListener('eclipse-extase-ready', aoMudarMassacre);
 })();
 
 window.__FICHA_OK = true; // a ficha carregou o motor: esconde o aviso de cache velha

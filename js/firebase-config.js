@@ -35,3 +35,43 @@ window.FIREBASE_CFG = {
   appId: '1:25473198859:web:56e2977513680d6d56100e',
   measurementId: 'G-JXY186ZLHV' // analytics NÃO é carregado de propósito: ele quebra em file:// e ninguém pediu métrica
 };
+
+/* ─── 07/10 (v1.41): a nuvem também desliga pela URL, sem mexer em nada acima ───
+   `?nuvem=local` em qualquer página (ex.: `ficha6.html?nuvem=local`) põe `ativo: false` antes
+   do js/store.js acordar, e ele vira passes-through do localStorage exatamente como se a linha
+   `ativo: true` estivesse escrita como false — é a mesma saída que o comentário de cima já
+   prometia, só que acionável sem editar arquivo.
+   Por que isto existe, dito sem rodeio: as suítes de teste headless escrevem chaves DA MESA, e
+   o vestido manda tudo para o banco real. Numa corrida de 07/10 o `eclipse_inimigos_v1` do
+   mestre foi substituído pelos dois bichos de laboratório do teste — o `?nuvem=local` é a única
+   forma de um teste mexer no jogo sem tocar no jogo. A flag só lê a URL, não grava nada, não
+   muda nada para quem abre a página normal, e desaparece quando o `?` sai do endereço. */
+(function () {
+  var q = '';
+  try { q = String((window.location && window.location.search) || ''); } catch (e) { q = ''; }
+  if (/(\?|&)nuvem=local(&|$)/.test(q)) {
+    window.FIREBASE_CFG.ativo = false;
+    window.__NUVEM_LOCAL = true;   // para a página-sonda conferir que o desligamento pegou
+  }
+  /* ─── e a segunda metada do remédio: `?mesa=teste-1` muda a SALA ───
+     Desligar a nuvem resolve para quem só quer mexer na própria ficha, mas existe suíte que
+     PRECISA da nuvem (a mesa.html testa a aba do mestre sendo empurrada pela assinatura do
+     banco). Para essa, o caminho certo não é limpar depois — é escrever numa sala vazia. Com a
+     flag, tudo vai para `mesas/teste-1/…` e o jogo do mestre não é tocado nem por engano.
+     Só vale em `file:` ou localhost: num site publicado um estranho não pode escolher a sala
+     pela URL. E a proteção de verdade continua sendo a regra do banco, não esta linha. */
+  var m = q.match(/(\?|&)mesa=([A-Za-z0-9_-]{1,40})(&|$)/);
+  if (m) {
+    var proto = '', host = '';
+    try {
+      proto = String((window.location && window.location.protocol) || '');
+      host = String((window.location && window.location.hostname) || '');
+    } catch (e) { proto = ''; host = ''; }
+    var origemLocal = proto === 'file:' ||
+      /^(localhost|127\.|0\.0\.0\.0|\[::1\])/.test(host);
+    if (origemLocal) {
+      window.FIREBASE_CFG.mesa = m[2];
+      window.__NUVEM_MESA = m[2];
+    }
+  }
+})();

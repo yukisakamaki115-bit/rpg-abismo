@@ -139,21 +139,30 @@
      que os círculos do Nox entram na ficha dele. Teto de ±3 por gancho: o mesmo dos
      chips, pra um estado próprio nunca virar bônus infinito. */
   const HOOKS = [];
+  /* `teto` (07/10): até aqui o gancho global era travado em ±3 na marra, porque o único
+     inquilino dele era penalidade de mesa. O 🩸 MASSACRE pediu o contrário: "+6 em tudo"
+     para as seis fichas, do mesmo jeito para a Flora e para a Clara. Então o teto passa a
+     ser do gancho, não do motor: quem registra diz até onde aquele estado pode ir, e quem
+     não registra nada continua com o ±3 de sempre. O teto é do ESTADO, não da pessoa: sem
+     ele um bloco próprio poderia se auto-dar +99 e a mesa viraria contagem de ponto. */
+  function tetoDe(h) { return h.teto || 3; }
   function hookTotal() {
     let n = 0;
-    HOOKS.forEach(function (h) { n += clamp(h.value(), -3, 3); });
+    HOOKS.forEach(function (h) { n += clamp(h.value(), -tetoDe(h), tetoDe(h)); });
     return n;
   }
   function hookDetail() {
     let s = '';
     HOOKS.forEach(function (h) {
-      const v = clamp(h.value(), -3, 3);
+      const teto = tetoDe(h);
+      const v = clamp(h.value(), -teto, teto);
       if (v) s += (v > 0 ? ' + ' + v : ' − ' + (-v)) + (h.mark || '✦');
     });
     return s;
   }
-  /* Gancho POR ATRIBUTO (06/10, pedido do jogador do Kael: "aumentar atributos em +2
-     pagando sanidade"). O HOOKS de cima é global e limitado a ±3 — ele serve pra penalidade
+  /* Gancho POR ATRIBUTO (06/10, pedido do jogador da ficha 6 — hoje **Vesper Graves**, na época
+     ainda o placeholder "Kael": "aumentar atributos em +2 pagando sanidade"). O HOOKS de cima
+     é global e limitado a ±3 — ele serve pra penalidade
      da mesa, que castiga tudo igualmente. Um buff que só existe na Destreza não cabe ali:
      somaria em rolagem de Carisma também, e o teto de ±3 cortaria o "+4 em tudo" que foi
      pedido. Então o gancho tem chave: `key` é o atributo (ou '*' para todos, como o lampião
@@ -319,17 +328,21 @@
   }
   /* ---------- o badge do card: o número que aparece no Status ----------
      Existe uma função só para isso (e não um copia-e-cola dentro de renderAttrs) porque o
-     poder de uma ficha pode mudar o número SEM mudar o valor distribuído: é o 💨 do Kael.
+     poder de uma ficha pode mudar o número SEM mudar o valor distribuído: é o 💨 do Vesper Graves.
      Se cada lugar pintasse o seu, acender uma dose deixaria o card em +1 enquanto a rolagem
      já somava +4 — e a ficha inteira dele foi pedida justamente para não esconder conta. */
   function pintaBadge(key) {
     const a = state.atributos[key]; if (!a) return;
     const grid = $('attrsGrid'); if (!grid) return;
+    /* 07/10: o `extra` passou a somar também os ganchos GLOBAIS, porque agora existe um estado
+       que vale para todos os atributos ao mesmo tempo — o 🩸 massacre (+6 em tudo). Sem esta
+       linha o card mostraria o número velho e a rolagem do mesmo card devolveria seis a mais:
+       exatamente a reclamação que a mesa teve na v1.39 com o badge que não acompanhava a dose. */
+    const extra = hookAttrTotal(key) + hookTotal();
     const card = grid.querySelector('.attr-card[data-k="' + key + '"]'); if (!card) return;
-    const extra = hookAttrTotal(key);
     const md = card.querySelector('.attr-mod');
     if (md) md.textContent = fmtMod(mod(a.valor) + extra);
-    if (extra) card.title = (mod(a.valor) + extra) + ' no total: ' + a.valor + ' que você distribuiu + ' + extra + ' do poder da ficha (não conta nos 10 pontos).';
+    if (extra) card.title = (mod(a.valor) + extra) + ' no total: ' + a.valor + ' que você distribuiu + ' + extra + ' do que está aceso no corpo (poder da ficha, 🩸 massacre) — não conta nos 10 pontos.';
     else card.removeAttribute('title');
   }
   function renderAttrs() {
@@ -815,11 +828,14 @@
         if (i !== -1) { state.status.splice(i, 1); renderStatus(); save(); }
       }
     },
-    hook: function (mark, fn) { HOOKS.push({ mark: mark, value: fn }); },
     /* Irmão por atributo do `hook` de cima: `hookAttr('💨', 'destreza', fn, 4)` só entra nas
        rolagens que tocam a Destreza ( inclusive as de arma ligada a ela ). `'*'` vale para
        todas, igual ao gancho global. Ficha que não usa isto não paga nada. */
     hookAttr: function (mark, key, fn, teto) { ATTR_HOOKS.push({ mark: mark, key: key, value: fn, teto: teto || 3 }); },
+    /* O gancho GLOBAL também aceita teto desde 07/10 (`hook('🩸', fn, 6)`): é por ele que o
+       massacre de mesa entra na conta das três fichas que este motor desenha, sem que o
+       motor precise saber o que é massacre. js/extase.js é quem registra. */
+    hook: function (mark, fn, teto) { HOOKS.push({ mark: mark, value: fn, teto: teto || 3 }); },
     attrBonus: hookAttrTotal,
     /* O poder acendeu/desligou uma dose? Isto retoca só o número do card de Status e a lista
        "Bônus de" do rolador. De propósito não é um `redraw()`: redesenhar a grade inteira

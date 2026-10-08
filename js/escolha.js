@@ -102,7 +102,7 @@
       historia: 'Coleta almas com um lampião que não alumbra caminho, alumbra gente. Fora do Crepúsculo ela é só uma mulher com um vidro na mão.'
     },
     {
-      id: 'kael', emoji: '🌪️', nome: 'Kael Duarte', classe: 'O que entra e sai do combate', idade: '☐',
+      id: 'kael', emoji: '🌪️', nome: 'Vesper Graves', classe: 'O que entra e sai do combate', idade: '☐',
       chave: 'eclipse_ficha6_v1', destino: 'ficha6.html',
       hpNome: 'Vida', hpMax: 22, sanNome: 'Sanidade', sanMax: 100,
       habilidades: [
@@ -110,7 +110,7 @@
         '🎯 Pistola (d6+1) com vantagem de atirador militar: dois lançamentos de dano, fica o melhor',
         '⚔ Foice (d8) e 🌀 Esquiva — as duas somam Destreza, e o +2 aceso vale nas três'
       ],
-      historia: 'Ex-militar que virou a coisa mais difícil de acertar da mesa. Leve, rápido, estiloso por fora e treino puro na hora do combate: entra, acha a brecha, cobra o preço e sai antes da resposta.'
+      historia: 'Militar aposentado das forças especiais, hoje da Liga dos Assassinos. De dia cuida de um mercadinho pequeno, de casa simples e paladar mais simples ainda; à noite desce a escada dos fundos, onde o bunker guarda tudo que ele usa para finalizar uma missão. Leve, rápido e estiloso por fora — e treino puro na hora de bater: entra, acha a brecha, cobra o preço e sai antes da resposta.'
     }
   ];
 

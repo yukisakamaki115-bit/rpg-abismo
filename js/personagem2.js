@@ -337,6 +337,10 @@
     return 0;
   }
   // Peles do Mundo Real: cada forma turbinava UM atributo dela (+2, sem risco)
+  /* 🧍 A pele de humano (07/10) não turbina nada, e isso é decisão de mesa, não esquecimento:
+     o colar empresta a forma dele de andar entre a gente, não uma vantagem de bicho. Se ele
+     ganhasse +2 em tudo aqui, o +6 do massacre e o bônus da pele virariam a mesma compra duas
+     vezes. Ela EXISTE só enquanto o 🩸 colar estiver na mão (ver `extaseOn`). */
   function formBonus(attrKey) {
     if (!attrKey || state.mundo !== 'real') return 0;
     if (state.status.indexOf(ST_DESFIA) !== -1) return 0; // pele frouxa não ajuda
@@ -344,7 +348,15 @@
     if (state.forma === 'lobo' && attrKey === 'forca') return 2;
     return 0;
   }
-  function bonusTotal(attrKey) { return mundoBonus() + formBonus(attrKey) + cardBonus() + circuloBonus(attrKey); }
+  /* 🩸 MASSACRE (07/10): o colar com pingente de sangue do Nox é um dos seis itens que o mestre
+     ditou, e a regra é da mesa inteira: +6 em tudo, sem noção de certo e errado, e ele consegue
+     se transformar em HUMANO enquanto durar. O estado mora na chave compartilhada
+     `eclipse_extase_v1` (js/extase.js) — não dentro desta ficha — para que o painel do mestre e
+     os cinco colegas vejam a mesma coisa ao mesmo tempo. Ficha sem o módulo na página (cache
+     velha) rola exatamente como rolava antes: o bônus é 0 e nada quebra. */
+  function extaseBonus() { var X = window.ECLIPSE_EXTASE; return X ? X.valor(SAVE_KEY) : 0; }
+  function extaseDetail() { const v = extaseBonus(); return v ? ' + ' + v + '🩸' : ''; }
+  function bonusTotal(attrKey) { return mundoBonus() + formBonus(attrKey) + cardBonus() + circuloBonus(attrKey) + extaseBonus(); }
     // Detalha o bônus peça por peça (pra rolagem bater com o número do Status)
   function bonusDetail(attrKey) {
       let s = '';
@@ -355,7 +367,7 @@
       if (fb > 0) s += ' + ' + fb + (state.forma === 'coelho' ? '🐇' : '🐺');
       const cb = circuloBonus(attrKey);
       if (cb > 0) s += ' + ' + cb + '⭕';
-      return s + cardDetail();
+      return extaseDetail() + s + cardDetail();
   }
   // Cartas do Dante aplicadas aqui chegam como marca "emoji Nome · +N" — somam nas rolagens
   function chipValue(txt) {
@@ -555,10 +567,22 @@
     if (mo) mo.classList.toggle('on', outro);
     renderForm();
   }
+  function extaseOn() { var X = window.ECLIPSE_EXTASE; return !!(X && X.ativa && X.ativa(SAVE_KEY)); }
   function renderForm() {
     const fc = $('formaCoelho'), fl = $('formaLobo'), ft = $('formaTrue'), note = $('formNote');
     if (!fc || !fl || !ft || !note) return; // HTML antigo em cache: só ignora as formas
     const outro = state.mundo === 'outro';
+    const colar = extaseOn();
+    const fh = $('formaHumano');
+    /* A pele de gente vem com o colar: quando o objeto sai da mão (na ficha dele, no painel do
+       mestre ou noutro aparelho), ela cai de volta no coelho — a pele que ele usa por padrão. O
+       botão some junto com a chance, para ninguém clicar numa forma que não existe. */
+    if (!colar && state.forma === 'humano') { state.forma = 'coelho'; save(); }
+    if (fh) {
+      fh.hidden = !colar;
+      fh.disabled = outro;
+      fh.classList.toggle('on', !outro && state.forma === 'humano');
+    }
     fc.classList.toggle('on', !outro && state.forma === 'coelho');
     fl.classList.toggle('on', !outro && state.forma === 'lobo');
     fc.disabled = outro;
@@ -569,7 +593,9 @@
     if (wnote) wnote.hidden = outro;
     note.innerHTML = outro
       ? 'No Outro Mundo não há escolha: ele anda na <b>Forma Verdadeira</b> — <b>+3 em tudo</b>, mas com o risco de abrir ponto.'
-      : 'No Mundo Real ele veste peles de animal: <b>🐇 coelho</b> dá <b>+2 em Destreza</b>, <b>🐺 lobo</b> dá <b>+2 em Força</b> — sem risco.';
+      : (colar
+        ? 'No Mundo Real ele veste peles de animal: <b>🐇 coelho</b> dá <b>+2 em Destreza</b>, <b>🐺 lobo</b> dá <b>+2 em Força</b> — sem risco. Com o <b>🩸 colar</b> na mão ele também pode vestir <b>🧍 gente</b>: é a forma dele de andar no meio deles, <b>sem bônus de pele nenhum</b> (o +6 já vem do massacre).'
+        : 'No Mundo Real ele veste peles de animal: <b>🐇 coelho</b> dá <b>+2 em Destreza</b>, <b>🐺 lobo</b> dá <b>+2 em Força</b> — sem risco. A pele de <b>🧍 gente</b> só existe com o <b>🩸 colar com pingente de sangue na mão</b> (aba Massacre).');
     renderCirculos(); // o mundo é quem decide quais círculos acordam (e a faixa de travados da aba Magia)
   }
   // Atmosfera do crepúsculo: monta uma vez a camada de névoa + bolinhas pretas caindo.
@@ -612,6 +638,14 @@
     renderWorld(); save();
   }
   function setForm(f) {
+    /* A pele de gente é emprestada pelo colar: sem o massacre na mão, o botão até existe na
+       memória de quem clicou antes de o mestre tirar o objeto — e a ficha recusa em português. */
+    if (f === 'humano' && !extaseOn()) {
+      const m = $('statusMsg');
+      if (m) m.textContent = '⚠ Sem o 🩸 colar na mão, ele não veste gente. A pele de humano é do massacre.';
+      renderForm();
+      return;
+    }
     if (state.forma === f) return;
     state.forma = f; renderForm(); save();
   }
@@ -619,6 +653,10 @@
   on('mundoOutro', 'click', function () { setMundo('outro'); activity(WHO, '🌀 atravessou pro Outro Mundo — Forma Verdadeira'); });
   on('formaCoelho', 'click', function () { setForm('coelho'); activity(WHO, '🐇 vestiu a pele de coelho'); });
   on('formaLobo', 'click', function () { setForm('lobo'); activity(WHO, '🐺 vestiu a pele de lobo'); });
+  if ($('formaHumano')) on('formaHumano', 'click', function () {
+    setForm('humano');
+    if (state.forma === 'humano') activity(WHO, '🧍 vestiu a pele de gente (🩸 colar)');
+  });
   on('mundoDescansar', 'click', function () {
     const i = state.status.indexOf(ST_DESFIA);
     if (i === -1) { $('statusMsg').textContent = 'Ele está inteiro — nada para refazer.'; return; }
@@ -648,7 +686,8 @@
     if (!d) { out.textContent = '⚠ o mestre precisa definir um dano (ex: d8+2).'; return; }
     const wb = mundoBonus(); // +3 no Outro Mundo · −2 se Desfiando (dano não usa pele de forma)
     const ci = circulosPara('dano'); // círculos de impacto (Vharak · Syran · Kaelith) entram no dano, não na defesa
-    const mb = wb + cardBonus() + ci.b; // cartas do Dante também pesam no dano
+    const ex = extaseBonus();          // 🩸 +6 do colar, se ele estiver em massacre
+    const mb = wb + cardBonus() + ci.b + ex; // cartas do Dante também pesam no dano
     let total, faceTxt, crit = false, fumble = false;
     if (d.qtde >= 1) {
       const r = rollDice(d.faces, d.qtde, d.bonus + mb);
@@ -657,7 +696,7 @@
     } else {
       total = d.bonus + mb; faceTxt = 'dano fixo';
     }
-    const det = (wb > 0 ? ' + 3🌀' : (wb < 0 ? ' − 2🧵' : '')) + (ci.b > 0 ? ' + ' + ci.b + '⭕' : '') + cardDetail();
+    const det = extaseDetail() + (wb > 0 ? ' + 3🌀' : (wb < 0 ? ' − 2🧵' : '')) + (ci.b > 0 ? ' + ' + ci.b + '⭕' : '') + cardDetail();
     out.textContent = '🎲 ' + faceTxt + (d.bonus ? (d.bonus >= 0 ? ' + ' + d.bonus : ' − ' + -d.bonus) : '') + det + ' = ' + total + ' de dano';
     out.classList.remove('show'); void out.offsetWidth; out.classList.add('show');
     addRoll({
@@ -1185,6 +1224,24 @@
   mountTwilight();
   renderLog();
   renderInv();
+
+  /* 🩸 O massacre mexe com esta ficha em três lugares: o +6 nas rolagens, a pele de gente e o
+     número escrito no Status. js/extase.js é o último script da página, então ele AVISA quando
+     chega (ready) e quando o objeto muda de mão; sem esses dois chamamentos, abrir a ficha com o
+     colar na mão mostraria a pele velha até a pessoa clicar em qualquer coisa. */
+  function aoMudarMassacre() {
+    renderAttrs();
+    renderForm();
+    renderStatus();
+  }
+  window.addEventListener('eclipse-extase', function (e) {
+    if (e && e.detail && e.detail.chave && e.detail.chave !== SAVE_KEY) return;
+    aoMudarMassacre();
+  });
+  window.addEventListener('eclipse-extase-ready', function (e) {
+    if (e && e.detail && e.detail.chave && e.detail.chave !== SAVE_KEY) return;
+    aoMudarMassacre();
+  });
 })();
 
 window.__FICHA_OK = true; // a ficha carregou o motor: esconde o aviso de cache velha

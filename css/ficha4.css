@@ -205,6 +205,10 @@ body.f4-body[data-pers="thalles"] .portrait { box-shadow: 0 0 0 5px rgba(255,207
 }
 .pers-btn.vaga { opacity: .45; cursor: not-allowed; border-style: dashed; }
 .pers-btn.vaga:hover { border-color: var(--fs-line); color: var(--fs-ink); }
+/* 🩸 07/10 — com o 🌹 tapa-olho posto (massacre), o Trinstan fica riscado na tira: ele não assume o
+   corpo enquanto durar o êxtase. Vermelho tracejado + 🚫 no texto pra diferir da vaga cinza. */
+.pers-btn.trancada { opacity: .5; cursor: not-allowed; border-style: dashed; border-color: #b3263a; color: #b3263a; }
+.pers-btn.trancada:hover { border-color: #b3263a; color: #b3263a; }
 .pers-nota { font-size: 12px; font-style: italic; color: var(--fs-muted); margin-left: auto; }
 
 /* ---------- O bloco do poder da personalidade no corpo ---------- */

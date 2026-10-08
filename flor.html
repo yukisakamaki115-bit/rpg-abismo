@@ -6,13 +6,13 @@
   <title>Flora Hilton — Bailarina | Éclipse</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=156" />
-  <link rel="stylesheet" href="css/flor.css?v=156" />
-  <script src="js/theme.js?v=156"></script>
-  <script src="js/firebase-config.js?v=156"></script>
-  <script src="js/store.js?v=156"></script>
-  <script src="js/conta.js?v=156"></script>
-  <script src="js/atributos.js?v=156"></script><!-- a regra dos 10 pontos: antes de qualquer motor de ficha -->
+  <link rel="stylesheet" href="css/style.css?v=157" />
+  <link rel="stylesheet" href="css/flor.css?v=157" />
+  <script src="js/theme.js?v=157"></script>
+  <script src="js/firebase-config.js?v=157"></script>
+  <script src="js/store.js?v=157"></script>
+  <script src="js/conta.js?v=157"></script>
+  <script src="js/atributos.js?v=157"></script><!-- a regra dos 10 pontos: antes de qualquer motor de ficha -->
 </head>
 <body class="flor-body">
 
@@ -249,7 +249,7 @@
             <p class="hint-note" id="mscMsg" style="margin-top:8px"></p>
           </div>
         </div>
-        <p class="hint-note">✦ Em êxtase: <b>+3</b> em todas as rolagens. Ao recuperar a consciência, entra em <b>“Exaustão da Dança”</b>: <b>−2</b> em todas as rolagens (Status, d20 e combate) e <b>não consegue entrar em êxtase de novo</b> até usar “💤 Descansar”. Números ajustáveis quando vocês quiserem.</p>
+        <p class="hint-note">✦ <b>07/10 — o massacre virou regra da mesa inteira</b>, do jeito que o mestre pediu ("válido pra todos, até mesmo pra Flora"): <b>+6 em tudo</b> enquanto a tesoura estiver na mão, e <b>nenhuma noção de certo e errado</b> — qualquer um pode morrer com isso, aliado incluído. Ao recuperar a consciência ela cai em <b>“Exaustão da Dança”</b>: <b>−2</b> em todas as rolagens (Status, d20 e combate) e <b>não consegue entrar em êxtase de novo</b> até usar “💤 Descansar”. O estado é <b>compartilhado</b> (js/extase.js): se o mestre tirar a tesoura da mão dela no painel dele, este botão muda aqui na hora.</p>
       </section>
 
       <!-- Vício -->
@@ -280,11 +280,12 @@
         </div>
       </section>
 
-      <!-- Inimigos em cena (bestiário do mestre — aqui você só olha) -->
+      <!-- Inimigos em cena (bestiário do mestre — e o golpe que VOCÊ marca nele) -->
       <section class="panel" id="panel-inimigos">
         <h2>Inimigos em Cena</h2>
-        <div class="mob-list" id="mobList"><!-- gerado via JS --></div>
-        <p class="hint-note">✦ É o que o <b>mestre</b> colocou na cena, com a vida e a sanidade dele. Só ele mexe: você vê a barra cair em tempo real (com a aba aberta). A 0 aparece <b>🟥 caído</b> / <b>😵 sem sanidade</b>.</p>
+        <p class="panel-intro">O que o <b>mestre</b> colocou na cena, com a vida e a sanidade de cada bicho — e, desde 07/10, <b>o seu golpe aplicado aqui mesmo</b>.</p>
+        <div class="mob-list" id="mobList"><!-- gerado via js/inimigos.js --></div>
+        <p class="hint-note">✦ <b>07/10 — quem bate é você, e não existe teste de acerto.</b> Escreva no campo <b>golpe</b> o total que a sua rolagem deu e clique <b>🗡 bater</b>: o dano entra direto na vida do bicho. A única coisa que pode salvá-lo é <b>ele</b> rolar <b>d10 + Destreza</b> e passar de <b>12</b> — a etiqueta <b>🌀 destreza N</b> diz quando ele tem essa chance, e bicho sem etiqueta nunca desvia. O golpe (e o desvio) aparece no histórico compartilhado e na tela do mestre, que continua podendo corrigir qualquer número. ✂️ <b>Se a tesoura estiver em massacre</b>, o <b>+6</b> já está somado na sua rolagem — é o total dela que vai no campo <b>golpe</b>, não o total mais o 6.</p>
       </section>
     </div>
   </main>
@@ -312,10 +313,16 @@
     </div>
   </div>
 
-  <script src="js/inimigos.js?v=156"></script>
-  <script src="js/flor.js?v=156"></script>
+  <script src="js/inimigos.js?v=157"></script>
+  <script src="js/flor.js?v=157"></script>
   <!-- A mini-aba 👥: avisa a mesa que esta ficha está aberta e mostra quem mais está online. -->
-  <script src="js/aliados.js?v=156"></script>
+  <script src="js/aliados.js?v=157"></script>
+  <!-- 🩸 js/extase.js: o massacre e o vício são estado da MESA (uma chave só, todos veem). Aqui ele
+       não desenha nada — a aba Massacre da Flora já é da ficha dela desde 21/09 — mas é ele que
+       guarda o 🩸 da tesoura na chave compartilhada e é ele que o `flor.js` consulta para somar
+       o +6 (sem o módulo, o chip dela volta a valer o +3 antigo, em vez de quebrar). -->
+  <script src="js/extase.js?v=157"></script>
+  <script src="js/mesa.js?v=157"></script>
   <script>/* Se o motor não chegou (js quebrado ou na cache velha), avisa em vez de sumir. */
     setTimeout(function () { if (!window.__FICHA_OK) { var d = document.getElementById('bootWarn'); if (d) d.hidden = false; } }, 800);</script>
 </body>

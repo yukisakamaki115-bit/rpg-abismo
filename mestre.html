@@ -6,13 +6,13 @@
   <title>Painel do Mestre | Éclipse</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=156" />
-  <link rel="stylesheet" href="css/mestre.css?v=156" />
-  <script src="js/theme.js?v=156"></script>
-  <script src="js/firebase-config.js?v=156"></script>
-  <script src="js/store.js?v=156"></script>
-  <script src="js/conta.js?v=156"></script>
-  <script src="js/atributos.js?v=156"></script><!-- a regra dos 10 pontos: a mesma que vale nas fichas -->
+  <link rel="stylesheet" href="css/style.css?v=157" />
+  <link rel="stylesheet" href="css/mestre.css?v=157" />
+  <script src="js/theme.js?v=157"></script>
+  <script src="js/firebase-config.js?v=157"></script>
+  <script src="js/store.js?v=157"></script>
+  <script src="js/conta.js?v=157"></script>
+  <script src="js/atributos.js?v=157"></script><!-- a regra dos 10 pontos: a mesma que vale nas fichas -->
 </head>
 <body class="mestre-body">
   <div class="mestre-wrap">
@@ -392,12 +392,12 @@
         <p class="ro-note">🗝️ O poder é dela, a conta é da ficha: as almas 🕯️ e o mundo em que ela está vêm escritos pelo js/lampiao.js dela — aqui você só lê. Invocação nenhuma funciona no Mundo Real, e o que sai é a linha da tabela do d10.</p>
       </article>
 
-      <!-- FICHA 6 (Kael Duarte · o ágil, 6º personagem da mesa, pedido pelo jogador em 06/10) -->
+      <!-- FICHA 6 (Vesper Graves · o ágil, 6º personagem da mesa, pedido pelo jogador em 06/10; nome 07/10) -->
       <article class="char-card" id="ficha6Card">
         <div class="card-head">
           <div class="mini-portrait" id="ficha6Portrait">🌪️</div>
           <div>
-            <h2 id="ficha6Nome">Kael Duarte</h2>
+            <h2 id="ficha6Nome">Vesper Graves</h2>
             <p class="char-class">ex-militar · leve e rápido · foice e pistola</p>
           </div>
         </div>
@@ -504,20 +504,39 @@
       <p class="mr-result" id="mrResult"></p>
     </section>
 
+    <!-- ===== Ordem da mesa (iniciativa) =====
+         07/10: ele pediu "uma opção ou uma janela pra rolar iniciativa" e "uma placa pra dizer
+         quem vai jogar primeiro, quem é o segundo, quem é o terceiro". A placa flutuante existe em
+         TODA página (js/mesa.js); aqui embaixo é o mesmo quadro em tamanho de palco. -->
+    <section class="panel-section">
+      <h2>🎲 Ordem da Mesa</h2>
+      <p class="sec-sub">Rola <b>d10 + Destreza</b> para os seis e para cada bicho em cena, e mostra na hora <b>quem é o 1º, o 2º, o 3º</b> — na sua tela e no canto da ficha de todo mundo. Clique numa linha para marcar <b>▶ a vez dele</b>; <b>▶ próxima vez</b> corre a fila sem rolar dado nenhum.</p>
+      <div id="iniciativaMesa"><!-- desenhado por js/mesa.js --></div>
+      <p class="sec-sub" style="margin-top:12px">✦ Quem está em <b>🩸 massacre</b> entra na fila com o <b>+6</b> já somado (a conta vem escrita embaixo do nome, para ninguém ter que acreditar no número). Bicho caído não entra — e a <b>Destreza</b> que ele usa aqui é o mesmo campo <b>desvio</b> do bestiário abaixo.</p>
+    </section>
+
+    <!-- ===== Massacre da mesa ===== -->
+    <section class="panel-section">
+      <h2>🩸 Massacre da Mesa</h2>
+      <p class="sec-sub">As seis mãos e os seis objetos numa lista só. <b>🩸 forçar</b> põe o objeto na mão da pessoa; <b>🕊 largar</b> é você devolvendo a consciência dela — que na mesa é exatamente isso: ninguém larga um massacre sozinho no meio de um banho de sangue.</p>
+      <div id="extaseMesa"><!-- desenhado por js/extase.js --></div>
+    </section>
+
     <!-- ===== Inimigos em cena (bestiário · os jogadores veem as barras na aba Inimigos) ===== -->
     <section class="panel-section">
       <h2>👹 Inimigos em Cena</h2>
-      <p class="sec-sub">Crie o bicho com <b>vida</b> e <b>sanidade</b>: as barras aparecem na aba <b>Inimigos</b> das fichas, ao vivo. Quem machuca e tira da cena aqui é você.</p>
+      <p class="sec-sub">Crie o bicho com <b>vida</b>, <b>sanidade</b> e a <b>destreza dele pra desviar</b>: as barras aparecem na aba <b>Inimigos</b> das fichas, ao vivo. <b>07/10 — mudou:</b> quem bate é o jogador, direto na linha dele, <b>sem teste de acerto</b>; você continua podendo corrigir qualquer número aqui.</p>
 
       <div class="mob-new">
         <input type="text" id="mobNome" maxlength="30" placeholder="nome do inimigo / NPC (ex: Golem Chefe)" />
         <label>Vida <input type="number" id="mobHp" value="20" min="1" max="999" /></label>
         <label>Sanidade <input type="number" id="mobSan" value="10" min="0" max="999" /></label>
+        <label>Destreza <input type="number" id="mobDest" value="0" min="0" max="20" /></label>
         <button class="mini-btn ok" id="mobAdd">＋ Criar inimigo</button>
       </div>
 
       <div class="mob-list" id="mobEditList"><!-- gerado via JS --></div>
-      <p class="sec-sub" style="margin-top:14px;margin-bottom:0">✦ <b>Atual</b> é onde a vida dele está agora (marque o golpe da mesa direto no primeiro campo); <b>máx</b> é o teto — mudar o teto não cura nem machuca ninguém. A 0, a barra fica vazia e o jogador vê a etiqueta <b>🟥 caído</b> / <b>😵 sem sanidade</b>. Limite de <b>6</b> em cena pra não engolir a tela.</p>
+      <p class="sec-sub" style="margin-top:14px;margin-bottom:0">✦ <b>Atual</b> é onde a vida dele está agora (o jogador já marca o golpe na ficha dele, mas você manda em tudo); <b>máx</b> é o teto — mudar o teto não cura nem machuca ninguém. A 0, a barra fica vazia e o jogador vê a etiqueta <b>🟥 caído</b> / <b>😵 sem sanidade</b>. <b>Desvio</b> é a Destreza dele: o bicho rola <b>d10 + Desvio</b> e <b>só escapa de um golpe se passar de 12</b> — <b>0 nunca desvia de nada</b>. Limite de <b>6</b> em cena pra não engolir a tela.</p>
     </section>
 
     <!-- ===== Histórico de Rolagem (compartilhado com todos) ===== -->
@@ -549,13 +568,19 @@
       <br /><small>As fichas se salvam no navegador de cada pessoa; com a mesa ligada, sincronizam sozinhas. Quem está com a ficha aberta aparece no ponto verde do card, no <b>“● … na ficha agora”</b> e na lista 👥 do canto.</small></footer>
   </div>
 
-  <script src="js/inimigos.js?v=156"></script>
+  <script src="js/inimigos.js?v=157"></script>
   <!-- O enquadramento do retrato é UMA conta (js/retrato.js) que a ficha ensinou: sem ele, este
        painel mostra o MEIO da foto original em vez do recorte que a pessoa emoldurou. Vem antes
        de js/mestre.js por causa disso, e na pior hipótese (arquivo não veio) o mestre volta ao
        emoji velho em vez de quebrar. -->
-  <script src="js/retrato.js?v=156"></script>
-  <script src="js/aliados.js?v=156"></script>
-  <script src="js/mestre.js?v=156"></script>
+  <script src="js/retrato.js?v=157"></script>
+  <script src="js/aliados.js?v=157"></script>
+  <!-- 🩸 js/extase.js é o dono da lista de massacres e vícios que o painel mostra em
+       #extaseMesa; 🎲 js/mesa.js é o dono da placa de iniciativa em #iniciativaMesa e da faixa
+       ☁ da regra da memória. Os dois vêm antes de js/mestre.js: o painel é quem põe o objeto na
+       mão de alguém, então ele precisa das duas tabelas montadas. -->
+  <script src="js/extase.js?v=157"></script>
+  <script src="js/mesa.js?v=157"></script>
+  <script src="js/mestre.js?v=157"></script>
 </body>
 </html>

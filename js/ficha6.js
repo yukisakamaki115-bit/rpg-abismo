@@ -40,12 +40,22 @@
    depois Constituição ou Inteligência. Nada aqui é pré-gasto — a ficha abre com os cinco em 1 e
    é ele quem distribui, como em todas.
 
-   ☐ O que NÃO foi inventado e fica com o mestre: o que acontece com a Sanidade gasta (ela
-   volta? quando?), o que ele vê quando a Sanidade chega em 0, e de onde ele veio no mundo
-   (a frase dele disse "militar", não disse qual exército nem em que guerra). */
+   ☐ O que ele NÃO deu, e continua escrito como ☐ na ficha: a idade, **por que** ele entrou na Liga (a frase dele disse
+   "não se sabe ao certo seus motivos"), o que acontece com a Sanidade gasta (ela volta? quando?), e o que ele vê
+   quando a Sanidade chega em 0. O passado trágico da casa em chamas foi escrito POR MIM para dar corpo ao homem
+   (ele pediu: "acrescenta o que tu achar melhor, até mesmo passado trágico") e está marcado como tal na ficha, para
+   o mestre poder riscar inteiro sem quebrar regra nenhuma.
+
+   07/10 — O NOME: o jogador trocou o placeholder. Não é mais "Kael Duarte", é **Vesper Graves**. O que ficou com o
+   nome velho de propósito é a matrícula, pelo mesmo motivo da Tessalha (`id`/`chave`): mexer na chave faz o motor
+   achar que chegou outra personagem e recomeçar a ficha limpa. Então continuam `kael` o `id` do salão, o `sel` do
+   elenco e o `identidade: 'kael-v1'`; mudam todas as etiquetas que a pessoa lê. ⚠ Cuidado real com o colisão: a
+   Tessalha atendeu por "Vesper" até 06/10, e as rolagens VELHAS dela estão assinadas "Vesper" — é por isso que o
+   painel do mestre tem alias. Este aqui assina o nome cheio, `quem: 'Vesper Graves'`, que o alias da Tessalha casa
+   por igualdade exata ('Vesper') e nunca come as rolagens dele. */
 window.FICHA_CONF = {
   chave: 'eclipse_ficha6_v1',
-  quem: 'Kael', // fixo nas rolagens e no feed; o nome completo ele edita no título da ficha
+  quem: 'Vesper Graves', // 07/10: nome dado pelo jogador. Assina rolagem e feed — o nome que ele digitar no título é editável e não mexe no histórico
   identidade: 'kael-v1', // matrícula: muda esta string e a ficha nasce limpa de propósito
   /* Ele não tem arte. Sem `retrato` o círculo abre com o convite de subir uma imagem, e o
      painel do mestre usa a inicial — é o mesmo caminho da Clara antes da arte dela chegar. */

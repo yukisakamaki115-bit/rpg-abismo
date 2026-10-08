@@ -431,8 +431,15 @@
     },
     {
       /* 06/10 — o 6º personagem, pedido pelo jogador (ágil, ex-militar, atirador, foice). Ele não
-         tem arte nenhuma ainda, por isso aqui também não há `retrato`: o card usa a inicial. */
-      id: 'ficha6', chave: 'eclipse_ficha6_v1', quem: 'Kael', nome: 'Kael Duarte', emoji: '🌪️', href: 'ficha6.html',
+         tem arte nenhuma ainda, por isso aqui também não há `retrato`: o card usa a inicial.
+         07/10 — nome do jogador: **Vesper Graves** (era o meu placeholder "Kael Duarte"). A matrícula
+         interna continua `ficha6`/`eclipse_ficha6_v1` de propósito. ⚠ E existe uma colisão de nome no
+         meio disto: a Tessalha atendeu por "Vesper" até 06/10, e as rolagens VELHAS dela estão
+         assinadas "Vesper". O alias do feed casa por igualdade exata, e ele assina o nome cheio
+         ('Vesper Graves'), então os dois não se confundem — mas quem ler o histórico antigo vai ver
+         "Vesper" querendo dizer a Tessalha. É a lição da v1.38 de novo: o que a mesa lê é etiqueta, o
+         que o armazenamento guarda é matrícula. */
+      id: 'ficha6', chave: 'eclipse_ficha6_v1', quem: 'Vesper Graves', nome: 'Vesper Graves', emoji: '🌪️', href: 'ficha6.html',
       hpNome: 'Vida', sanNome: 'Sanidade', hpMax: 22, sanMax: 100,
       eff: { morto: '☠️ Morto', incap: '🟡 No chão' },
       rot: { morto: '☠️ Morto', incap: '🟡 No chão', cado: 'Caído · 0 de vida', vivo: '🌪️ Em movimento' },
@@ -815,7 +822,11 @@
   function criarInimigo() {
     if (!window.EclipseInimigos) { alert('Falta o arquivo js/inimigos.js (Ctrl+F5).'); return; }
     var nome = $('mobNome').value.trim();
-    if (!EclipseInimigos.add(nome, $('mobHp').value, $('mobSan').value)) return;
+    /* O quarto campo é a Destreza do bicho (07/10): sem teste de acerto na mesa, a única defesa
+       que existe é a dele, e ela precisa nascer com o bicho. O campo tem id próprio, mas ficha
+       com cache velha não o vê — daí o `?` antes de ler o valor. */
+    var dest = $('mobDest') ? $('mobDest').value : 0;
+    if (!EclipseInimigos.add(nome, $('mobHp').value, $('mobSan').value, dest)) return;
     $('mobNome').value = '';
     $('mobNome').focus();
     renderBestiario();
@@ -899,7 +910,8 @@
     // entradas antigas da ficha 2 (pré-rename, who='Coelho') também pertencem ao Nox
     // idem ficha 3: ele se chamava Santiago antes da v1.31.3, e o histórico dele não apaga
     // idem ficha 4: ela era a "Vesper" até 06/10 — o que foi rolado antes continua rolado
-    var aliases = { Nox: { Coelho: 1, Nox: 1 }, Dante: { Santiago: 1, Dante: 1 }, Tessalha: { Vesper: 1, Tessalha: 1 } };
+    // idem ficha 6: as primeiras rolagens saíram assinadas "Kael", o placeholder que o jogador trocou por Vesper Graves
+    var aliases = { Nox: { Coelho: 1, Nox: 1 }, Dante: { Santiago: 1, Dante: 1 }, Tessalha: { Vesper: 1, Tessalha: 1 }, 'Vesper Graves': { Kael: 1, 'Vesper Graves': 1 } };
     var ok = function (w) { var a = aliases[who]; return a ? !!a[w] : w === who; };
     var rolls = readRolls().filter(function (l) { return ok(l.who || 'Flora'); });
     var acts = readActs().filter(function (l) { return ok(l.who || 'Flora'); });
@@ -984,7 +996,7 @@
     { sel: 'dante', card: 'santiagoCard', nome: 'Dante', chave: 'eclipse_santiago_v1' },
     { sel: 'vesper', card: 'ficha4Card', nome: 'Tessalha', chave: 'eclipse_ficha4_v1' },
     { sel: 'clara', card: 'ficha5Card', nome: 'Clara', chave: 'eclipse_ficha5_v1' },
-    { sel: 'kael', card: 'ficha6Card', nome: 'Kael', chave: 'eclipse_ficha6_v1' }
+    { sel: 'kael', card: 'ficha6Card', nome: 'Vesper Graves', chave: 'eclipse_ficha6_v1' }
   ];
 
   function desde(t) {

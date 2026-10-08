@@ -146,6 +146,12 @@
   function escreverFila(f) { try { real.setItem(FILA_KEY, JSON.stringify(f)); } catch (e) {} }
   function marcar(chave, acao) {
     if (!ehDaMesa(chave)) return;
+    /* Nuvem desligada — sem config, `ativo: false`, ou o `?nuvem=local` da URL (v1.41): não
+       enfileira NADA. Sem esta linha a fila `eclipse_sync_fila_v1` ia crescendo com escrita que
+       nunca sobe (o `enviar` devolve cedo quando não há `fb`), e a máquina que ligasse a nuvem
+       mais tarde despejaria laboratório velho no banco da mesa. Modo local é local de verdade,
+       não "empurrado para sempre". */
+    if (!CFG || !CFG.ativo) return;
     const f = lerFila();
     f[chave] = { acao: acao, ts: Date.now() };
     escreverFila(f);

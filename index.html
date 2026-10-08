@@ -6,16 +6,16 @@
   <title>Éclipse — O Salão do Elenco</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=156" />
-  <link rel="stylesheet" href="css/escolha.css?v=156" />
-  <script src="js/theme.js?v=156"></script>
+  <link rel="stylesheet" href="css/style.css?v=157" />
+  <link rel="stylesheet" href="css/escolha.css?v=157" />
+  <script src="js/theme.js?v=157"></script>
   <!-- Ordem que importa: a config entra antes do vestido (js/store.js), e o vestido antes de
        qualquer tela ler ou escrever localStorage. O store.js troca o setItem/removeItem do
        navegador pelo par "grava local + atravessa para o Firestore", então ele tem que ser o
        primeiro a chegar. O portão não carrega ficha nenhuma: só o elenco. -->
-  <script src="js/firebase-config.js?v=156"></script>
-  <script src="js/store.js?v=156"></script>
-  <script src="js/conta.js?v=156"></script>
+  <script src="js/firebase-config.js?v=157"></script>
+  <script src="js/store.js?v=157"></script>
+  <script src="js/conta.js?v=157"></script>
 </head>
 <body class="escolha-body">
 
@@ -63,7 +63,8 @@
     <details class="salao-nota">
       <summary>Como este portão funciona</summary>
       <ul>
-        <li>🌹 🐰 🔮 🕯️ 🏮 🌪️ — os seis personagens abrem direto na ficha, sem senha. Sempre foi assim por trás: o que protegia era o link, não a senha. O 🌪️ é o mais novo: o <b>nome dele ainda é um ☐</b>, quem joga é que escreve na ficha.</li>
+        <li>🌹 🐰 🔮 🕯️ 🏮 🌪️ — os seis personagens abrem direto na ficha, sem senha. Sempre foi assim por trás: o que protegia era o link, não a senha. O 🌪️ é o mais novo: <b>Vesper Graves</b> — forças especiais aposentadas, hoje da Liga dos Assassinos; dono de um mercadinho de dia, assassino à noite.</li>
+        <li>☁ <b>Ninguém lembra de nada.</b> Quando este RPG começar, nenhum dos seis sabe quem é, de onde veio ou o que perdeu. As histórias escritas em cada ficha são para <b>quem joga</b>, não para a <b>personagem</b> — na mesa, identidade se descobre pelo que ela faz.</li>
         <li>👑 O painel do mestre continua pedindo a palavra-passe de sempre (<b>mestre</b> / <b>mestre1</b>). Ela fica lembrada neste aparelho depois da primeira vez.</li>
         <li>✔ A escolha é compartilhada: quem marcar “Nox” primeiro deixa o card marcado para todos. Outro nome em cima é “Tomar para mim” (pergunta antes, não faz escondido).</li>
         <li>☁ O chip ao lado diz se a mesa já está no Firebase ou ainda vivendo só neste computador. Sem conta e sem rede o jogo continua igual — só não sincroniza.</li>
@@ -75,9 +76,14 @@
 
   <!-- O mesmo enquadramento do retrato que a ficha desenha (zoom + arrasto), agora no salão: sem
        ele, o card mostra o meio da foto original e não o recorte que a pessoa emoldurou. -->
-  <script src="js/retrato.js?v=156"></script>
+  <script src="js/retrato.js?v=157"></script>
   <!-- A mini-aba 👥: quem está no site agora, e a bolinha verde de cada um. -->
-  <script src="js/aliados.js?v=156"></script>
-  <script src="js/escolha.js?v=156"></script>
+  <script src="js/aliados.js?v=157"></script>
+  <!-- 🩸 js/extase.js (quem está em massacre neste momento) e 🎲 js/mesa.js (placa da iniciativa +
+       a regra da memória) também vêm no salão: é aqui que a mesa se reúne antes de cada um abrir a
+       própria ficha, e a faixa ☁ tem de ser a primeira coisa que alguém com memória de sobra lê. -->
+  <script src="js/extase.js?v=157"></script>
+  <script src="js/mesa.js?v=157"></script>
+  <script src="js/escolha.js?v=157"></script>
 </body>
 </html>

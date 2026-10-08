@@ -6,13 +6,13 @@
   <title>Dante — O Cartomante | Éclipse</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css?v=156" />
-  <link rel="stylesheet" href="css/personagem3.css?v=156" />
-  <script src="js/theme.js?v=156"></script>
-  <script src="js/firebase-config.js?v=156"></script>
-  <script src="js/store.js?v=156"></script>
-  <script src="js/conta.js?v=156"></script>
-  <script src="js/atributos.js?v=156"></script><!-- a regra dos 10 pontos: antes de qualquer motor de ficha -->
+  <link rel="stylesheet" href="css/style.css?v=157" />
+  <link rel="stylesheet" href="css/personagem3.css?v=157" />
+  <script src="js/theme.js?v=157"></script>
+  <script src="js/firebase-config.js?v=157"></script>
+  <script src="js/store.js?v=157"></script>
+  <script src="js/conta.js?v=157"></script>
+  <script src="js/atributos.js?v=157"></script><!-- a regra dos 10 pontos: antes de qualquer motor de ficha -->
 </head>
 <body class="santiago-body">
 
@@ -94,7 +94,8 @@
         <button class="tab-btn active" data-tab="perfil">Perfil</button>
         <button class="tab-btn" data-tab="atributos">Status</button>
         <button class="tab-btn" data-tab="tarot">Tarot</button>
-                <button class="tab-btn" data-tab="rolagem">Rolagem</button>
+        <button class="tab-btn" data-tab="rolagem">Rolagem</button>
+        <button class="tab-btn" data-tab="massacre">Massacre</button>
         <button class="tab-btn" data-tab="inventario">Inventário</button>
         <button class="tab-btn" data-tab="inimigos">Inimigos</button>
       </nav>
@@ -200,6 +201,16 @@
         <p class="hint-note">✦ Sorteios e aplicações de carta também caem aqui, com a % da carta.</p>
       </section>
 
+      <!-- Massacre (07/10) — o bloco é desenhado por js/extase.js porque o ESTADO é da mesa
+           inteira: o +6, o descontrole e o "qualquer um pode morrer com isso" valem para as seis
+           fichas, e o painel do mestre precisa ver o mesmo que a ficha vê. Aqui o +6 entra no
+           `cardBonus()`, o único ponto onde o motor do Dante soma bônus. -->
+      <section class="panel" id="panel-massacre">
+        <h2>Massacre — a Carta do Louco de Sangue</h2>
+        <p class="panel-intro">Regra ditada pelo mestre em 07/10, igual para os seis: <b>arma ou objeto usado para deixar o personagem em êxtase, causando banho de sangue, tirando a capacidade de pensar e querendo só matar o alvo — ou todos ao redor.</b> Enquanto o objeto estiver na mão: <b>+6 em tudo</b> e <b>nenhuma noção de certo e errado</b> (aliado incluído — qualquer um pode morrer com isso). A dele é a <b>Carta do Louco de Sangue</b>: ele fica completamente maluco, quer torturar o inimigo de todas as maneiras possíveis e perde toda a consciência normal do certo e do errado — ele só busca a loucura. O <b>😵 cigarro</b> é o vício dele, logo abaixo.</p>
+        <div id="extaseArea"><!-- desenhado por js/extase.js: o massacre e o vício dele --></div>
+      </section>
+
       <!-- Inventário -->
       <section class="panel" id="panel-inventario">
         <h2>Inventário — Armas do Mestre</h2>
@@ -213,12 +224,12 @@
         </div>
       </section>
 
-      <!-- Inimigos em cena (bestiário do mestre — aqui você só olha) -->
+      <!-- Inimigos em cena (bestiário do mestre — e o golpe que VOCÊ marca nele) -->
       <section class="panel" id="panel-inimigos">
         <h2>Inimigos em Cena</h2>
-        <p class="panel-intro">O que o <b>mestre</b> colocou na cena, com a vida e a sanidade de cada bicho.</p>
-        <div class="mob-list" id="mobList"><!-- gerado via JS --></div>
-        <p class="hint-note">✦ Não confunda com os <b>3 slots de alvo do tarô</b> (aba Tarot): aqueles são o seu caderno, onde o 🗡 dano das suas cartas acontece. Esta aba aqui é a cena do mestre — só leitura, <b>🟥 caído</b> / <b>😵 sem sanidade</b> aparecem sozinhos quando a barra zera.</p>
+        <p class="panel-intro">O que o <b>mestre</b> colocou na cena, com a vida e a sanidade de cada bicho — e, desde 07/10, <b>o seu golpe aplicado aqui mesmo</b>.</p>
+        <div class="mob-list" id="mobList"><!-- gerado via js/inimigos.js --></div>
+        <p class="hint-note">✦ <b>07/10 — quem bate é você, e não existe teste de acerto.</b> Escreva no campo <b>golpe</b> o total que a sua rolagem deu e clique <b>🗡 bater</b>: o dano entra direto na vida do bicho. A única coisa que pode salvá-lo é <b>ele</b> rolar <b>d10 + Destreza</b> e passar de <b>12</b> — a etiqueta <b>🌀 destreza N</b> diz quando ele tem essa chance, e bicho sem etiqueta nunca desvia. O golpe (e o desvio) aparece no histórico compartilhado e na tela do mestre, que continua podendo corrigir qualquer número.<br>✦ Não confunda com os <b>3 slots de alvo do tarô</b> (aba Tarot): aqueles são o <b>seu caderno</b>, onde o 🗡 dano das suas cartas acontece — não mexem na cena do mestre. 🃏 <b>Na Carta do Louco de Sangue</b> ele não escolhe quem está ao lado: o +6 já vem na rolagem e, em descontrole, <b>qualquer um pode cair</b> — aliado incluído. Quem decide o alcance da loucura é o mestre.</p>
       </section>
 
     </div>
@@ -247,10 +258,15 @@
     </div>
   </div>
 
-  <script src="js/inimigos.js?v=156"></script>
-  <script src="js/personagem3.js?v=156"></script>
+  <script src="js/inimigos.js?v=157"></script>
+  <script src="js/personagem3.js?v=157"></script>
   <!-- A mini-aba 👥: avisa a mesa que esta ficha está aberta e mostra quem mais está online. -->
-  <script src="js/aliados.js?v=156"></script>
+  <script src="js/aliados.js?v=157"></script>
+  <!-- 🩸 js/extase.js: o massacre e o vício são estado da MESA (uma chave só, todos veem). Ele é o
+       ÚLTIMO da fila de propósito: soma o +6 no motor que já está montado e avisa as fichas pelo
+       evento `eclipse-extase-ready`. 🎲 js/mesa.js: a iniciativa da mesa e a regra da memória. -->
+  <script src="js/extase.js?v=157"></script>
+  <script src="js/mesa.js?v=157"></script>
   <script>/* Se o motor não chegou (js quebrado ou na cache velha), avisa em vez de sumir. */
     setTimeout(function () { if (!window.__FICHA_OK) { var d = document.getElementById('bootWarn'); if (d) d.hidden = false; } }, 800);</script>
 </body>
